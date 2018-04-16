@@ -53,7 +53,7 @@
     </developers>
 
     <modules>
-        <module>scattersphere-util</module>
+        <module>scattersphere-core</module>
     </modules>
 
     <build>
