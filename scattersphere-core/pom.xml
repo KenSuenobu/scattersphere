@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <url>http://www.github.com/KenSuenobu/scattersphere/</url>
     <description>Scattersphere Project: Core</description>
-    <name>Scattersphere Project - Core</name>
+    <name>Scattersphere Core</name>
 
     <licenses>
         <license>
