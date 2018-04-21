@@ -15,3 +15,10 @@
 package com.scattersphere.core.util
 
 trait RunnableTask extends Runnable
+
+object RunnableTaskStatus extends Enumeration {
+
+  val RunnableTaskStatus = Value
+  val QUEUED, RUNNING, COMPLETED, CANCELED = Value
+
+}
