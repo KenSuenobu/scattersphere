@@ -14,4 +14,20 @@
 
 package com.scattersphere.core.util
 
-case class TaskDesc(taskName: String, taskId: String, executableTask: RunnableTask, dependencies: Seq[TaskDesc])
+import scala.collection.mutable.ListBuffer
+
+case class TaskDesc(taskName: String, executableTask: RunnableTask) {
+
+  private val dependencies: ListBuffer[TaskDesc] = new ListBuffer[TaskDesc]
+
+  def addDependency(task: TaskDesc): Unit = {
+    if (task.equals(this)) {
+      throw new IllegalArgumentException("Unable to add task: task is self")
+    }
+
+    dependencies += task
+  }
+
+  def getDependencies: Seq[TaskDesc] = dependencies
+
+}
