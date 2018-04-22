@@ -16,6 +16,14 @@ package com.scattersphere.core.util
 
 import scala.collection.mutable.ListBuffer
 
+/**
+  * TaskDesc
+  *
+  * Describes a task and its [[RunnableTask]] runnable function.  Allows for dependencies to be added.
+  *
+  * @param taskName The name of the task.
+  * @param executableTask The [[RunnableTask]] to run.
+  */
 case class TaskDesc(taskName: String, executableTask: RunnableTask) {
 
   private val dependencies: ListBuffer[TaskDesc] = new ListBuffer[TaskDesc]

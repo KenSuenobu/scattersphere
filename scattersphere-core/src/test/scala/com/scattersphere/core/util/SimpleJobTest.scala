@@ -19,6 +19,7 @@ class SimpleJobTest extends FlatSpec with Matchers {
 
     task1.taskName shouldBe "First Runnable Task"
     task1.getDependencies.length equals 0
+    task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
   }
 
   it should "not be able to add a job to itself as a dependency" in {
@@ -37,6 +38,9 @@ class SimpleJobTest extends FlatSpec with Matchers {
     task1.taskName shouldBe "First Runnable Task"
     task2.taskName shouldBe "Second Runnable Task"
 
+    task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
+    task2.executableTask.getStatus equals RunnableTaskStatus.QUEUED
+
     // Adding task1 as a dependency on task2 means that task1 must complete before task2
     // can start.
     task2.addDependency(task1)
@@ -53,6 +57,10 @@ class SimpleJobTest extends FlatSpec with Matchers {
     task1.taskName shouldBe "First Runnable Task"
     task2.taskName shouldBe "Second Runnable Task"
     task3.taskName shouldBe "Third Runnable Task"
+
+    task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
+    task2.executableTask.getStatus equals RunnableTaskStatus.QUEUED
+    task3.executableTask.getStatus equals RunnableTaskStatus.QUEUED
 
     task3.addDependency(task2)
     task3.getDependencies.length equals 1

@@ -17,7 +17,7 @@ package com.scattersphere.core.util.execution
   * ExecutionEngine trait
   *
   * An [[ExecutionEngine]] is an implementation that accepts a [[com.scattersphere.core.util.RunnableTask]] and
-  * determines where to run the job.
+  * determines how and where to run the job.
   */
 trait ExecutionEngine
 

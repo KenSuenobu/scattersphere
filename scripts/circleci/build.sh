@@ -3,5 +3,5 @@
 # Script used to build Scattersphere project
 
 set -e
-mvn clean install -U
+mvn clean install -U -DskipTests -DskipITs
 

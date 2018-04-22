@@ -14,4 +14,12 @@
 
 package com.scattersphere.core.util
 
+/**
+  * JobDesc
+  *
+  * This class describes a job.  A job is simply a series of tasks.
+  *
+  * @param jobName The name of the job.
+  * @param tasks The tasks associated with the job.
+  */
 case class JobDesc(jobName: String, tasks: Seq[TaskDesc])

@@ -14,9 +14,18 @@
 
 package com.scattersphere.core.util
 
+import com.scattersphere.core.util.RunnableTaskStatus.QUEUED
+
+/**
+  * RunnableTask trait
+  *
+  * This is a trait that describes how to run a job.  It implements a few helper functions that are applied to all
+  * [[RunnableTask]]s.  New tasks are automatically set with a status of QUEUED.
+  */
 trait RunnableTask extends Runnable {
 
   private var initVars: Map[String, String] = Map()
+  private var taskStatus: RunnableTaskStatus.Value = QUEUED
 
   def init(vars: Map[String, String]): Unit = {
     initVars = vars
@@ -24,7 +33,17 @@ trait RunnableTask extends Runnable {
 
   def getSettings(): Map[String, String] = initVars
 
+  def setStatus(status: RunnableTaskStatus.Value): Unit = taskStatus = status
+
+  def getStatus(): RunnableTaskStatus.Value = taskStatus
+
 }
+
+/**
+  * RunnableTaskStatus Enum
+  *
+  * This describes the status of a currently running job.
+  */
 
 object RunnableTaskStatus extends Enumeration {
 

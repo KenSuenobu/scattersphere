@@ -19,7 +19,8 @@ import java.util.concurrent.{Executors, ThreadPoolExecutor}
   * ScalaExecutionEngine
   *
   * This [[ExecutionEngine]] implementation takes a [[com.scattersphere.core.util.RunnableTask]] and runs it in a
-  * [[java.util.concurrent.ThreadPoolExecutor]] in the local JVM.
+  * [[java.util.concurrent.ThreadPoolExecutor]] in the local JVM.  Once distribution is coded into Scattersphere,
+  * this code will eventually allow for the execution to be multi-threaded amongst multiple distributed systems.
   */
 class ScalaExecutionEngine extends ExecutionEngine {
 
