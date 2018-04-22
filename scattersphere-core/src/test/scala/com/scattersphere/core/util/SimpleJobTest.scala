@@ -5,14 +5,8 @@ import org.scalatest.{FlatSpec, Matchers}
 class SimpleJobTest extends FlatSpec with Matchers {
 
   class RunnableTask1 extends RunnableTask {
-    private var initVars: Map[String, String] = Map()
-
-    def init(vars: Map[String, String]): Unit = {
-      initVars = vars
-    }
-
     def run(): Unit = {
-      val sleepTime = initVars.getOrElse("sleep", "10").toInt * 1000
+      val sleepTime = getSettings().getOrElse("sleep", "10").toInt * 1000
 
       println(s"Sleeping $sleepTime milliseconds.")
       Thread.sleep(sleepTime)

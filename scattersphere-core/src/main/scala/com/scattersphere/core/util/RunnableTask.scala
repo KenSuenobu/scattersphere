@@ -14,7 +14,17 @@
 
 package com.scattersphere.core.util
 
-trait RunnableTask extends Runnable
+trait RunnableTask extends Runnable {
+
+  private var initVars: Map[String, String] = Map()
+
+  def init(vars: Map[String, String]): Unit = {
+    initVars = vars
+  }
+
+  def getSettings(): Map[String, String] = initVars
+
+}
 
 object RunnableTaskStatus extends Enumeration {
 

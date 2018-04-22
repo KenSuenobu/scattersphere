@@ -13,8 +13,6 @@
   */
 package com.scattersphere.core.util.execution
 
-import com.scattersphere.core.util.JobDesc
-
 /**
   * ExecutionEngine trait
   *
