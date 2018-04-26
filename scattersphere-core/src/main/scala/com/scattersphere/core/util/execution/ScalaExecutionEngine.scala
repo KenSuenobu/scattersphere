@@ -26,4 +26,6 @@ class ScalaExecutionEngine extends ExecutionEngine {
 
   private val threadExecutor = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors())
 
+  override def toString: String = s"ScalaExecutionEngine{}"
+
 }

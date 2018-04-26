@@ -37,6 +37,8 @@ trait RunnableTask extends Runnable {
 
   def getStatus(): RunnableTaskStatus.Value = taskStatus
 
+  override def toString: String = s"RunnableTask{initVars=$initVars, taskStatus=$taskStatus}"
+
 }
 
 /**

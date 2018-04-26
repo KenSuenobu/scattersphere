@@ -38,4 +38,7 @@ case class TaskDesc(taskName: String, executableTask: RunnableTask) {
 
   def getDependencies: Seq[TaskDesc] = dependencies
 
+  override def toString: String = s"TaskDesc{taskName=$taskName, dependencies=$dependencies, " +
+    s"executableTask=$executableTask}"
+
 }

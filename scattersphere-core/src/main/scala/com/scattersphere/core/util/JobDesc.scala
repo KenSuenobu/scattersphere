@@ -22,4 +22,8 @@ package com.scattersphere.core.util
   * @param jobName The name of the job.
   * @param tasks The tasks associated with the job.
   */
-case class JobDesc(jobName: String, tasks: Seq[TaskDesc])
+case class JobDesc(jobName: String, tasks: Seq[TaskDesc]) {
+
+  override def toString = s"JobDesc{jobName=$jobName,tasks=$tasks}"
+
+}
