@@ -19,11 +19,11 @@ package com.scattersphere.core.util
   *
   * This class describes a job.  A job is simply a series of tasks.
   *
-  * @param jobName The name of the job.
+  * @param name The name of the job.
   * @param tasks The tasks associated with the job.
   */
-case class JobDesc(jobName: String, tasks: Seq[TaskDesc]) {
+case class JobDesc(name: String, tasks: Seq[TaskDesc]) {
 
-  override def toString = s"JobDesc{jobName=$jobName,tasks=$tasks}"
+  override def toString = s"JobDesc{name=$name,tasks=$tasks}"
 
 }

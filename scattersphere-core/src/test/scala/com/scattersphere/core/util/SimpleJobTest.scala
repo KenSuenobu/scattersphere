@@ -18,9 +18,9 @@ class SimpleJobTest extends FlatSpec with Matchers {
   "Simple Tasks" should "prepare properly" in {
     val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
 
-    task1.taskName shouldBe "First Runnable Task"
+    task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length equals 0
-    task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
+    task1.task.getStatus equals RunnableTaskStatus.QUEUED
   }
 
   it should "not be able to add a task to itself as a dependency" in {
@@ -34,9 +34,9 @@ class SimpleJobTest extends FlatSpec with Matchers {
   it should "prepare a job and execute the first task properly" in {
     val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
 
-    task1.taskName shouldBe "First Runnable Task"
+    task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length equals 0
-    task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
+    task1.task.getStatus equals RunnableTaskStatus.QUEUED
 
     val job1: JobDesc = new JobDesc("Test", Seq(task1))
     val jobExec: JobExecutor = new JobExecutor(ExecutionEngine("scala"), job1)
