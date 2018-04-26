@@ -140,7 +140,7 @@ class JobExecutor(engine: ExecutionEngine,
           // handle exceptions here?
         }
 
-        logger.info("Preparing: Task $task will run asynchronously as a root level task")
+        logger.info(s"Preparing: Task $task will run asynchronously as a root level task")
         CompletableFuture.runAsync(task.task)
         //and handle exception
       }): _*
