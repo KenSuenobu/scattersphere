@@ -1,5 +1,6 @@
 package com.scattersphere.core.util
 
+import com.scattersphere.core.util.execution.{ExecutionEngine, JobExecutor}
 import org.scalatest.{FlatSpec, Matchers}
 
 class SimpleJobTest extends FlatSpec with Matchers {
@@ -22,7 +23,7 @@ class SimpleJobTest extends FlatSpec with Matchers {
     task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
   }
 
-  it should "not be able to add a job to itself as a dependency" in {
+  it should "not be able to add a task to itself as a dependency" in {
     val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
 
     assertThrows[IllegalArgumentException] {
@@ -30,45 +31,20 @@ class SimpleJobTest extends FlatSpec with Matchers {
     }
   }
 
-  // Task1 <- Task2
-  it should "be able to add a secondary task as a dependency" in {
+  it should "prepare a job and execute the first task properly" in {
     val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
-    val task2: TaskDesc = new TaskDesc("Second Runnable Task", new RunnableTask1)
 
     task1.taskName shouldBe "First Runnable Task"
-    task2.taskName shouldBe "Second Runnable Task"
-
+    task1.getDependencies.length equals 0
     task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
-    task2.executableTask.getStatus equals RunnableTaskStatus.QUEUED
 
-    // Adding task1 as a dependency on task2 means that task1 must complete before task2
-    // can start.
-    task2.addDependency(task1)
-    task2.getDependencies.length equals 1
-    task2.getDependencies.take(1) equals task1
-  }
+    val job1: JobDesc = new JobDesc("Test", Seq(task1))
+    val jobExec: JobExecutor = new JobExecutor(ExecutionEngine("scala"), job1)
 
-  // Task1 <- Task2 <- Task3
-  it should "be able to add a secondary and tertiary task as a dependency" in {
-    val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
-    val task2: TaskDesc = new TaskDesc("Second Runnable Task", new RunnableTask1)
-    val task3: TaskDesc = new TaskDesc("Third Runnable Task", new RunnableTask1)
+    job1.tasks.length equals 1
+    job1.tasks(0) equals task1
 
-    task1.taskName shouldBe "First Runnable Task"
-    task2.taskName shouldBe "Second Runnable Task"
-    task3.taskName shouldBe "Third Runnable Task"
-
-    task1.executableTask.getStatus equals RunnableTaskStatus.QUEUED
-    task2.executableTask.getStatus equals RunnableTaskStatus.QUEUED
-    task3.executableTask.getStatus equals RunnableTaskStatus.QUEUED
-
-    task3.addDependency(task2)
-    task3.getDependencies.length equals 1
-    task3.getDependencies.take(1) equals task2
-
-    task2.addDependency(task1)
-    task2.getDependencies.length equals 1
-    task2.getDependencies.take(1) equals task1
+    jobExec.start
   }
 
 }

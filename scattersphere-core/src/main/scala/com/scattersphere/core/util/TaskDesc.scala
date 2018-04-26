@@ -26,7 +26,7 @@ import scala.collection.mutable.ListBuffer
   */
 case class TaskDesc(taskName: String, executableTask: RunnableTask) {
 
-  private val dependencies: ListBuffer[TaskDesc] = new ListBuffer[TaskDesc]
+  lazy private val dependencies: ListBuffer[TaskDesc] = new ListBuffer[TaskDesc]
 
   def addDependency(task: TaskDesc): Unit = {
     if (task.equals(this)) {
