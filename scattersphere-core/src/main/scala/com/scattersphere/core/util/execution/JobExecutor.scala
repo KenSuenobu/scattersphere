@@ -1,7 +1,6 @@
 package com.scattersphere.core.util.execution
 
 import java.util.concurrent.CompletableFuture
-import java.util.stream.Collectors
 
 import com.scattersphere.core.util.{JobDesc, RunnableTaskStatus, TaskDesc}
 import org.slf4j.{Logger, LoggerFactory}
@@ -13,16 +12,18 @@ class JobExecutor(engine: ExecutionEngine,
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  def start(): CompletableFuture[Void] = {
+  def queue(): CompletableFuture[Void] = {
     logger.info(s"Starting for engine $engine job $job")
 
     logger.info("Creating task execution plan")
-    val runnableTasks = createExecutionPlan
+    val plan = createExecutionPlan
 
     logger.info("Setting all tasks to WAITING")
     job.tasks.foreach(task => setAllTaskStatus(task, RunnableTaskStatus.WAITING))
 
-    null
+    val topLevelTasks: Seq[TaskDesc] = job.tasks.filter(_.getDependencies.length == 0)
+
+    execute(plan, topLevelTasks, null)
   }
 
   private def createExecutionPlan: Map[String, Executable] = {
@@ -60,6 +61,33 @@ class JobExecutor(engine: ExecutionEngine,
     task.task.setStatus(status)
   }
 
+  private def execute(plan: Map[String, Executable],
+                      topLevelTasks: Seq[TaskDesc],
+                      parent: CompletableFuture[Void]): CompletableFuture[Void] = {
+
+    // Please, please, please convert this to Scala.  This makes my eyes bleed.
+    var cFuture: CompletableFuture[Void] = CompletableFuture.allOf(
+      topLevelTasks.map(task => {
+        if (parent != null) {
+          return parent.thenRun(task.task)
+          // handle exceptions here?
+        }
+
+        CompletableFuture.runAsync(task.task)
+        //and handle exception
+      }): _*
+    )
+
+    val dependents = topLevelTasks
+      .flatMap(task => task.getDependencies)
+      .map(task => plan.get(task.name).get.task)
+
+    if (dependents.length > 0) {
+      return execute(plan, dependents, cFuture)
+    }
+
+    cFuture
+  }
 }
 
 final case class DuplicateTaskException(jobName: String,

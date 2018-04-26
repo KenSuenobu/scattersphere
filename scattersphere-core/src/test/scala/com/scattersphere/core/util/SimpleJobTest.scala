@@ -7,7 +7,7 @@ class SimpleJobTest extends FlatSpec with Matchers {
 
   class RunnableTask1 extends RunnableTask {
     def run(): Unit = {
-      val sleepTime = getSettings().getOrElse("sleep", "10").toInt * 1000
+      val sleepTime = getSettings().getOrElse("sleep", "3").toInt * 1000
 
       println(s"Sleeping $sleepTime milliseconds.")
       Thread.sleep(sleepTime)
@@ -44,7 +44,7 @@ class SimpleJobTest extends FlatSpec with Matchers {
     job1.tasks.length equals 1
     job1.tasks(0) equals task1
 
-    jobExec.start
+    jobExec.queue.get()
   }
 
 }
