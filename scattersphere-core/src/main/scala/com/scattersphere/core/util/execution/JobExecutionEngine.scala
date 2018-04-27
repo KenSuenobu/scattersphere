@@ -32,11 +32,9 @@ import scala.collection.mutable
   * see fit.  The only restriction is based on the Java [[java.util.concurrent.Executor]] object implementation
   * that they choose to use.
   *
-  * @param engine The execution engine in which to run each assigned task.
   * @param job The [[JobDesc]] containing all of the tasks (and dependencies) to run.
   */
-class JobExecutor(engine: ExecutionEngine,
-                  job: JobDesc) {
+class JobExecutor(job: JobDesc) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
@@ -48,15 +46,13 @@ class JobExecutor(engine: ExecutionEngine,
     * @return [[CompletableFuture]] containing the execution DAG.
     */
   def queue(): CompletableFuture[Void] = {
-    logger.info(s"Starting for engine $engine job $job")
-
     logger.info("Creating task execution plan")
     val plan = createExecutionPlan
 
     logger.info("Setting all tasks to WAITING")
     job.tasks.foreach(task => setAllTaskStatus(task, RunnableTaskStatus.WAITING))
 
-    val topLevelTasks: Seq[TaskDesc] = job.tasks.filter(_.getDependencies.length == 0)
+    val topLevelTasks: Seq[TaskDesc] = job.tasks.filter(_.getDependencies.isEmpty)
 
     execute(plan, topLevelTasks, null)
   }
@@ -102,7 +98,7 @@ class JobExecutor(engine: ExecutionEngine,
 
       subtask.task.setStatus(status)
 
-      if (subtask.getDependencies.length > 0) {
+      if (subtask.getDependencies.nonEmpty) {
         setAllTaskStatus(subtask, status)
       }
     })
@@ -136,21 +132,49 @@ class JobExecutor(engine: ExecutionEngine,
       topLevelTasks.map(task => {
         if (parent != null) {
           logger.info(s"Appending $task to parent task $parent")
-          return parent.thenRun(task.task)
+          return parent.thenRun(new Runnable {
+            override def run(): Unit = {
+              if (task.task.getStatus() == RunnableTaskStatus.CANCELED) {
+                logger.info(s"Skipping execution of task ${task.name}; job is canceled.")
+                return
+              }
+
+              logger.info(s"Setting task ${task.name} status to RUNNING.")
+              task.task.setStatus(RunnableTaskStatus.RUNNING)
+              task.task.run()
+
+              logger.info(s"Setting task ${task.name} status to COMPLETED.")
+              task.task.setStatus(RunnableTaskStatus.COMPLETED)
+            }
+          })
           // handle exceptions here?
         }
 
         logger.info(s"Preparing: Task $task will run asynchronously as a root level task")
-        CompletableFuture.runAsync(task.task)
+        CompletableFuture.runAsync(new Runnable {
+          override def run(): Unit = {
+            if (task.task.getStatus() == RunnableTaskStatus.CANCELED) {
+              logger.info(s"[Async] Skipping execution of task ${task.name}; job is canceled.")
+              return
+            }
+
+            logger.info(s"[Async] Setting task ${task.name} status to RUNNING.")
+            task.task.setStatus(RunnableTaskStatus.RUNNING)
+            task.task.run()
+
+            logger.info(s"[Async] Setting task ${task.name} status to COMPLETED.")
+            task.task.setStatus(RunnableTaskStatus.COMPLETED)
+          }
+        })
         //and handle exception
       }): _*
     )
 
     val dependents = topLevelTasks
       .flatMap(task => task.getDependencies)
-      .map(task => plan.get(task.name).get.task)
+      .map(task => plan(task.name).task)
 
-    if (dependents.length > 0) {
+    if (dependents.nonEmpty) {
       logger.info(s"This task has ${dependents.length} dependent(s)!  Traversing dependents to append tasks.")
       return execute(plan, dependents, cFuture)
     }
