@@ -25,48 +25,51 @@ import org.scalatest.{FlatSpec, Matchers}
   * tasks that create a large DAG.  This code creates a simple set of DAGs: One that follows one after another, and
   * one that runs multiple tasks asynchronously.
   */
-class SimpleJobTest extends FlatSpec with Matchers {
+class SimpleJobTest extends FlatSpec with Matchers  {
 
   class RunnableTask1 extends RunnableTask {
     def run(): Unit = {
       val sleepTime = getSettings().getOrElse("sleep", "1").toInt * 1000
 
-      println(s"Sleeping $sleepTime milliseconds.")
+      println(s"[1] Sleeping $sleepTime milliseconds.")
       Thread.sleep(sleepTime)
-      println("Sleep thread completed.")
+      println("[1] Sleep thread completed.")
     }
   }
 
-  "Simple Tasks" should "prepare properly" in {
-    val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
+  class RunnableTask2 extends RunnableTask {
+    def run(): Unit = {
+      val sleepTime = getSettings().getOrElse("sleep", "1").toInt * 1000
 
-    task1.name shouldBe "First Runnable Task"
-    task1.getDependencies.length equals 0
-    task1.task.getStatus equals RunnableTaskStatus.QUEUED
-  }
-
-  it should "not be able to add a task to itself as a dependency" in {
-    val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
-
-    assertThrows[IllegalArgumentException] {
-      task1.addDependency(task1)
+      println(s"[2] Sleeping $sleepTime milliseconds.")
+      Thread.sleep(sleepTime)
+      println("[2] Sleep thread completed.")
     }
   }
 
-  it should "prepare a job and execute the first task properly" in {
+  "Simple Jobs" should "prepare a job and execute the first and second task properly" in {
     val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
+    val task2: TaskDesc = new TaskDesc("Second Runnable Task", new RunnableTask2)
 
     task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length equals 0
     task1.task.getStatus equals RunnableTaskStatus.QUEUED
 
-    val job1: JobDesc = new JobDesc("Test", Seq(task1))
+    task2.name shouldBe "Second Runnable Task"
+    task2.addDependency(task1)
+    task2.getDependencies.length equals 1
+    task2.task.getStatus equals RunnableTaskStatus.QUEUED
+
+    val job1: JobDesc = new JobDesc("Test", Seq(task1, task2))
     val jobExec: JobExecutor = new JobExecutor(job1)
 
-    job1.tasks.length equals 1
+    job1.tasks.length equals 2
     job1.tasks(0) equals task1
+    job1.tasks(1) equals task2
 
     jobExec.queue.get()
+
+    Thread.sleep(5000)
   }
 
 }

@@ -35,6 +35,9 @@ import scala.collection.mutable
   */
 class JobExecutor(job: JobDesc) {
 
+  private val completableFutureDag: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap()
+  private val topLevelTasks: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap()
+
   /**
     * This queues a series of tasks to run.  It takes the job description passed into the constructor,
     * builds an internal execution plan (a map of tasks by name with an [[Executable]] object), changes each
@@ -43,15 +46,14 @@ class JobExecutor(job: JobDesc) {
     * @return [[CompletableFuture]] containing the execution DAG.
     */
   def queue(): CompletableFuture[Void] = {
-    println("Creating task execution plan")
     val plan = createExecutionPlan
 
     println("Setting all tasks to WAITING")
     job.tasks.foreach(task => setAllTaskStatus(task, RunnableTaskStatus.WAITING))
 
-    val topLevelTasks: Seq[TaskDesc] = job.tasks.filter(_.getDependencies.isEmpty)
+//    val topLevelTasks: Seq[TaskDesc] = job.tasks.filter(_.getDependencies.isEmpty)
 
-    execute(plan, topLevelTasks)
+    execute(plan)
   }
 
   /**
@@ -65,6 +67,8 @@ class JobExecutor(job: JobDesc) {
     * @return [[Map]] containing the String -> Executable list.
     */
   private def createExecutionPlan: Map[String, Executable] = {
+    println("Creating execution plan.")
+
     val plan: mutable.HashMap[String, Executable] = new mutable.HashMap()
 
     job.tasks.foreach(task => {
@@ -78,8 +82,14 @@ class JobExecutor(job: JobDesc) {
       println(s"Adding: task=$task dependentTasks=$dependentTasks")
 
       plan.put(task.name, new Executable(System.currentTimeMillis(), task, dependentTasks))
+
+      if (task.getDependencies.isEmpty) {
+        println(s"Creating asynchronous task for ${task.name}")
+        topLevelTasks.put(task.name, CompletableFuture.runAsync(task.task))
+      }
     })
 
+    println(s"Created plan: ${plan.toMap}")
     plan.toMap
   }
 
@@ -116,20 +126,31 @@ class JobExecutor(job: JobDesc) {
     * execution order of the parent.
     *
     * @param plan The entire plan of wrapped tasks as a map.
-    * @param topLevelTasks The top-level tasks that can be run asynchronously.
-    * @param parent The current parent [[CompletableFuture]] to add to (thenRun) if traversing a dependent task.
     * @return A - hopefully complete - [[CompletableFuture]] DAG to execute.
     */
-  private def execute(plan: Map[String, Executable],
-                      topLevelTasks: Seq[TaskDesc]): CompletableFuture[Void] = {
+  private def execute(plan: Map[String, Executable]): CompletableFuture[Void] = {
 
     // Please, please, please convert this to Scala.  This makes my eyes bleed.
-    var cFuture: CompletableFuture[Void] = CompletableFuture.allOf(
-      topLevelTasks.map(task => {
-        println(s"Preparing: Task $task will run asynchronously as a root level task")
-        CompletableFuture.runAsync(task.task)
-      }): _*
-    )
+//    var cFuture: CompletableFuture[Void] = CompletableFuture.allOf(
+//      topLevelTasks.map(task => {
+//        println(s"Preparing: Task $task will run asynchronously as a root level task")
+//        CompletableFuture.runAsync(task.task)
+//      }): _*
+//    )
+
+    // Set dependencies here
+    topLevelTasks.keys.foreach(taskKey => {
+      val cFuture: CompletableFuture[Void] = topLevelTasks(taskKey)
+
+      plan(taskKey).dependencies.foreach(subtask => {
+        val runnable: Runnable = plan(subtask.name).task.task
+
+        cFuture.thenRun(runnable)
+        topLevelTasks.put(taskKey, cFuture)
+      })
+    })
+
+    val cFuture: CompletableFuture[Void] = CompletableFuture.allOf(topLevelTasks.values.toList: _*)
 
     println(s"Completed DAG generation.  Future: $cFuture")
     cFuture
