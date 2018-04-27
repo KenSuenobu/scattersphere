@@ -7,8 +7,6 @@
     </appenders>
 
     <loggers>
-        <logger name="com.scattersphere" level="INFO"/>
-
         <root level="info">
             <appender-ref ref="STDOUT"/>
         </root>

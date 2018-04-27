@@ -16,7 +16,6 @@ package com.scattersphere.core.util.execution
 import java.util.concurrent.CompletableFuture
 
 import com.scattersphere.core.util.{JobDesc, RunnableTaskStatus, TaskDesc}
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable
 
@@ -36,8 +35,6 @@ import scala.collection.mutable
   */
 class JobExecutor(job: JobDesc) {
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
-
   /**
     * This queues a series of tasks to run.  It takes the job description passed into the constructor,
     * builds an internal execution plan (a map of tasks by name with an [[Executable]] object), changes each
@@ -46,15 +43,15 @@ class JobExecutor(job: JobDesc) {
     * @return [[CompletableFuture]] containing the execution DAG.
     */
   def queue(): CompletableFuture[Void] = {
-    logger.info("Creating task execution plan")
+    println("Creating task execution plan")
     val plan = createExecutionPlan
 
-    logger.info("Setting all tasks to WAITING")
+    println("Setting all tasks to WAITING")
     job.tasks.foreach(task => setAllTaskStatus(task, RunnableTaskStatus.WAITING))
 
     val topLevelTasks: Seq[TaskDesc] = job.tasks.filter(_.getDependencies.isEmpty)
 
-    execute(plan, topLevelTasks, null)
+    execute(plan, topLevelTasks)
   }
 
   /**
@@ -78,9 +75,9 @@ class JobExecutor(job: JobDesc) {
       // Filter out any tasks that contain a dependency with this task's name.
       val dependentTasks = job.tasks.filter(_.getDependencies.contains(task))
 
-      logger.info(s"Adding: task=$task dependentTasks=$dependentTasks")
+      println(s"Adding: task=$task dependentTasks=$dependentTasks")
 
-      plan.put(task.name, new Executable(System.currentTimeMillis(), task, dependentTasks, task.task))
+      plan.put(task.name, new Executable(System.currentTimeMillis(), task, dependentTasks))
     })
 
     plan.toMap
@@ -94,7 +91,7 @@ class JobExecutor(job: JobDesc) {
     */
   private def setAllTaskStatus(task: TaskDesc, status: RunnableTaskStatus.Value): Unit = {
     task.getDependencies.foreach(subtask => {
-      logger.info(s"Set subtask $subtask to status $status")
+      println(s"Set subtask $subtask to status $status")
 
       subtask.task.setStatus(status)
 
@@ -103,7 +100,7 @@ class JobExecutor(job: JobDesc) {
       }
     })
 
-    logger.info(s"Set task $task to status $status")
+    println(s"Set task $task to status $status")
 
     task.task.setStatus(status)
   }
@@ -124,62 +121,17 @@ class JobExecutor(job: JobDesc) {
     * @return A - hopefully complete - [[CompletableFuture]] DAG to execute.
     */
   private def execute(plan: Map[String, Executable],
-                      topLevelTasks: Seq[TaskDesc],
-                      parent: CompletableFuture[Void]): CompletableFuture[Void] = {
+                      topLevelTasks: Seq[TaskDesc]): CompletableFuture[Void] = {
 
     // Please, please, please convert this to Scala.  This makes my eyes bleed.
     var cFuture: CompletableFuture[Void] = CompletableFuture.allOf(
       topLevelTasks.map(task => {
-        if (parent != null) {
-          logger.info(s"Appending $task to parent task $parent")
-          return parent.thenRun(new Runnable {
-            override def run(): Unit = {
-              if (task.task.getStatus() == RunnableTaskStatus.CANCELED) {
-                logger.info(s"Skipping execution of task ${task.name}; job is canceled.")
-                return
-              }
-
-              logger.info(s"Setting task ${task.name} status to RUNNING.")
-              task.task.setStatus(RunnableTaskStatus.RUNNING)
-              task.task.run()
-
-              logger.info(s"Setting task ${task.name} status to COMPLETED.")
-              task.task.setStatus(RunnableTaskStatus.COMPLETED)
-            }
-          })
-          // handle exceptions here?
-        }
-
-        logger.info(s"Preparing: Task $task will run asynchronously as a root level task")
-        CompletableFuture.runAsync(new Runnable {
-          override def run(): Unit = {
-            if (task.task.getStatus() == RunnableTaskStatus.CANCELED) {
-              logger.info(s"[Async] Skipping execution of task ${task.name}; job is canceled.")
-              return
-            }
-
-            logger.info(s"[Async] Setting task ${task.name} status to RUNNING.")
-            task.task.setStatus(RunnableTaskStatus.RUNNING)
-            task.task.run()
-
-            logger.info(s"[Async] Setting task ${task.name} status to COMPLETED.")
-            task.task.setStatus(RunnableTaskStatus.COMPLETED)
-          }
-        })
-        //and handle exception
+        println(s"Preparing: Task $task will run asynchronously as a root level task")
+        CompletableFuture.runAsync(task.task)
       }): _*
     )
 
-    val dependents = topLevelTasks
-      .flatMap(task => task.getDependencies)
-      .map(task => plan(task.name).task)
-
-    if (dependents.nonEmpty) {
-      logger.info(s"This task has ${dependents.length} dependent(s)!  Traversing dependents to append tasks.")
-      return execute(plan, dependents, cFuture)
-    }
-
-    logger.info(s"Completed DAG generation.  Future: $cFuture")
+    println(s"Completed DAG generation.  Future: $cFuture")
     cFuture
   }
 }
@@ -195,6 +147,5 @@ final case class DuplicateTaskException(jobName: String,
   * @param jobId A Job ID.
   * @param task The [[TaskDesc]] to run.
   * @param dependencies The [[TaskDesc]]'s dependency tree.
-  * @param runnable The [[Runnable]] that can be run in a [[Thread]]
   */
-case class Executable(jobId: Long, task: TaskDesc, dependencies: Seq[TaskDesc], runnable: Runnable)
+case class Executable(jobId: Long, task: TaskDesc, dependencies: Seq[TaskDesc])

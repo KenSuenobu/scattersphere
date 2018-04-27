@@ -6,8 +6,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.12</junit.version>
 
-        <log4j.version>1.7.25</log4j.version>
-        <scala-logging.version>3.9.0</scala-logging.version>
         <scala-test.version>3.0.3</scala-test.version>
 
         <!-- Build Properties -->
@@ -119,24 +117,6 @@
                 <artifactId>scalatest_2.12</artifactId>
                 <version>${scala-test.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>com.typesafe.scala-logging</groupId>
-                <artifactId>scala-logging_2.12</artifactId>
-                <version>${scala-logging.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${log4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
