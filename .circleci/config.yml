@@ -11,4 +11,4 @@ jobs:
           command: sh scripts/circleci/build.sh
       - run:
           name: Test
-          command: sh scritps/circleci/test.sh
+          command: sh scripts/circleci/test.sh
