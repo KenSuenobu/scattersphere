@@ -19,16 +19,16 @@ import scala.collection.mutable.ListBuffer
 /**
   * TaskDesc
   *
-  * Describes a task and its [[RunnableTask]] runnable function.  Allows for dependencies to be added.
+  * Describes a task and its [[Runnable]] runnable function.  Allows for dependencies to be added.
   *
   * @param name The name of the task.
-  * @param task The [[RunnableTask]] to run.
+  * @param task The [[Runnable]] to run.
   */
-case class TaskDesc(name: String, task: RunnableTask) {
+case class Task(name: String, task: Runnable) {
 
-  lazy private val dependencies: ListBuffer[TaskDesc] = new ListBuffer[TaskDesc]
+  lazy private val dependencies: ListBuffer[Task] = new ListBuffer[Task]
 
-  def addDependency(task: TaskDesc): Unit = {
+  def addDependency(task: Task): Unit = {
     if (task.equals(this)) {
       throw new IllegalArgumentException("Unable to add task: task is self")
     }
@@ -36,9 +36,8 @@ case class TaskDesc(name: String, task: RunnableTask) {
     dependencies += task
   }
 
-  def getDependencies: Seq[TaskDesc] = dependencies
+  def getDependencies: Seq[Task] = dependencies
 
-  override def toString: String = s"TaskDesc{name=$name, dependencies=$dependencies, " +
-    s"task=$task}"
+  override def toString: String = s"Task{name=$name,dependencies=${dependencies.length}}"
 
 }

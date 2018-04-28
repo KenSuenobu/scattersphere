@@ -27,49 +27,41 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class SimpleJobTest extends FlatSpec with Matchers  {
 
-  class RunnableTask1 extends RunnableTask {
+  class RunnableTestTask(name: String) extends Runnable {
     def run(): Unit = {
-      val sleepTime = getSettings().getOrElse("sleep", "1").toInt * 1000
+      val sleepTime = 1000
 
-      println(s"[1] Sleeping $sleepTime milliseconds.")
+      println(s"[$name] Sleeping $sleepTime milliseconds.")
       Thread.sleep(sleepTime)
-      println("[1] Sleep thread completed.")
-    }
-  }
-
-  class RunnableTask2 extends RunnableTask {
-    def run(): Unit = {
-      val sleepTime = getSettings().getOrElse("sleep", "1").toInt * 1000
-
-      println(s"[2] Sleeping $sleepTime milliseconds.")
-      Thread.sleep(sleepTime)
-      println("[2] Sleep thread completed.")
+      println(s"[$name] Sleep thread completed.")
     }
   }
 
   "Simple Jobs" should "prepare a job and execute the first and second task properly" in {
-    val task1: TaskDesc = new TaskDesc("First Runnable Task", new RunnableTask1)
-    val task2: TaskDesc = new TaskDesc("Second Runnable Task", new RunnableTask2)
+    val task1: Task = new Task("First Runnable Task", new RunnableTestTask("1"))
+    val task2: Task = new Task("Second Runnable Task", new RunnableTestTask("2"))
+    val task3: Task = new Task("Third Runnable Task", new RunnableTestTask("2"))
 
     task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length equals 0
-    task1.task.getStatus equals RunnableTaskStatus.QUEUED
 
     task2.name shouldBe "Second Runnable Task"
     task2.addDependency(task1)
     task2.getDependencies.length equals 1
-    task2.task.getStatus equals RunnableTaskStatus.QUEUED
 
-    val job1: JobDesc = new JobDesc("Test", Seq(task1, task2))
+    task3.name shouldBe "Third Runnable Task"
+    task3.addDependency(task2)
+    task3.getDependencies.length equals 1
+
+    val job1: Job = new Job("Test", Seq(task1, task2, task3))
     val jobExec: JobExecutor = new JobExecutor(job1)
 
-    job1.tasks.length equals 2
+    job1.tasks.length equals 3
     job1.tasks(0) equals task1
     job1.tasks(1) equals task2
+    job1.tasks(2) equals task3
 
-    jobExec.queue.get()
-
-    Thread.sleep(5000)
+    jobExec.queue()
   }
 
 }
