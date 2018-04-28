@@ -13,7 +13,6 @@
   */
 package com.scattersphere.core.util
 
-
 import com.scattersphere.core.util.execution.JobExecutor
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -31,9 +30,8 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     var setVar: Int = 0
 
     def run(): Unit = {
-      val sleepTime = 1000
+      val sleepTime = 500
 
-      println(s"[$name] Sleeping $sleepTime milliseconds.")
       Thread.sleep(sleepTime)
       println(s"[$name] Sleep thread completed.")
 
@@ -41,7 +39,22 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     }
   }
 
-  "Simple Jobs" should "prepare a job and execute the first and second task properly" in {
+  /**
+    * This task runs the following tests:
+    *
+    * Creates three tasks for a single job, naming each one uniquely.  Since each job runs one after another, the
+    * job will queue up, and will automatically run after the first task starts asynchronously.  Since each task
+    * has a 1 second wait period, we can check start/end variables.
+    *
+    * So, the job looks like this:
+    *
+    * Task 1 -> Task 2 -> Task 3
+    *
+    * Task 1 runs, then task 2, then task 3.
+    *
+    * The job itself is not complete until the last task finishes or an exception occurs.
+    */
+  "Simple Jobs" should "prepare a job and execute the first, second, and third tasks properly" in {
     val runnableTask1 = new RunnableTestTask("1")
     val runnableTask2 = new RunnableTestTask("2")
     val runnableTask3 = new RunnableTestTask("3")
@@ -70,6 +83,36 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     runnableTask1.setVar shouldBe 0
     runnableTask2.setVar shouldBe 0
     runnableTask3.setVar shouldBe 0
+
+    jobExec.queue().join()
+    runnableTask1.setVar shouldBe 1
+    runnableTask2.setVar shouldBe 2
+    runnableTask3.setVar shouldBe 3
+  }
+
+  /**
+    * This task is similar to the one above, but it runs all three tasks simultaneously.  Since there is no way to
+    * guarantee execution order when this happens, we simply check value statuses at the end of the run.
+    */
+  it should "be able to run three tasks asynchronously" in {
+    val runnableTask1 = new RunnableTestTask("1")
+    val runnableTask2 = new RunnableTestTask("2")
+    val runnableTask3 = new RunnableTestTask("3")
+    val task1: Task = new Task("First Runnable Task", runnableTask1)
+    val task2: Task = new Task("Second Runnable Task", runnableTask2)
+    val task3: Task = new Task("Third Runnable Task", runnableTask3)
+
+    task1.name shouldBe "First Runnable Task"
+    task1.getDependencies.length shouldBe 0
+
+    task2.name shouldBe "Second Runnable Task"
+    task2.getDependencies.length shouldBe 0
+
+    task3.name shouldBe "Third Runnable Task"
+    task3.getDependencies.length shouldBe 0
+
+    val job1: Job = new Job("Test", Seq(task1, task2, task3))
+    val jobExec: JobExecutor = new JobExecutor(job1)
 
     jobExec.queue().join()
     runnableTask1.setVar shouldBe 1

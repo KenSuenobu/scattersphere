@@ -24,7 +24,7 @@ import scala.collection.mutable.ListBuffer
   * @param name The name of the task.
   * @param task The [[Runnable]] to run.
   */
-case class Task(name: String, task: Runnable) {
+case class Task(name: String, task: Runnable, async: Boolean = false) {
 
   lazy private val dependencies: ListBuffer[Task] = new ListBuffer[Task]
 

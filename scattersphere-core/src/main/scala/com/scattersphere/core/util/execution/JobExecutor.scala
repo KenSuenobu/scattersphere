@@ -54,9 +54,15 @@ class JobExecutor(job: Job) {
           case None => {
             val parentFuture: CompletableFuture[Void] = taskMap(task.name)
 
-            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+            if (dependent.async) {
+              taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
 
-            println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
+              println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
+            } else {
+              taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+
+              println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
+            }
           }
         }
 
@@ -67,9 +73,15 @@ class JobExecutor(job: Job) {
           case None => {
             val parentFuture: CompletableFuture[Void] = taskMap (task.name)
 
-            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+            if (dependent.async) {
+              taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
 
-            println(s"  `- [${dependent.name}: Queued] Parent=${task.name} [End of tree]")
+              println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} [End of tree]")
+            } else {
+              taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+
+              println(s"  `- [${dependent.name}: Queued] Parent=${task.name} [End of tree]")
+            }
           }
         }
       }
@@ -79,7 +91,7 @@ class JobExecutor(job: Job) {
   private def generateExecutionPlan(tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
       if (task.getDependencies.isEmpty) {
-        println(s"Task: ${task.name} [Root Task]")
+        println(s"Task: ${task.name} [ASYNC Root Task]")
 
         taskMap.put(task.name, CompletableFuture.runAsync(task.task, executorService))
       } else {
