@@ -56,42 +56,25 @@ class JobExecutor(job: Job) {
 
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
+      taskMap.get(dependent.name) match {
+        case Some(_) => println(s"  `- [${dependent.name}: Already queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
+        case None => {
+          val parentFuture: CompletableFuture[Void] = taskMap(task.name)
+
+          if (dependent.async) {
+            taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
+
+            println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
+          } else {
+            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+
+            println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
+          }
+        }
+      }
+
       if (task.getDependencies.nonEmpty) {
-        taskMap.get(dependent.name) match {
-          case Some(_) => println(s"  `- [${dependent.name}: Already queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
-          case None => {
-            val parentFuture: CompletableFuture[Void] = taskMap(task.name)
-
-            if (dependent.async) {
-              taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
-
-              println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
-            } else {
-              taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
-
-              println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
-            }
-          }
-        }
-
         walkSubtasks(task, task.getDependencies)
-      } else {
-        taskMap.get(dependent.name) match {
-          case Some(_) => println(s"  `- [${dependent.name}: Already queued] Parent=${task.name} [End of tree])")
-          case None => {
-            val parentFuture: CompletableFuture[Void] = taskMap (task.name)
-
-            if (dependent.async) {
-              taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
-
-              println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} [End of tree]")
-            } else {
-              taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
-
-              println(s"  `- [${dependent.name}: Queued] Parent=${task.name} [End of tree]")
-            }
-          }
-        }
       }
     })
   }

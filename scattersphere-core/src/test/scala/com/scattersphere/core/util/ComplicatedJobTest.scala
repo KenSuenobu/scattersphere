@@ -116,14 +116,17 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     task1.name shouldBe "First Task"
     task1.getDependencies.length shouldBe 0
 
+    // Task 2 requires task 1 to finish before starting.
     task2.name shouldBe "Second Task"
     task2.addDependency(task1)
     task2.getDependencies.length shouldBe 1
 
+    // Task 3 requires task 1 to finish before starting.
     task3.name shouldBe "Third Task"
     task3.addDependency(task1)
     task3.getDependencies.length shouldBe 1
 
+    // Task 4 requires task 2 and task 3 to finish before starting.
     task4.name shouldBe "Fourth Task"
     task4.addDependency(task2)
     task4.addDependency(task3)
