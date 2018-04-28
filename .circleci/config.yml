@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/scattersphere
+    docker:
+      - image: circleci/java:latest
+    steps:
+      - checkout
+      - run:
+          name: Compile the project
+          command: sh scripts/circleci/build.sh
+      - run:
+          name: Test
+          command: sh scripts/circleci/test.sh
