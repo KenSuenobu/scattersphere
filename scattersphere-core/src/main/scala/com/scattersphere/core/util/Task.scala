@@ -23,11 +23,20 @@ import scala.collection.mutable.ListBuffer
   *
   * @param name The name of the task.
   * @param task The [[Runnable]] to run.
+  * @param async When true, the task will run asynchronously after the dependent task completes; false will run
+  *              synchronously after the dependent task(s) complete.
   */
 case class Task(name: String, task: Runnable, async: Boolean = false) {
 
   lazy private val dependencies: ListBuffer[Task] = new ListBuffer[Task]
 
+  /**
+    * Adds a dependent task that is required to complete before this task starts.  This can be multiple tasks, not
+    * just a single task.  If multiple tasks are set here, all of the tasks that have been identified must complete
+    * before this tasks starts.
+    *
+    * @param task The task to add a dependency against.
+    */
   def addDependency(task: Task): Unit = {
     if (task.equals(this)) {
       throw new IllegalArgumentException("Unable to add task: task is self")
@@ -36,6 +45,11 @@ case class Task(name: String, task: Runnable, async: Boolean = false) {
     dependencies += task
   }
 
+  /**
+    * Retrieves all of the dependencies for this task.
+    *
+    * @return [[Seq]] containing [[Task]] dependency list.
+    */
   def getDependencies: Seq[Task] = dependencies
 
   override def toString: String = s"Task{name=$name,dependencies=${dependencies.length}}"

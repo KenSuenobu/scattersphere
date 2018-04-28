@@ -38,6 +38,14 @@ class JobExecutor(job: Job) {
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
   private val executorService: ExecutorService = Executors.newCachedThreadPool
 
+  /**
+    * Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
+    * asynchronous [[CompletableFuture]], it's possible that the tasks will start while the DAG is being generated.
+    * This should not affect how the tasks run, however, it may affect synchronization in your top-level application,
+    * should you depend on timing or anything of that sort.
+    *
+    * @return [[CompletableFuture]] containing the completed DAG of tasks to execute.
+    */
   def queue(): CompletableFuture[Void] = {
     val tasks: Seq[Task] = job.tasks
 
