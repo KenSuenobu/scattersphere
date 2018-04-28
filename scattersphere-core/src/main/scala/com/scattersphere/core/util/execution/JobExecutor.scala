@@ -13,7 +13,7 @@
   */
 package com.scattersphere.core.util.execution
 
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.{CompletableFuture, ExecutorService, Executors}
 
 import com.scattersphere.core.util.{Job, Task}
 
@@ -35,32 +35,60 @@ import scala.collection.mutable
   */
 class JobExecutor(job: Job) {
 
-  def walkSubtasks(tasks: Seq[Task]): Unit = {
-    tasks.foreach(task => {
-      if (task.getDependencies.nonEmpty) {
-        println(s"  `- Task $task has ${task.getDependencies.length} subtasks.  Walking tree.")
-        walkSubtasks(task.getDependencies)
-      } else {
-        println(s"  `- Task $task has no dependencies.")
-      }
-    })
-  }
+  private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
+  private val executorService: ExecutorService = Executors.newCachedThreadPool
 
-  def walkTasks(tasks: Seq[Task]): Unit = {
-    tasks.foreach(task => {
-      if (task.getDependencies.isEmpty) {
-        println(s"Task: $task [Root Task]")
-      } else {
-        println(s"Task: $task - Walking tree")
-        walkSubtasks(task.getDependencies)
-      }
-    })
-  }
-
-  def queue(): Unit = {
+  def queue(): CompletableFuture[Void] = {
     val tasks: Seq[Task] = job.tasks
 
-    walkTasks(tasks)
+    generateExecutionPlan(tasks)
+
+    CompletableFuture.allOf(taskMap.values.toSeq: _*)
+  }
+
+  private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
+    tasks.foreach(task => {
+      if (task.getDependencies.nonEmpty) {
+        taskMap.get(dependent.name) match {
+          case Some(_) => println(s"  `- [${dependent.name}: Already queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
+          case None => {
+            val parentFuture: CompletableFuture[Void] = taskMap(task.name)
+
+            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+
+            println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.  [Walking]")
+          }
+        }
+
+        walkSubtasks(task, task.getDependencies)
+      } else {
+        taskMap.get(dependent.name) match {
+          case Some(_) => println(s"  `- [${dependent.name}: Already queued] Parent=${task.name} [End of tree])")
+          case None => {
+            val parentFuture: CompletableFuture[Void] = taskMap (task.name)
+
+            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+
+            println(s"  `- [${dependent.name}: Queued] Parent=${task.name} [End of tree]")
+          }
+        }
+      }
+    })
+  }
+
+  private def generateExecutionPlan(tasks: Seq[Task]): Unit = {
+    tasks.foreach(task => {
+      if (task.getDependencies.isEmpty) {
+        println(s"Task: ${task.name} [Root Task]")
+
+        taskMap.put(task.name, CompletableFuture.runAsync(task.task, executorService))
+      } else {
+        println(s"Task: ${task.name} task - Walking tree")
+        walkSubtasks(task, task.getDependencies)
+      }
+    })
+
+    println(s"Known task map: ${taskMap.keys}")
   }
 
 }

@@ -40,7 +40,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
   "Simple Jobs" should "prepare a job and execute the first and second task properly" in {
     val task1: Task = new Task("First Runnable Task", new RunnableTestTask("1"))
     val task2: Task = new Task("Second Runnable Task", new RunnableTestTask("2"))
-    val task3: Task = new Task("Third Runnable Task", new RunnableTestTask("2"))
+    val task3: Task = new Task("Third Runnable Task", new RunnableTestTask("3"))
 
     task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length equals 0
@@ -61,7 +61,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     job1.tasks(1) equals task2
     job1.tasks(2) equals task3
 
-    jobExec.queue()
+    jobExec.queue().join()
   }
 
 }
