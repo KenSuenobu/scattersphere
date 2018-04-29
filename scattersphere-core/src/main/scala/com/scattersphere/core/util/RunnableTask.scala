@@ -27,7 +27,9 @@ abstract class RunnableTask extends Runnable {
     *
     * @return Runnable containing the function to run when a task is complete.
     */
-  def onFinished(): Runnable = () => println(s"Job finished.")
+  def onFinished(): Unit = {
+    println(s"Job finished.")
+  }
 
 }
 

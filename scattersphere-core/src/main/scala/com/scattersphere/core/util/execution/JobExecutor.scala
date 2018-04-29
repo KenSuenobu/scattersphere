@@ -63,14 +63,14 @@ class JobExecutor(job: Job) {
           if (dependent.async) {
             taskMap.put(dependent.name, parentFuture.thenRunAsync(() => {
               dependent.task.run()
-              dependent.task.onFinished().run()
+              dependent.task.onFinished()
             }, executorService))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
             taskMap.put(dependent.name, parentFuture.thenRun(() => {
               dependent.task.run()
-              dependent.task.onFinished().run()
+              dependent.task.onFinished()
             }))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
@@ -89,7 +89,10 @@ class JobExecutor(job: Job) {
       if (task.getDependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        taskMap.put(task.name, CompletableFuture.runAsync(task.task, executorService).thenRun(task.task.onFinished))
+        taskMap.put(task.name, CompletableFuture.runAsync(() => {
+          task.task.run()
+          task.task.onFinished()
+        }, executorService))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.getDependencies)
