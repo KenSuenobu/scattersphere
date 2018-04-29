@@ -15,3 +15,5 @@ jobs:
       - run:
           name: Scala Documentation
           command: sh scripts/circleci/doc.sh
+      - store_artifacts:
+          path: scattersphere-core/target/site/scaladocs
