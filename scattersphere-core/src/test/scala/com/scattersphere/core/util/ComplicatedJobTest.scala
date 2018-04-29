@@ -25,11 +25,11 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class ComplicatedJobTest extends FlatSpec with Matchers  {
 
-  class RunnableTestTask(name: String) extends Runnable {
+  class RunnableTestTask(name: String) extends RunnableTask {
     var setVar: String = ""
     var callCount: AtomicInteger = new AtomicInteger(0)
 
-    def run(): Unit = {
+    override def run(): Unit = {
       callCount.incrementAndGet
 
       val sleepTime = 500

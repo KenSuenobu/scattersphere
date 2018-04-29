@@ -26,10 +26,10 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class SimpleJobTest extends FlatSpec with Matchers  {
 
-  class RunnableTestTask(name: String) extends Runnable {
+  class RunnableTestTask(name: String) extends RunnableTask {
     var setVar: Int = 0
 
-    def run(): Unit = {
+    override def run(): Unit = {
       val sleepTime = 500
 
       Thread.sleep(sleepTime)

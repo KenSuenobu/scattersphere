@@ -28,8 +28,7 @@ import scala.collection.mutable
   *
   * Any tasks that contain dependencies will block until the task they depend on has completed.  Tasks that are
   * "root" tasks (ie. top level tasks) can be run asynchronously as multiple tasks in multiple threads as they
-  * see fit.  The only restriction is based on the Java [[java.util.concurrent.Executor]] object implementation
-  * that they choose to use.
+  * see fit.
   *
   * @param job The [[Job]] containing all of the tasks (and dependencies) to run.
   */
@@ -40,11 +39,11 @@ class JobExecutor(job: Job) {
 
   /**
     * Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
-    * asynchronous [[CompletableFuture]], it's possible that the tasks will start while the DAG is being generated.
+    * asynchronous CompletableFuture, it's possible that the tasks will start while the DAG is being generated.
     * This should not affect how the tasks run, however, it may affect synchronization in your top-level application,
     * should you depend on timing or anything of that sort.
     *
-    * @return [[CompletableFuture]] containing the completed DAG of tasks to execute.
+    * @return CompletableFuture containing the completed DAG of tasks to execute.
     */
   def queue(): CompletableFuture[Void] = {
     val tasks: Seq[Task] = job.tasks
@@ -62,11 +61,17 @@ class JobExecutor(job: Job) {
           val parentFuture: CompletableFuture[Void] = taskMap(task.name)
 
           if (dependent.async) {
-            taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
+            taskMap.put(dependent.name, parentFuture.thenRunAsync(() => {
+              dependent.task.run()
+              dependent.task.onFinished()
+            }, executorService))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
-            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+            taskMap.put(dependent.name, parentFuture.thenRun(() => {
+              dependent.task.run()
+              dependent.task.onFinished()
+            }))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           }
@@ -84,7 +89,10 @@ class JobExecutor(job: Job) {
       if (task.getDependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        taskMap.put(task.name, CompletableFuture.runAsync(task.task, executorService))
+        taskMap.put(task.name, CompletableFuture.runAsync(() => {
+          task.task.run()
+          task.task.onFinished()
+        }, executorService))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.getDependencies)

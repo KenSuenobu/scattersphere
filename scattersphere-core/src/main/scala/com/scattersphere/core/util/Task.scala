@@ -19,14 +19,14 @@ import scala.collection.mutable.ListBuffer
 /**
   * TaskDesc
   *
-  * Describes a task and its [[Runnable]] runnable function.  Allows for dependencies to be added.
+  * Describes a task and its Runnable runnable function.  Allows for dependencies to be added.
   *
   * @param name The name of the task.
-  * @param task The [[Runnable]] to run.
+  * @param task The [[RunnableTask]] to run.
   * @param async When true, the task will run asynchronously after the dependent task completes; false will run
   *              synchronously after the dependent task(s) complete.
   */
-case class Task(name: String, task: Runnable, async: Boolean = false) {
+case class Task(name: String, task: RunnableTask, async: Boolean = false) {
 
   lazy private val dependencies: ListBuffer[Task] = new ListBuffer[Task]
 
@@ -48,7 +48,7 @@ case class Task(name: String, task: Runnable, async: Boolean = false) {
   /**
     * Retrieves all of the dependencies for this task.
     *
-    * @return [[Seq]] containing [[Task]] dependency list.
+    * @return Seq containing [[Task]] dependency list.
     */
   def getDependencies: Seq[Task] = dependencies
 
