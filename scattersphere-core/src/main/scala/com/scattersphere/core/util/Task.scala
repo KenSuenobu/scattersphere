@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * TaskDesc
   *
-  * Describes a task and its [[Runnable]] runnable function.  Allows for dependencies to be added.
+  * Describes a task and its Runnable runnable function.  Allows for dependencies to be added.
   *
   * @param name The name of the task.
   * @param task The [[RunnableTask]] to run.
@@ -48,7 +48,7 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
   /**
     * Retrieves all of the dependencies for this task.
     *
-    * @return [[Seq]] containing [[Task]] dependency list.
+    * @return Seq containing [[Task]] dependency list.
     */
   def getDependencies: Seq[Task] = dependencies
 

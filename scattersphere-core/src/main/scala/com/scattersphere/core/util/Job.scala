@@ -20,7 +20,7 @@ package com.scattersphere.core.util
   * This class describes a job.  A job is simply a series of tasks.
   *
   * @param name The name of the job.
-  * @param tasks The [[Seq]] of [[Task]]s associated with the job.
+  * @param tasks The Seq of [[Task]]s associated with the job.
   */
 case class Job(name: String, tasks: Seq[Task]) {
 

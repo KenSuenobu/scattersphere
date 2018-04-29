@@ -16,7 +16,7 @@ package com.scattersphere.core.util
 /**
   * RunnableTask class
   *
-  * This class extends the [[Runnable]] class, of which you must override the run() method.  The [[RunnableTask]]
+  * This class extends the Runnable class, of which you must override the run() method.  The [[RunnableTask
   * class adds an additional method that can be overridden, which will be called when the run() method completes
   * without any exceptions.
   */
@@ -25,7 +25,7 @@ abstract class RunnableTask extends Runnable {
   /**
     * This function is called after the run() method completes without any fault.
     *
-    * @return [[Runnable]] containing the function to run when a task is complete.
+    * @return Runnable containing the function to run when a task is complete.
     */
   def onFinished(): Runnable = () => println(s"Job finished.")
 
@@ -34,7 +34,7 @@ abstract class RunnableTask extends Runnable {
 /**
   * Convenience [[RunnableTask]] object
   *
-  * This can be used to wrap a [[Runnable]] object without having to fully implement all of the [[RunnableTask]]
+  * This can be used to wrap a Runnable object without having to fully implement all of the [[RunnableTask]]
   * methods.
   */
 object RunnableTask {
