@@ -62,11 +62,11 @@ class JobExecutor(job: Job) {
           val parentFuture: CompletableFuture[Void] = taskMap(task.name)
 
           if (dependent.async) {
-            taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService))
+            taskMap.put(dependent.name, parentFuture.thenRunAsync(dependent.task, executorService).thenRun(dependent.task.onFinished))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
-            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task))
+            taskMap.put(dependent.name, parentFuture.thenRun(dependent.task).thenRun(dependent.task.onFinished))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           }
@@ -84,7 +84,7 @@ class JobExecutor(job: Job) {
       if (task.getDependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        taskMap.put(task.name, CompletableFuture.runAsync(task.task, executorService))
+        taskMap.put(task.name, CompletableFuture.runAsync(task.task, executorService).thenRun(task.task.onFinished))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.getDependencies)
