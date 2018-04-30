@@ -13,7 +13,9 @@
   */
 package com.scattersphere.core.util
 
-import com.scattersphere.core.util.execution.JobExecutor
+import java.util.concurrent.CompletionException
+
+import com.scattersphere.core.util.execution.{InvalidJobStatusException, JobExecutor}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -132,6 +134,30 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     task1.getStatus shouldBe TaskStatus.FINISHED
     task2.getStatus shouldBe TaskStatus.FINISHED
     task3.getStatus shouldBe TaskStatus.FINISHED
+  }
+
+  it should "not allow the same task to exist on two separate jobs after completing in one job" in {
+    val runnableTask1 = new RunnableTestTask("1")
+    val task1: Task = new Task("First Runnable Task", runnableTask1)
+
+    task1.getStatus shouldBe TaskStatus.QUEUED
+    task1.name shouldBe "First Runnable Task"
+    task1.getDependencies.length shouldBe 0
+    val job1: Job = new Job("Test", Seq(task1))
+    val jobExec: JobExecutor = new JobExecutor(job1)
+
+    jobExec.queue().join()
+    runnableTask1.setVar shouldBe 1
+    task1.getStatus shouldBe TaskStatus.FINISHED
+
+    val job2: Job = new Job("Test2", Seq(task1))
+    val jobExec2: JobExecutor = new JobExecutor(job2)
+
+    // This will be upgraded soon so that the underlying cause can be pulled from the Job, but only if the job
+    // completes exceptionally.
+    assertThrows[CompletionException] {
+      jobExec2.queue().join()
+    }
   }
 
 }
