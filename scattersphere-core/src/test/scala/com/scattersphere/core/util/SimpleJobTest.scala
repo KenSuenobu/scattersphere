@@ -64,9 +64,9 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     val task2: Task = new Task("Second Runnable Task", runnableTask2)
     val task3: Task = new Task("Third Runnable Task", runnableTask3)
 
-    task1.getStatus shouldBe TaskStatus.QUEUED
-    task2.getStatus shouldBe TaskStatus.QUEUED
-    task3.getStatus shouldBe TaskStatus.QUEUED
+    task1.getStatus shouldBe TaskQueued
+    task2.getStatus shouldBe TaskQueued
+    task3.getStatus shouldBe TaskQueued
 
     task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length shouldBe 0
@@ -94,9 +94,9 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     runnableTask1.setVar shouldBe 1
     runnableTask2.setVar shouldBe 2
     runnableTask3.setVar shouldBe 3
-    task1.getStatus shouldBe TaskStatus.FINISHED
-    task2.getStatus shouldBe TaskStatus.FINISHED
-    task3.getStatus shouldBe TaskStatus.FINISHED
+    task1.getStatus shouldBe TaskFinished
+    task2.getStatus shouldBe TaskFinished
+    task3.getStatus shouldBe TaskFinished
   }
 
   /**
@@ -111,9 +111,9 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     val task2: Task = new Task("Second Runnable Task", runnableTask2)
     val task3: Task = new Task("Third Runnable Task", runnableTask3)
 
-    task1.getStatus shouldBe TaskStatus.QUEUED
-    task2.getStatus shouldBe TaskStatus.QUEUED
-    task3.getStatus shouldBe TaskStatus.QUEUED
+    task1.getStatus shouldBe TaskQueued
+    task2.getStatus shouldBe TaskQueued
+    task3.getStatus shouldBe TaskQueued
 
     task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length shouldBe 0
@@ -131,16 +131,16 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     runnableTask1.setVar shouldBe 1
     runnableTask2.setVar shouldBe 2
     runnableTask3.setVar shouldBe 3
-    task1.getStatus shouldBe TaskStatus.FINISHED
-    task2.getStatus shouldBe TaskStatus.FINISHED
-    task3.getStatus shouldBe TaskStatus.FINISHED
+    task1.getStatus shouldBe TaskFinished
+    task2.getStatus shouldBe TaskFinished
+    task3.getStatus shouldBe TaskFinished
   }
 
   it should "not allow the same task to exist on two separate jobs after completing in one job" in {
     val runnableTask1 = new RunnableTestTask("1")
     val task1: Task = new Task("First Runnable Task", runnableTask1)
 
-    task1.getStatus shouldBe TaskStatus.QUEUED
+    task1.getStatus shouldBe TaskQueued
     task1.name shouldBe "First Runnable Task"
     task1.getDependencies.length shouldBe 0
     val job1: Job = new Job("Test", Seq(task1))
@@ -148,7 +148,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
 
     jobExec.queue().join()
     runnableTask1.setVar shouldBe 1
-    task1.getStatus shouldBe TaskStatus.FINISHED
+    task1.getStatus shouldBe TaskFinished
 
     val job2: Job = new Job("Test2", Seq(task1))
     val jobExec2: JobExecutor = new JobExecutor(job2)

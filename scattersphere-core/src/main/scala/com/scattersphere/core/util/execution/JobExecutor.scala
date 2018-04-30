@@ -15,7 +15,7 @@ package com.scattersphere.core.util.execution
 
 import java.util.concurrent.{CompletableFuture, ExecutorService, Executors}
 
-import com.scattersphere.core.util.{Job, Task, TaskStatus}
+import com.scattersphere.core.util._
 
 import scala.collection.mutable
 
@@ -55,14 +55,14 @@ class JobExecutor(job: Job) {
 
   private def runTask(task: Task): Unit = {
     task.getStatus match {
-      case TaskStatus.QUEUED => {
-        task.setStatus(TaskStatus.RUNNING)
+      case TaskQueued => {
+        task.setStatus(TaskRunning)
         task.task.run()
         task.task.onFinished()
-        task.setStatus(TaskStatus.FINISHED)
+        task.setStatus(TaskFinished)
       }
 
-      case x: TaskStatus.Value => throw new InvalidJobStatusException(task, TaskStatus.QUEUED, x)
+      case x: TaskStatus => throw new InvalidJobStatusException(task, TaskQueued, x)
     }
   }
 
@@ -109,6 +109,6 @@ class JobExecutor(job: Job) {
 }
 
 class InvalidJobStatusException(task: Task,
-                                status: TaskStatus.Value,
-                                expected: TaskStatus.Value)
+                                status: TaskStatus,
+                                expected: TaskStatus)
   extends Exception(s"InvalidJobStatusException: task ${task.name} set to $status, expected $expected")

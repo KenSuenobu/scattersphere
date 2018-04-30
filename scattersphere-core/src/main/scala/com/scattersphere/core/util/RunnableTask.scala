@@ -16,7 +16,7 @@ package com.scattersphere.core.util
 /**
   * RunnableTask class
   *
-  * This class extends the Runnable class, of which you must override the run() method.  The [[RunnableTask
+  * This class extends the Runnable class, of which you must override the run() method.  The [[RunnableTask]]
   * class adds an additional method that can be overridden, which will be called when the run() method completes
   * without any exceptions.
   */

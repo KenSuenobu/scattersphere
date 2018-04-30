@@ -58,9 +58,9 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val task2: Task = new Task("Second Task", runnableTask2, true)
     val task3: Task = new Task("Third Task", runnableTask3, true)
 
-    task1.getStatus shouldBe TaskStatus.QUEUED
-    task2.getStatus shouldBe TaskStatus.QUEUED
-    task3.getStatus shouldBe TaskStatus.QUEUED
+    task1.getStatus shouldBe TaskQueued
+    task2.getStatus shouldBe TaskQueued
+    task3.getStatus shouldBe TaskQueued
 
     task1.name shouldBe "First Task"
     task1.getDependencies.length shouldBe 0
@@ -92,9 +92,9 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask2.callCount.get() shouldBe 1
     runnableTask3.callCount.get() shouldBe 1
 
-    task1.getStatus shouldBe TaskStatus.FINISHED
-    task2.getStatus shouldBe TaskStatus.FINISHED
-    task3.getStatus shouldBe TaskStatus.FINISHED
+    task1.getStatus shouldBe TaskFinished
+    task2.getStatus shouldBe TaskFinished
+    task3.getStatus shouldBe TaskFinished
   }
 
   /**
@@ -121,10 +121,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val task3: Task = new Task("Third Task", runnableTask3, true)
     val task4: Task = new Task("Fourth Task", runnableTask4)
 
-    task1.getStatus shouldBe TaskStatus.QUEUED
-    task2.getStatus shouldBe TaskStatus.QUEUED
-    task3.getStatus shouldBe TaskStatus.QUEUED
-    task4.getStatus shouldBe TaskStatus.QUEUED
+    task1.getStatus shouldBe TaskQueued
+    task2.getStatus shouldBe TaskQueued
+    task3.getStatus shouldBe TaskQueued
+    task4.getStatus shouldBe TaskQueued
 
     task1.name shouldBe "First Task"
     task1.getDependencies.length shouldBe 0
@@ -171,10 +171,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask3.callCount.get() shouldBe 1
     runnableTask4.callCount.get() shouldBe 1
 
-    task1.getStatus shouldBe TaskStatus.FINISHED
-    task2.getStatus shouldBe TaskStatus.FINISHED
-    task3.getStatus shouldBe TaskStatus.FINISHED
-    task4.getStatus shouldBe TaskStatus.FINISHED
+    task1.getStatus shouldBe TaskFinished
+    task2.getStatus shouldBe TaskFinished
+    task3.getStatus shouldBe TaskFinished
+    task4.getStatus shouldBe TaskFinished
   }
 
   /**
@@ -199,12 +199,12 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val task5: Task = new Task("3-B-2-B", runnableTask5, true)
     val task6: Task = new Task("4", runnableTask6)
 
-    task1.getStatus shouldBe TaskStatus.QUEUED
-    task2.getStatus shouldBe TaskStatus.QUEUED
-    task3.getStatus shouldBe TaskStatus.QUEUED
-    task4.getStatus shouldBe TaskStatus.QUEUED
-    task5.getStatus shouldBe TaskStatus.QUEUED
-    task6.getStatus shouldBe TaskStatus.QUEUED
+    task1.getStatus shouldBe TaskQueued
+    task2.getStatus shouldBe TaskQueued
+    task3.getStatus shouldBe TaskQueued
+    task4.getStatus shouldBe TaskQueued
+    task5.getStatus shouldBe TaskQueued
+    task6.getStatus shouldBe TaskQueued
 
     task1.name shouldBe "1"
     task1.getDependencies.length shouldBe 0
@@ -270,12 +270,12 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask5.callCount.get() shouldBe 1
     runnableTask6.callCount.get() shouldBe 1
 
-    task1.getStatus shouldBe TaskStatus.FINISHED
-    task2.getStatus shouldBe TaskStatus.FINISHED
-    task3.getStatus shouldBe TaskStatus.FINISHED
-    task4.getStatus shouldBe TaskStatus.FINISHED
-    task5.getStatus shouldBe TaskStatus.FINISHED
-    task6.getStatus shouldBe TaskStatus.FINISHED
+    task1.getStatus shouldBe TaskFinished
+    task2.getStatus shouldBe TaskFinished
+    task3.getStatus shouldBe TaskFinished
+    task4.getStatus shouldBe TaskFinished
+    task5.getStatus shouldBe TaskFinished
+    task6.getStatus shouldBe TaskFinished
   }
 
 }
