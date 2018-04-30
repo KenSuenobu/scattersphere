@@ -29,6 +29,7 @@ import scala.collection.mutable.ListBuffer
 case class Task(name: String, task: RunnableTask, async: Boolean = false) {
 
   lazy private val dependencies: ListBuffer[Task] = new ListBuffer[Task]
+  private var taskStatus = TaskStatus.QUEUED
 
   /**
     * Adds a dependent task that is required to complete before this task starts.  This can be multiple tasks, not
@@ -52,6 +53,30 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
     */
   def getDependencies: Seq[Task] = dependencies
 
-  override def toString: String = s"Task{name=$name,dependencies=${dependencies.length}}"
+  /**
+    * Sets the status for this task.
+    *
+    * @param status The [[TaskStatus.Value]] to set
+    */
+  def setStatus(status: TaskStatus.Value) = taskStatus = status
+
+  /**
+    * Returns the current task status.
+    *
+    * @return [[TaskStatus.Value]] containing the task status.
+    */
+  def getStatus: TaskStatus.Value = taskStatus
+
+  override def toString: String = s"Task{name=$name,status=$taskStatus,dependencies=${dependencies.length}}"
+
+}
+
+/**
+  * This is an enumerator that describes the current status of a task.
+  */
+object TaskStatus extends Enumeration {
+
+  val TaskStatus = Value
+  val QUEUED, RUNNING, FINISHED = Value
 
 }

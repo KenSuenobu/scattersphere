@@ -15,7 +15,7 @@ package com.scattersphere.core.util.execution
 
 import java.util.concurrent.{CompletableFuture, ExecutorService, Executors}
 
-import com.scattersphere.core.util.{Job, Task}
+import com.scattersphere.core.util.{Job, Task, TaskStatus}
 
 import scala.collection.mutable
 
@@ -62,15 +62,19 @@ class JobExecutor(job: Job) {
 
           if (dependent.async) {
             taskMap.put(dependent.name, parentFuture.thenRunAsync(() => {
+              dependent.setStatus(TaskStatus.RUNNING)
               dependent.task.run()
               dependent.task.onFinished()
+              dependent.setStatus(TaskStatus.FINISHED)
             }, executorService))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
             taskMap.put(dependent.name, parentFuture.thenRun(() => {
+              dependent.setStatus(TaskStatus.RUNNING)
               dependent.task.run()
               dependent.task.onFinished()
+              dependent.setStatus(TaskStatus.FINISHED)
             }))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
@@ -90,8 +94,10 @@ class JobExecutor(job: Job) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
         taskMap.put(task.name, CompletableFuture.runAsync(() => {
+          task.setStatus(TaskStatus.RUNNING)
           task.task.run()
           task.task.onFinished()
+          task.setStatus(TaskStatus.FINISHED)
         }, executorService))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
