@@ -209,22 +209,27 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     task1.name shouldBe "1"
     task1.getDependencies.length shouldBe 0
 
+    // Task 2-A starts after 1 completes.
     task2.name shouldBe "2-A"
     task2.addDependency(task1)
     task2.getDependencies.length shouldBe 1
 
+    // Task 2-B starts after 1 completes.
     task3.name shouldBe "2-B"
     task3.addDependency(task1)
     task3.getDependencies.length shouldBe 1
 
+    // Task 3-A asynchronously starts after 2-B completes
     task4.name shouldBe "3-A-2-B"
     task4.addDependency(task3)
     task4.getDependencies.length shouldBe 1
 
+    // Task 3-B asynchronously starts after 2-B completes
     task5.name shouldBe "3-B-2-B"
     task5.addDependency(task3)
     task5.getDependencies.length shouldBe 1
 
+    // Task 4 starts after 2-A, 3-A and 3-B complete.
     task6.name shouldBe "4"
     task6.addDependency(task2)
     task6.addDependency(task4)
