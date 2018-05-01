@@ -90,3 +90,8 @@ final case object TaskRunning extends TaskStatus
   * This indicates that a task has completed.
   */
 final case object TaskFinished extends TaskStatus
+
+/**
+  * This indicates that a task was canceled.
+  */
+final case object TaskCanceled extends TaskStatus
