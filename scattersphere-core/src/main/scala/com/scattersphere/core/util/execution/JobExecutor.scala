@@ -13,7 +13,7 @@
   */
 package com.scattersphere.core.util.execution
 
-import java.util.concurrent.{CompletableFuture, ExecutorService, Executors}
+import java.util.concurrent.{CancellationException, CompletableFuture, ExecutorService, Executors}
 import java.util.function.{Function => JavaFunction}
 
 import com.scattersphere.core.util._
@@ -67,6 +67,10 @@ class JobExecutor(job: Job) {
     }
   }
 
+  private def toJavaFunction[A, B](f: Function1[A, B]) = new JavaFunction[A, B] {
+    override def apply(a: A): B = f(a)
+  }
+
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
       taskMap.get(dependent.name) match {
@@ -75,11 +79,15 @@ class JobExecutor(job: Job) {
           val parentFuture: CompletableFuture[Void] = taskMap(task.name)
 
           if (dependent.async) {
-            taskMap.put(dependent.name, parentFuture.thenRunAsync(() => runTask(dependent), executorService))
+            val cFuture: CompletableFuture[Void] = parentFuture.thenRunAsync(() => runTask(dependent), executorService)
+
+            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => { println("Test [1]"); return null })))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
-            taskMap.put(dependent.name, parentFuture.thenRun(() => runTask(dependent)))
+            val cFuture: CompletableFuture[Void] = parentFuture.thenRun(() => runTask(dependent))
+
+            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => { println("Test [2]"); return null })))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           }
@@ -97,7 +105,9 @@ class JobExecutor(job: Job) {
       if (task.getDependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        taskMap.put(task.name, CompletableFuture.runAsync(() => runTask(task), executorService))
+        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(() => runTask(task), executorService)
+
+        taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => { println("Test [3]"); return null })))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.getDependencies)
