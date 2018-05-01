@@ -14,6 +14,7 @@
 package com.scattersphere.core.util.execution
 
 import java.util.concurrent.{CompletableFuture, ExecutorService, Executors}
+import java.util.function.{Function => JavaFunction}
 
 import com.scattersphere.core.util._
 
