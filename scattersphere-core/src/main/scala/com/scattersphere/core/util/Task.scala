@@ -71,7 +71,22 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
 
 }
 
+/**
+  * This is the root class that all status values should inherit.
+  */
 sealed trait TaskStatus
+
+/**
+  * This indicates that a task is queued.
+  */
 final case object TaskQueued extends TaskStatus
+
+/**
+  * This indicates that a task is running.
+  */
 final case object TaskRunning extends TaskStatus
+
+/**
+  * This indicates that a task has completed.
+  */
 final case object TaskFinished extends TaskStatus
