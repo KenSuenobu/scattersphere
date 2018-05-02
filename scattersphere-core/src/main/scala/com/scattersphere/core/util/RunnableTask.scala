@@ -24,11 +24,16 @@ abstract class RunnableTask extends Runnable {
 
   /**
     * This function is called after the run() method completes without any fault.
-    *
-    * @return Runnable containing the function to run when a task is complete.
     */
   def onFinished(): Unit = {
-    println(s"Job finished.")
+    println("Job finished.")
+  }
+
+  /**
+    * This function is called when a CancellationException occurs.
+    */
+  def onCanceled(): Unit = {
+    println("Job canceled.")
   }
 
 }

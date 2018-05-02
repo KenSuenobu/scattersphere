@@ -13,7 +13,8 @@
   */
 package com.scattersphere.core.util.execution
 
-import java.util.concurrent.{CompletableFuture, ExecutorService, Executors}
+import java.util.concurrent.{CompletionException, _}
+import java.util.function.{Function => JavaFunction}
 
 import com.scattersphere.core.util._
 
@@ -62,8 +63,12 @@ class JobExecutor(job: Job) {
         task.setStatus(TaskFinished)
       }
 
-      case x: TaskStatus => throw new InvalidJobStatusException(task, TaskQueued, x)
+      case _ => task.setStatus(TaskFailed(new InvalidTaskStateException(task, task.getStatus, TaskQueued)))
     }
+  }
+
+  private def toJavaFunction[A, B](f: Function1[A, B]) = new JavaFunction[A, B] {
+    override def apply(a: A): B = f(a)
   }
 
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
@@ -74,11 +79,29 @@ class JobExecutor(job: Job) {
           val parentFuture: CompletableFuture[Void] = taskMap(task.name)
 
           if (dependent.async) {
-            taskMap.put(dependent.name, parentFuture.thenRunAsync(() => runTask(dependent), executorService))
+            val cFuture: CompletableFuture[Void] = parentFuture.thenRunAsync(() => runTask(dependent), executorService)
+
+            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
+              f match {
+                case ex: CompletionException => dependent.setStatus(TaskFailed(ex.getCause))
+                case _ => dependent.setStatus(TaskFailed(f))
+              }
+
+              throw f
+            })))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
-            taskMap.put(dependent.name, parentFuture.thenRun(() => runTask(dependent)))
+            val cFuture: CompletableFuture[Void] = parentFuture.thenRun(() => runTask(dependent))
+
+            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
+              f match {
+                case ex: CompletionException => dependent.setStatus(TaskFailed(ex.getCause))
+                case _ => dependent.setStatus(TaskFailed(f))
+              }
+
+              throw f
+            })))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           }
@@ -96,7 +119,16 @@ class JobExecutor(job: Job) {
       if (task.getDependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        taskMap.put(task.name, CompletableFuture.runAsync(() => runTask(task), executorService))
+        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(() => runTask(task), executorService)
+
+        taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
+          f match {
+            case ex: CompletionException => task.setStatus(TaskFailed(ex.getCause))
+            case _ => task.setStatus(TaskFailed(f))
+          }
+
+          throw f
+        })))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.getDependencies)
@@ -108,7 +140,7 @@ class JobExecutor(job: Job) {
 
 }
 
-class InvalidJobStatusException(task: Task,
+class InvalidTaskStateException(task: Task,
                                 status: TaskStatus,
                                 expected: TaskStatus)
-  extends Exception(s"InvalidJobStatusException: task ${task.name} set to $status, expected $expected")
+  extends Exception(s"InvalidTaskStateException: task ${task.name} set to $status, expected $expected")

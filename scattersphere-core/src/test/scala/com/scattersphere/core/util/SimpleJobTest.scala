@@ -15,7 +15,7 @@ package com.scattersphere.core.util
 
 import java.util.concurrent.CompletionException
 
-import com.scattersphere.core.util.execution.{InvalidJobStatusException, JobExecutor}
+import com.scattersphere.core.util.execution.{InvalidTaskStateException, JobExecutor}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -155,8 +155,15 @@ class SimpleJobTest extends FlatSpec with Matchers  {
 
     // This will be upgraded soon so that the underlying cause can be pulled from the Job, but only if the job
     // completes exceptionally.
-    assertThrows[CompletionException] {
-      jobExec2.queue().join()
+    jobExec2.queue().join()
+
+    task1.getStatus match {
+      case TaskFailed(reason) => reason match {
+        case _: InvalidTaskStateException => println(s"Expected InvalidTaskStateException caught.")
+        case x => fail(s"Unexpected exception $x caught.")
+      }
+
+      case _ => fail("Expected InvalidTaskStateException.")
     }
   }
 
