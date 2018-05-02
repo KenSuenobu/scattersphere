@@ -15,7 +15,7 @@ package com.scattersphere.core.util
 
 import java.util.concurrent.CompletionException
 
-import com.scattersphere.core.util.execution.{InvalidJobStatusException, InvalidTaskStateException, JobExecutor}
+import com.scattersphere.core.util.execution.{InvalidTaskStateException, JobExecutor}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
