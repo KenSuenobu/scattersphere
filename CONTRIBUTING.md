@@ -9,10 +9,10 @@ To contribute to the Scattersphere project, please do the following:
   - Passes in CircleCI
   - Compiles with no warnings or errors
   - Is properly documented
-  - `sh scripts/circle/build.sh`
-  - `sh scripts/circle/doc.sh`
+  - `sh scripts/circleci/build.sh`
+  - `sh scripts/circleci/doc.sh`
 - Also, make sure all tests pass:
-  - `sh scripts/circle/test.sh`
+  - `sh scripts/circleci/test.sh`
 - Submit a pull request
 
 By submitting code, you agree to the terms of the Apache 2.0 license
