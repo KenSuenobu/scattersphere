@@ -59,19 +59,28 @@ class JobExecutor(job: Job) {
     this
   }
 
-  private def unlock(): Unit = {
-    lockObject.synchronized {
-      lockObject.notifyAll
-    }
-  }
-
+  /**
+    * Triggers the JobExecutor to run the job immediately, returning after the lock for the job has been released.
+    * Use of this behavior will cause the job to run in the background, so logging and other verbose functions could
+    * interfere with output from other functions in your code.
+    */
   def runNonblocking(): Unit = {
     unlock
   }
 
+  /**
+    * Triggers the JobExecutor to run the job, but blocks all further execution until the job has completed.  This
+    * function will return after the job completes.
+    */
   def runBlocking(): Unit = {
     unlock
     completableFuture.join
+  }
+
+  private def unlock(): Unit = {
+    lockObject.synchronized {
+      lockObject.notifyAll
+    }
   }
 
   private def runTask(task: Task): Unit = {
