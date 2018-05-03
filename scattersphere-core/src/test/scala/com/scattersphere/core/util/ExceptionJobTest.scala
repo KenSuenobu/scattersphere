@@ -1,11 +1,9 @@
 package com.scattersphere.core.util
 
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 
 import com.scattersphere.core.util.execution.JobExecutor
 import org.scalatest.{FlatSpec, Matchers}
-
-import scala.concurrent.ExecutionException
 
 class ExceptionJobTest extends FlatSpec with Matchers {
 
@@ -31,13 +29,15 @@ class ExceptionJobTest extends FlatSpec with Matchers {
     job1.tasks.length shouldBe 1
     job1.tasks(0) shouldBe task1
 
-    val queuedJob: CompletableFuture[Void] = jobExec.queue()
+    val queuedJob: JobExecutor = jobExec.queue()
+
+    queuedJob.runNonblocking()
 
     println("Waiting 5 seconds before submitting a cancel.")
     Thread.sleep(5000)
 
-    assertThrows[ExecutionException] {
-      queuedJob.get()
+    assertThrows[CompletionException] {
+      queuedJob.runBlocking()
     }
 
     task1.getStatus match {

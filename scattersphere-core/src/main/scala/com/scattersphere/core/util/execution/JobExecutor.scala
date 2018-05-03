@@ -19,6 +19,7 @@ import java.util.function.{Function => JavaFunction}
 import com.scattersphere.core.util._
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * JobExecutor class
@@ -37,6 +38,9 @@ class JobExecutor(job: Job) {
 
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
   private val executorService: ExecutorService = Executors.newCachedThreadPool
+  private val lockObject: Object = new Object
+
+  private var completableFuture: CompletableFuture[Void] = null
 
   /**
     * Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
@@ -46,12 +50,28 @@ class JobExecutor(job: Job) {
     *
     * @return CompletableFuture containing the completed DAG of tasks to execute.
     */
-  def queue(): CompletableFuture[Void] = {
+  def queue(): JobExecutor = {
     val tasks: Seq[Task] = job.tasks
 
     generateExecutionPlan(tasks)
 
-    CompletableFuture.allOf(taskMap.values.toSeq: _*)
+    completableFuture = CompletableFuture.allOf(taskMap.values.toSeq: _*)
+    this
+  }
+
+  private def unlock(): Unit = {
+    lockObject.synchronized {
+      lockObject.notifyAll
+    }
+  }
+
+  def runNonblocking(): Unit = {
+    unlock
+  }
+
+  def runBlocking(): Unit = {
+    unlock
+    completableFuture.join
   }
 
   private def runTask(task: Task): Unit = {
@@ -65,6 +85,14 @@ class JobExecutor(job: Job) {
 
       case _ => task.setStatus(TaskFailed(new InvalidTaskStateException(task, task.getStatus, TaskQueued)))
     }
+  }
+
+  private def runTaskWithLock(task: Task): Runnable = () => {
+    lockObject.synchronized {
+      lockObject.wait()
+    }
+
+    runTask(task)
   }
 
   private def toJavaFunction[A, B](f: Function1[A, B]) = new JavaFunction[A, B] {
@@ -119,7 +147,7 @@ class JobExecutor(job: Job) {
       if (task.getDependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(() => runTask(task), executorService)
+        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(runTaskWithLock(task), executorService)
 
         taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
           f match {

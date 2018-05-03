@@ -84,7 +84,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask2.setVar shouldBe ""
     runnableTask3.setVar shouldBe ""
 
-    jobExec.queue().join()
+    jobExec.queue().runBlocking()
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
     runnableTask3.setVar shouldBe "2-B"
@@ -158,7 +158,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask3.setVar shouldBe ""
     runnableTask4.setVar shouldBe ""
 
-    jobExec.queue().join()
+    jobExec.queue().runBlocking()
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
     runnableTask3.setVar shouldBe "2-B"
@@ -253,7 +253,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask5.setVar shouldBe ""
     runnableTask6.setVar shouldBe ""
 
-    jobExec.queue().join()
+    jobExec.queue().runBlocking()
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
     runnableTask3.setVar shouldBe "2-B"
