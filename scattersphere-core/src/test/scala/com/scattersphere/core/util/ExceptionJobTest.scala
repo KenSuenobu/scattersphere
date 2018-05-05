@@ -28,13 +28,19 @@ class ExceptionJobTest extends FlatSpec with Matchers {
 
     job1.tasks.length shouldBe 1
     job1.tasks(0) shouldBe task1
+    job1.getStatus() shouldBe JobQueued
 
     val queuedJob: JobExecutor = jobExec.queue()
 
     queuedJob.runNonblocking()
+    job1.getStatus() shouldBe JobRunning
 
     println("Waiting 5 seconds before submitting a cancel.")
     Thread.sleep(5000)
+    job1.getStatus() match {
+      case JobFailed(_) => println("Job failed expected.")
+      case x => fail(s"Unexpected job state caught: $x")
+    }
 
     assertThrows[CompletionException] {
       queuedJob.runBlocking()

@@ -24,6 +24,38 @@ package com.scattersphere.core.util
   */
 case class Job(name: String, tasks: Seq[Task]) {
 
-  override def toString = s"Job{name=$name,tasks=$tasks}"
+  private var jobStatus: JobStatus = JobQueued
+
+  def setStatus(status: JobStatus): Unit = jobStatus = status
+
+  def getStatus(): JobStatus = jobStatus
+
+  override def toString = s"Job{name=$name,jobStatus=$jobStatus,tasks=$tasks}"
 
 }
+
+/**
+  * This is the root class that all status values should inherit.
+  */
+sealed abstract class JobStatus(t: Throwable = null)
+
+/**
+  * This indicates that a job is queued but not running.
+  */
+final case object JobQueued extends JobStatus
+
+/**
+  * This indicates that a job is running.
+  */
+final case object JobRunning extends JobStatus
+
+/**
+  * This indicates that a job has completed.
+  */
+final case object JobFinished extends JobStatus
+
+/**
+  * This indicates that a job was canceled.
+  */
+final case class JobFailed(t: Throwable) extends JobStatus(t)
+
