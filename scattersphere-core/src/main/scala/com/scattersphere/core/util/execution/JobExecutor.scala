@@ -119,8 +119,14 @@ class JobExecutor(job: Job) {
 
             taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
               f match {
-                case ex: CompletionException => dependent.setStatus(TaskFailed(ex.getCause))
-                case _ => dependent.setStatus(TaskFailed(f))
+                case ex: CompletionException => {
+                  dependent.task.onException(ex.getCause)
+                  dependent.setStatus(TaskFailed(ex.getCause))
+                }
+                case _ => {
+                  dependent.task.onException(f)
+                  dependent.setStatus(TaskFailed(f))
+                }
               }
 
               throw f
@@ -132,8 +138,14 @@ class JobExecutor(job: Job) {
 
             taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
               f match {
-                case ex: CompletionException => dependent.setStatus(TaskFailed(ex.getCause))
-                case _ => dependent.setStatus(TaskFailed(f))
+                case ex: CompletionException => {
+                  dependent.task.onException(ex.getCause)
+                  dependent.setStatus(TaskFailed(ex.getCause))
+                }
+                case _ => {
+                  dependent.task.onException(f)
+                  dependent.setStatus(TaskFailed(f))
+                }
               }
 
               throw f
@@ -159,8 +171,14 @@ class JobExecutor(job: Job) {
 
         taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
           f match {
-            case ex: CompletionException => task.setStatus(TaskFailed(ex.getCause))
-            case _ => task.setStatus(TaskFailed(f))
+            case ex: CompletionException => {
+              task.task.onException(ex.getCause)
+              task.setStatus(TaskFailed(ex.getCause))
+            }
+            case _ => {
+              task.task.onException(f)
+              task.setStatus(TaskFailed(f))
+            }
           }
 
           throw f
