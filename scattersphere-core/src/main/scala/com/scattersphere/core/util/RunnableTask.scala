@@ -29,6 +29,15 @@ abstract class RunnableTask extends Runnable {
     println("Job finished.")
   }
 
+  /**
+    * This function is called when an exception is caught in the [[com.scattersphere.core.util.execution.JobExecutor]].
+    * @param t
+    */
+  def onException(t: Throwable): Unit = {
+    println(s"Exception occurred: $t")
+    t.printStackTrace
+  }
+
 }
 
 /**
