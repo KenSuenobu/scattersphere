@@ -85,6 +85,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask3.setVar shouldBe ""
 
     job1.getStatus() shouldBe JobQueued
+    jobExec.isBlocking() shouldBe true
     jobExec.queue().run()
     job1.getStatus() shouldBe JobFinished
 
@@ -162,6 +163,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask4.setVar shouldBe ""
 
     job1.getStatus() shouldBe JobQueued
+    jobExec.isBlocking() shouldBe true
     jobExec.queue().run()
     job1.getStatus() shouldBe JobFinished
 
@@ -260,6 +262,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask6.setVar shouldBe ""
 
     job1.getStatus() shouldBe JobQueued
+    jobExec.isBlocking() shouldBe true
     jobExec.queue().run()
     job1.getStatus() shouldBe JobFinished
 

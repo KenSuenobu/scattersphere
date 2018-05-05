@@ -33,6 +33,7 @@ class ExceptionJobTest extends FlatSpec with Matchers {
     val queuedJob: JobExecutor = jobExec.queue()
 
     queuedJob.setBlocking(false)
+    jobExec.isBlocking() shouldBe false
     queuedJob.run()
     queuedJob.setBlocking(true)
     job1.getStatus() shouldBe JobRunning
@@ -43,6 +44,8 @@ class ExceptionJobTest extends FlatSpec with Matchers {
       case JobFailed(_) => println("Job failed expected.")
       case x => fail(s"Unexpected job state caught: $x")
     }
+
+    jobExec.isBlocking() shouldBe true
 
     assertThrows[CompletionException] {
       queuedJob.run()
