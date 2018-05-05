@@ -91,7 +91,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     runnableTask3.setVar shouldBe 0
 
     job1.getStatus() shouldBe JobQueued
-    jobExec.queue().runBlocking()
+    jobExec.queue().run()
     job1.getStatus() shouldBe JobFinished
 
     runnableTask1.setVar shouldBe 1
@@ -131,7 +131,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.getStatus() shouldBe JobQueued
-    jobExec.queue().runBlocking()
+    jobExec.queue().run()
     job1.getStatus() shouldBe JobFinished
 
     runnableTask1.setVar shouldBe 1
@@ -153,7 +153,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.getStatus() shouldBe JobQueued
-    jobExec.queue().runBlocking()
+    jobExec.queue().run()
     job1.getStatus() shouldBe JobFinished
 
     runnableTask1.setVar shouldBe 1
@@ -164,7 +164,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
 
     // This will be upgraded soon so that the underlying cause can be pulled from the Job, but only if the job
     // completes exceptionally.
-    jobExec2.queue().runBlocking()
+    jobExec2.queue().run()
     job2.getStatus() match {
       case JobFailed(_) => println("Job failed, expected.")
       case x => fail(s"Unexpected job status: $x")

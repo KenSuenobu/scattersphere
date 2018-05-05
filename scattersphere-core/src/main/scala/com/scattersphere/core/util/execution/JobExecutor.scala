@@ -38,6 +38,7 @@ class JobExecutor(job: Job) {
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
   private val executorService: ExecutorService = Executors.newCachedThreadPool
   private val lockObject: Object = new Object
+  private var blocking: Boolean = true
 
   private var completableFuture: CompletableFuture[Void] = null
 
@@ -66,25 +67,17 @@ class JobExecutor(job: Job) {
     this
   }
 
-  /**
-    * Triggers the JobExecutor to run the job immediately, returning after the lock for the job has been released.
-    * Use of this behavior will cause the job to run in the background, so logging and other verbose functions could
-    * interfere with output from other functions in your code.
-    */
-  def runNonblocking(): Unit = {
-    job.setStatus(JobRunning)
-    unlock
-  }
+  def setBlocking(flag: Boolean) = blocking = flag
 
-  /**
-    * Triggers the JobExecutor to run the job, but blocks all further execution until the job has completed.  This
-    * function will return after the job completes.
-    */
-  def runBlocking(): Unit = {
-    job.setStatus(JobRunning)
-    unlock
+  def isBlocking(): Boolean = blocking
 
-    completableFuture.join
+  def run(): Unit = {
+    job.setStatus(JobRunning)
+    unlock()
+
+    if (blocking) {
+      completableFuture.join()
+    }
   }
 
   private def unlock(): Unit = {
@@ -111,6 +104,23 @@ class JobExecutor(job: Job) {
     }
   }
 
+  private def runExceptionally(task: Task, f: Throwable): Void = {
+    f match {
+      case ex: CompletionException => {
+        task.task.onException(ex.getCause)
+        task.setStatus(TaskFailed(ex.getCause))
+        job.setStatus(JobFailed(ex.getCause))
+      }
+      case _ => {
+        task.task.onException(f)
+        task.setStatus(TaskFailed(f))
+        job.setStatus(JobFailed(f))
+      }
+    }
+
+    throw f
+  }
+
   private def runTaskWithLock(task: Task): Runnable = () => {
     lockObject.synchronized {
       lockObject.wait()
@@ -133,43 +143,15 @@ class JobExecutor(job: Job) {
           if (dependent.async) {
             val cFuture: CompletableFuture[Void] = parentFuture.thenRunAsync(() => runTask(dependent), executorService)
 
-            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
-              f match {
-                case ex: CompletionException => {
-                  dependent.task.onException(ex.getCause)
-                  dependent.setStatus(TaskFailed(ex.getCause))
-                  job.setStatus(JobFailed(ex.getCause))
-                }
-                case _ => {
-                  dependent.task.onException(f)
-                  dependent.setStatus(TaskFailed(f))
-                  job.setStatus(JobFailed(f))
-                }
-              }
-
-              throw f
-            })))
+            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
+              runExceptionally(dependent, f))))
 
             println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           } else {
             val cFuture: CompletableFuture[Void] = parentFuture.thenRun(() => runTask(dependent))
 
-            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
-              f match {
-                case ex: CompletionException => {
-                  dependent.task.onException(ex.getCause)
-                  dependent.setStatus(TaskFailed(ex.getCause))
-                  job.setStatus(JobFailed(ex.getCause))
-                }
-                case _ => {
-                  dependent.task.onException(f)
-                  dependent.setStatus(TaskFailed(f))
-                  job.setStatus(JobFailed(f))
-                }
-              }
-
-              throw f
-            })))
+            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
+              runExceptionally(dependent, f))))
 
             println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.getDependencies.length} subtasks.")
           }
@@ -189,22 +171,8 @@ class JobExecutor(job: Job) {
 
         val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(runTaskWithLock(task), executorService)
 
-        taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) => {
-          f match {
-            case ex: CompletionException => {
-              task.task.onException(ex.getCause)
-              task.setStatus(TaskFailed(ex.getCause))
-              job.setStatus(JobFailed(ex.getCause))
-            }
-            case _ => {
-              task.task.onException(f)
-              task.setStatus(TaskFailed(f))
-              job.setStatus(JobFailed(f))
-            }
-          }
-
-          throw f
-        })))
+        taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
+          runExceptionally(task, f))))
       } else {
         println(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.getDependencies)

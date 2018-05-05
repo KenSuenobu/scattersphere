@@ -32,7 +32,9 @@ class ExceptionJobTest extends FlatSpec with Matchers {
 
     val queuedJob: JobExecutor = jobExec.queue()
 
-    queuedJob.runNonblocking()
+    queuedJob.setBlocking(false)
+    queuedJob.run()
+    queuedJob.setBlocking(true)
     job1.getStatus() shouldBe JobRunning
 
     println("Waiting 5 seconds before submitting a cancel.")
@@ -43,7 +45,7 @@ class ExceptionJobTest extends FlatSpec with Matchers {
     }
 
     assertThrows[CompletionException] {
-      queuedJob.runBlocking()
+      queuedJob.run()
     }
 
     task1.getStatus match {
