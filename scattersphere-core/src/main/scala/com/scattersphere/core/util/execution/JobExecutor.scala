@@ -54,7 +54,15 @@ class JobExecutor(job: Job) {
 
     generateExecutionPlan(tasks)
 
-    completableFuture = CompletableFuture.allOf(taskMap.values.toSeq: _*)
+    completableFuture = CompletableFuture
+      .allOf(taskMap.values.toSeq: _*)
+      .whenComplete((_, _) => {
+        job.getStatus() match {
+          case JobRunning => job.setStatus(JobFinished)
+          case _ => // Do nothing; keep state stored
+        }
+      })
+
     this
   }
 
@@ -64,6 +72,7 @@ class JobExecutor(job: Job) {
     * interfere with output from other functions in your code.
     */
   def runNonblocking(): Unit = {
+    job.setStatus(JobRunning)
     unlock
   }
 
@@ -72,7 +81,9 @@ class JobExecutor(job: Job) {
     * function will return after the job completes.
     */
   def runBlocking(): Unit = {
+    job.setStatus(JobRunning)
     unlock
+
     completableFuture.join
   }
 
@@ -91,7 +102,12 @@ class JobExecutor(job: Job) {
         task.setStatus(TaskFinished)
       }
 
-      case _ => task.setStatus(TaskFailed(new InvalidTaskStateException(task, task.getStatus, TaskQueued)))
+      case _ => {
+        val failedTaskException = new InvalidTaskStateException(task, task.getStatus, TaskQueued)
+
+        task.setStatus(TaskFailed(failedTaskException))
+        job.setStatus(JobFailed(failedTaskException))
+      }
     }
   }
 
@@ -122,10 +138,12 @@ class JobExecutor(job: Job) {
                 case ex: CompletionException => {
                   dependent.task.onException(ex.getCause)
                   dependent.setStatus(TaskFailed(ex.getCause))
+                  job.setStatus(JobFailed(ex.getCause))
                 }
                 case _ => {
                   dependent.task.onException(f)
                   dependent.setStatus(TaskFailed(f))
+                  job.setStatus(JobFailed(f))
                 }
               }
 
@@ -141,10 +159,12 @@ class JobExecutor(job: Job) {
                 case ex: CompletionException => {
                   dependent.task.onException(ex.getCause)
                   dependent.setStatus(TaskFailed(ex.getCause))
+                  job.setStatus(JobFailed(ex.getCause))
                 }
                 case _ => {
                   dependent.task.onException(f)
                   dependent.setStatus(TaskFailed(f))
+                  job.setStatus(JobFailed(f))
                 }
               }
 
@@ -174,10 +194,12 @@ class JobExecutor(job: Job) {
             case ex: CompletionException => {
               task.task.onException(ex.getCause)
               task.setStatus(TaskFailed(ex.getCause))
+              job.setStatus(JobFailed(ex.getCause))
             }
             case _ => {
               task.task.onException(f)
               task.setStatus(TaskFailed(f))
+              job.setStatus(JobFailed(f))
             }
           }
 
