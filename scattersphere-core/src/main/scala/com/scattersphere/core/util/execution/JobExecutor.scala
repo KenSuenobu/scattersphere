@@ -19,7 +19,6 @@ import java.util.function.{Function => JavaFunction}
 import com.scattersphere.core.util._
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * JobExecutor class

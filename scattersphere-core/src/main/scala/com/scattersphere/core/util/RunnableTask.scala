@@ -29,13 +29,6 @@ abstract class RunnableTask extends Runnable {
     println("Job finished.")
   }
 
-  /**
-    * This function is called when a CancellationException occurs.
-    */
-  def onCanceled(): Unit = {
-    println("Job canceled.")
-  }
-
 }
 
 /**
