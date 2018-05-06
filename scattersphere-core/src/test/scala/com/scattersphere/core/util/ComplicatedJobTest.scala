@@ -58,20 +58,20 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val task2: Task = new Task("Second Task", runnableTask2, true)
     val task3: Task = new Task("Third Task", runnableTask3, true)
 
-    task1.getStatus shouldBe TaskQueued
-    task2.getStatus shouldBe TaskQueued
-    task3.getStatus shouldBe TaskQueued
+    task1.status shouldBe TaskQueued
+    task2.status shouldBe TaskQueued
+    task3.status shouldBe TaskQueued
 
     task1.name shouldBe "First Task"
-    task1.getDependencies.length shouldBe 0
+    task1.dependencies.length shouldBe 0
 
     task2.name shouldBe "Second Task"
     task2.addDependency(task1)
-    task2.getDependencies.length shouldBe 1
+    task2.dependencies.length shouldBe 1
 
     task3.name shouldBe "Third Task"
     task3.addDependency(task1)
-    task3.getDependencies.length shouldBe 1
+    task3.dependencies.length shouldBe 1
 
     val job1: Job = new Job("Test", Seq(task1, task2, task3))
     val jobExec: JobExecutor = new JobExecutor(job1)
@@ -84,9 +84,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask2.setVar shouldBe ""
     runnableTask3.setVar shouldBe ""
 
-    job1.getStatus() shouldBe JobQueued
-    jobExec.queue().runBlocking()
-    job1.getStatus() shouldBe JobFinished
+    job1.status() shouldBe JobQueued
+    jobExec.isBlocking() shouldBe true
+    jobExec.queue().run()
+    job1.status() shouldBe JobFinished
 
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
@@ -95,9 +96,9 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask2.callCount.get() shouldBe 1
     runnableTask3.callCount.get() shouldBe 1
 
-    task1.getStatus shouldBe TaskFinished
-    task2.getStatus shouldBe TaskFinished
-    task3.getStatus shouldBe TaskFinished
+    task1.status shouldBe TaskFinished
+    task2.status shouldBe TaskFinished
+    task3.status shouldBe TaskFinished
   }
 
   /**
@@ -124,29 +125,29 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val task3: Task = new Task("Third Task", runnableTask3, true)
     val task4: Task = new Task("Fourth Task", runnableTask4)
 
-    task1.getStatus shouldBe TaskQueued
-    task2.getStatus shouldBe TaskQueued
-    task3.getStatus shouldBe TaskQueued
-    task4.getStatus shouldBe TaskQueued
+    task1.status shouldBe TaskQueued
+    task2.status shouldBe TaskQueued
+    task3.status shouldBe TaskQueued
+    task4.status shouldBe TaskQueued
 
     task1.name shouldBe "First Task"
-    task1.getDependencies.length shouldBe 0
+    task1.dependencies.length shouldBe 0
 
     // Task 2 requires task 1 to finish before starting.
     task2.name shouldBe "Second Task"
     task2.addDependency(task1)
-    task2.getDependencies.length shouldBe 1
+    task2.dependencies.length shouldBe 1
 
     // Task 3 requires task 1 to finish before starting.
     task3.name shouldBe "Third Task"
     task3.addDependency(task1)
-    task3.getDependencies.length shouldBe 1
+    task3.dependencies.length shouldBe 1
 
     // Task 4 requires task 2 and task 3 to finish before starting.
     task4.name shouldBe "Fourth Task"
     task4.addDependency(task2)
     task4.addDependency(task3)
-    task4.getDependencies.length shouldBe 2
+    task4.dependencies.length shouldBe 2
 
     val job1: Job = new Job("Test", Seq(task1, task2, task3, task4))
     val jobExec: JobExecutor = new JobExecutor(job1)
@@ -161,9 +162,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask3.setVar shouldBe ""
     runnableTask4.setVar shouldBe ""
 
-    job1.getStatus() shouldBe JobQueued
-    jobExec.queue().runBlocking()
-    job1.getStatus() shouldBe JobFinished
+    job1.status() shouldBe JobQueued
+    jobExec.isBlocking() shouldBe true
+    jobExec.queue().run()
+    job1.status() shouldBe JobFinished
 
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
@@ -177,10 +179,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask3.callCount.get() shouldBe 1
     runnableTask4.callCount.get() shouldBe 1
 
-    task1.getStatus shouldBe TaskFinished
-    task2.getStatus shouldBe TaskFinished
-    task3.getStatus shouldBe TaskFinished
-    task4.getStatus shouldBe TaskFinished
+    task1.status shouldBe TaskFinished
+    task2.status shouldBe TaskFinished
+    task3.status shouldBe TaskFinished
+    task4.status shouldBe TaskFinished
   }
 
   /**
@@ -205,42 +207,42 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val task5: Task = new Task("3-B-2-B", runnableTask5, true)
     val task6: Task = new Task("4", runnableTask6)
 
-    task1.getStatus shouldBe TaskQueued
-    task2.getStatus shouldBe TaskQueued
-    task3.getStatus shouldBe TaskQueued
-    task4.getStatus shouldBe TaskQueued
-    task5.getStatus shouldBe TaskQueued
-    task6.getStatus shouldBe TaskQueued
+    task1.status shouldBe TaskQueued
+    task2.status shouldBe TaskQueued
+    task3.status shouldBe TaskQueued
+    task4.status shouldBe TaskQueued
+    task5.status shouldBe TaskQueued
+    task6.status shouldBe TaskQueued
 
     task1.name shouldBe "1"
-    task1.getDependencies.length shouldBe 0
+    task1.dependencies.length shouldBe 0
 
     // Task 2-A starts after 1 completes.
     task2.name shouldBe "2-A"
     task2.addDependency(task1)
-    task2.getDependencies.length shouldBe 1
+    task2.dependencies.length shouldBe 1
 
     // Task 2-B starts after 1 completes.
     task3.name shouldBe "2-B"
     task3.addDependency(task1)
-    task3.getDependencies.length shouldBe 1
+    task3.dependencies.length shouldBe 1
 
     // Task 3-A asynchronously starts after 2-B completes
     task4.name shouldBe "3-A-2-B"
     task4.addDependency(task3)
-    task4.getDependencies.length shouldBe 1
+    task4.dependencies.length shouldBe 1
 
     // Task 3-B asynchronously starts after 2-B completes
     task5.name shouldBe "3-B-2-B"
     task5.addDependency(task3)
-    task5.getDependencies.length shouldBe 1
+    task5.dependencies.length shouldBe 1
 
     // Task 4 starts after 2-A, 3-A and 3-B complete.
     task6.name shouldBe "4"
     task6.addDependency(task2)
     task6.addDependency(task4)
     task6.addDependency(task5)
-    task6.getDependencies.length shouldBe 3
+    task6.dependencies.length shouldBe 3
 
     val job1: Job = new Job("Test", Seq(task1, task2, task3, task4, task5, task6))
     val jobExec: JobExecutor = new JobExecutor(job1)
@@ -259,9 +261,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask5.setVar shouldBe ""
     runnableTask6.setVar shouldBe ""
 
-    job1.getStatus() shouldBe JobQueued
-    jobExec.queue().runBlocking()
-    job1.getStatus() shouldBe JobFinished
+    job1.status() shouldBe JobQueued
+    jobExec.isBlocking() shouldBe true
+    jobExec.queue().run()
+    job1.status() shouldBe JobFinished
 
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
@@ -279,12 +282,12 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     runnableTask5.callCount.get() shouldBe 1
     runnableTask6.callCount.get() shouldBe 1
 
-    task1.getStatus shouldBe TaskFinished
-    task2.getStatus shouldBe TaskFinished
-    task3.getStatus shouldBe TaskFinished
-    task4.getStatus shouldBe TaskFinished
-    task5.getStatus shouldBe TaskFinished
-    task6.getStatus shouldBe TaskFinished
+    task1.status shouldBe TaskFinished
+    task2.status shouldBe TaskFinished
+    task3.status shouldBe TaskFinished
+    task4.status shouldBe TaskFinished
+    task5.status shouldBe TaskFinished
+    task6.status shouldBe TaskFinished
   }
 
 }

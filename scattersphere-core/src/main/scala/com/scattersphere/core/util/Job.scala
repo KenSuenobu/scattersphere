@@ -28,7 +28,7 @@ case class Job(name: String, tasks: Seq[Task]) {
 
   def setStatus(status: JobStatus): Unit = jobStatus = status
 
-  def getStatus(): JobStatus = jobStatus
+  def status(): JobStatus = jobStatus
 
   override def toString = s"Job{name=$name,jobStatus=$jobStatus,tasks=$tasks}"
 

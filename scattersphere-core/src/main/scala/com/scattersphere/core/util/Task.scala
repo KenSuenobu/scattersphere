@@ -28,7 +28,7 @@ import scala.collection.mutable.ListBuffer
   */
 case class Task(name: String, task: RunnableTask, async: Boolean = false) {
 
-  lazy private val dependencies: ListBuffer[Task] = new ListBuffer[Task]
+  lazy private val deps: ListBuffer[Task] = new ListBuffer[Task]
   private var taskStatus: TaskStatus = TaskQueued
 
   /**
@@ -43,7 +43,7 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
       throw new IllegalArgumentException("Unable to add task: task is self")
     }
 
-    dependencies += task
+    deps += task
   }
 
   /**
@@ -51,7 +51,7 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
     *
     * @return Seq containing [[Task]] dependency list.
     */
-  def getDependencies: Seq[Task] = dependencies
+  def dependencies(): Seq[Task] = deps
 
   /**
     * Sets the status for this task.
@@ -65,9 +65,9 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
     *
     * @return [[TaskStatus]] containing the task status.
     */
-  def getStatus: TaskStatus = taskStatus
+  def status(): TaskStatus = taskStatus
 
-  override def toString: String = s"Task{name=$name,status=$taskStatus,dependencies=${dependencies.length}}"
+  override def toString: String = s"Task{name=$name,status=$taskStatus,dependencies=${deps.length}}"
 
 }
 
