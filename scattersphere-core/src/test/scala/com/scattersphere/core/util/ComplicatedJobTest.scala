@@ -54,9 +54,22 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val runnableTask1 = new RunnableTestTask("1")
     val runnableTask2 = new RunnableTestTask("2-A")
     val runnableTask3 = new RunnableTestTask("2-B")
-    val task1: Task = new Task("First Task", runnableTask1)
-    val task2: Task = new Task("Second Task", runnableTask2, true)
-    val task3: Task = new Task("Third Task", runnableTask3, true)
+    val task1: Task = new TaskBuilder()
+        .withName("First Task")
+        .withTask(runnableTask1)
+        .build()
+    val task2: Task = new TaskBuilder()
+        .withName("Second Task")
+        .withTask(runnableTask2)
+        .dependsOn(task1)
+        .async()
+        .build()
+    val task3: Task = new TaskBuilder()
+        .withName("Third Task")
+        .withTask(runnableTask3)
+        .dependsOn(task1)
+        .async()
+        .build()
 
     task1.status shouldBe TaskQueued
     task2.status shouldBe TaskQueued
@@ -66,11 +79,9 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     task1.dependencies.length shouldBe 0
 
     task2.name shouldBe "Second Task"
-    task2.addDependency(task1)
     task2.dependencies.length shouldBe 1
 
     task3.name shouldBe "Third Task"
-    task3.addDependency(task1)
     task3.dependencies.length shouldBe 1
 
     val job1: Job = new Job("Test", Seq(task1, task2, task3))
@@ -120,10 +131,28 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val runnableTask2 = new RunnableTestTask("2-A")
     val runnableTask3 = new RunnableTestTask("2-B")
     val runnableTask4 = new RunnableTestTask("3")
-    val task1: Task = new Task("First Task", runnableTask1)
-    val task2: Task = new Task("Second Task", runnableTask2, true)
-    val task3: Task = new Task("Third Task", runnableTask3, true)
-    val task4: Task = new Task("Fourth Task", runnableTask4)
+    val task1: Task = new TaskBuilder()
+        .withName("First Task")
+        .withTask(runnableTask1)
+        .build()
+    val task2: Task = new TaskBuilder()
+        .withName("Second Task")
+        .withTask(runnableTask2)
+        .dependsOn(task1)
+        .async()
+        .build()
+    val task3: Task = new TaskBuilder()
+        .withName("Third Task")
+        .withTask(runnableTask3)
+        .dependsOn(task1)
+        .async()
+        .build()
+    val task4: Task = new TaskBuilder()
+        .withName("Fourth Task")
+        .withTask(runnableTask4)
+        .dependsOn(task2)
+        .dependsOn(task3)
+        .build()
 
     task1.status shouldBe TaskQueued
     task2.status shouldBe TaskQueued
@@ -135,18 +164,14 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
 
     // Task 2 requires task 1 to finish before starting.
     task2.name shouldBe "Second Task"
-    task2.addDependency(task1)
     task2.dependencies.length shouldBe 1
 
     // Task 3 requires task 1 to finish before starting.
     task3.name shouldBe "Third Task"
-    task3.addDependency(task1)
     task3.dependencies.length shouldBe 1
 
     // Task 4 requires task 2 and task 3 to finish before starting.
     task4.name shouldBe "Fourth Task"
-    task4.addDependency(task2)
-    task4.addDependency(task3)
     task4.dependencies.length shouldBe 2
 
     val job1: Job = new Job("Test", Seq(task1, task2, task3, task4))
@@ -200,12 +225,39 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     val runnableTask4 = new RunnableTestTask("3-A-2-B")
     val runnableTask5 = new RunnableTestTask("3-B-2-B")
     val runnableTask6 = new RunnableTestTask("4")
-    val task1: Task = new Task("1", runnableTask1)
-    val task2: Task = new Task("2-A", runnableTask2)
-    val task3: Task = new Task("2-B", runnableTask3)
-    val task4: Task = new Task("3-A-2-B", runnableTask4, true)
-    val task5: Task = new Task("3-B-2-B", runnableTask5, true)
-    val task6: Task = new Task("4", runnableTask6)
+    val task1: Task = new TaskBuilder()
+        .withName("1")
+        .withTask(runnableTask1)
+        .build()
+    val task2: Task = new TaskBuilder()
+        .withName("2-A")
+        .withTask(runnableTask2)
+        .dependsOn(task1)
+        .build()
+    val task3: Task = new TaskBuilder()
+        .withName("2-B")
+        .withTask(runnableTask3)
+        .dependsOn(task1)
+        .build()
+    val task4: Task = new TaskBuilder()
+        .withName("3-A-2-B")
+        .withTask(runnableTask4)
+        .dependsOn(task3)
+        .async()
+        .build()
+    val task5: Task = new TaskBuilder()
+        .withName("3-B-2-B")
+        .withTask(runnableTask5)
+        .dependsOn(task3)
+        .async()
+        .build()
+    val task6: Task = new TaskBuilder()
+        .withName("4")
+        .withTask(runnableTask6)
+        .dependsOn(task2)
+        .dependsOn(task4)
+        .dependsOn(task5)
+        .build()
 
     task1.status shouldBe TaskQueued
     task2.status shouldBe TaskQueued
@@ -219,29 +271,22 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
 
     // Task 2-A starts after 1 completes.
     task2.name shouldBe "2-A"
-    task2.addDependency(task1)
     task2.dependencies.length shouldBe 1
 
     // Task 2-B starts after 1 completes.
     task3.name shouldBe "2-B"
-    task3.addDependency(task1)
     task3.dependencies.length shouldBe 1
 
     // Task 3-A asynchronously starts after 2-B completes
     task4.name shouldBe "3-A-2-B"
-    task4.addDependency(task3)
     task4.dependencies.length shouldBe 1
 
     // Task 3-B asynchronously starts after 2-B completes
     task5.name shouldBe "3-B-2-B"
-    task5.addDependency(task3)
     task5.dependencies.length shouldBe 1
 
     // Task 4 starts after 2-A, 3-A and 3-B complete.
     task6.name shouldBe "4"
-    task6.addDependency(task2)
-    task6.addDependency(task4)
-    task6.addDependency(task5)
     task6.dependencies.length shouldBe 3
 
     val job1: Job = new Job("Test", Seq(task1, task2, task3, task4, task5, task6))

@@ -14,44 +14,9 @@
 
 package com.scattersphere.core.util
 
-import scala.collection.mutable.ListBuffer
+case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
 
-/**
-  * TaskDesc
-  *
-  * Describes a task and its Runnable runnable function.  Allows for dependencies to be added.
-  *
-  * @param name The name of the task.
-  * @param task The [[RunnableTask]] to run.
-  * @param async When true, the task will run asynchronously after the dependent task completes; false will run
-  *              synchronously after the dependent task(s) complete.
-  */
-case class Task(name: String, task: RunnableTask, async: Boolean = false) {
-
-  lazy private val deps: ListBuffer[Task] = new ListBuffer[Task]
   private var taskStatus: TaskStatus = TaskQueued
-
-  /**
-    * Adds a dependent task that is required to complete before this task starts.  This can be multiple tasks, not
-    * just a single task.  If multiple tasks are set here, all of the tasks that have been identified must complete
-    * before this tasks starts.
-    *
-    * @param task The task to add a dependency against.
-    */
-  def addDependency(task: Task): Unit = {
-    if (task.equals(this)) {
-      throw new IllegalArgumentException("Unable to add task: task is self")
-    }
-
-    deps += task
-  }
-
-  /**
-    * Retrieves all of the dependencies for this task.
-    *
-    * @return Seq containing [[Task]] dependency list.
-    */
-  def dependencies(): Seq[Task] = deps
 
   /**
     * Sets the status for this task.
@@ -67,7 +32,38 @@ case class Task(name: String, task: RunnableTask, async: Boolean = false) {
     */
   def status(): TaskStatus = taskStatus
 
-  override def toString: String = s"Task{name=$name,status=$taskStatus,dependencies=${deps.length}}"
+  override def toString: String = s"Task{name=$name,status=$taskStatus,dependencies=${dependencies.length}}"
+
+}
+
+class TaskBuilder {
+
+  private var taskName: String = _
+  private var runnableTask: RunnableTask = _
+  private var dependencies: Seq[Task] = Seq()
+  private var taskAsync: Boolean = false
+
+  def withName(name: String): TaskBuilder = {
+    taskName = name
+    this
+  }
+
+  def withTask(task: RunnableTask): TaskBuilder = {
+    runnableTask = task
+    this
+  }
+
+  def dependsOn(task: Task): TaskBuilder = {
+    dependencies = dependencies :+ task
+    this
+  }
+
+  def async(): TaskBuilder = {
+    taskAsync = true
+    this
+  }
+
+  def build(): Task = new Task(taskName, runnableTask, dependencies, taskAsync)
 
 }
 
