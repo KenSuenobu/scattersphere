@@ -26,7 +26,10 @@ class ExceptionJobTest extends FlatSpec with Matchers {
     task1.name shouldBe "3 second task"
     task1.dependencies.length shouldBe 0
 
-    val job1: Job = new Job("Cancelable Job", Seq(task1))
+    val job1: Job = new JobBuilder()
+        .withName("Cancelable Job")
+        .addTask(task1)
+        .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.tasks.length shouldBe 1
