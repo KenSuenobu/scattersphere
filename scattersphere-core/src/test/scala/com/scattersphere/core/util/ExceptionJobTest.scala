@@ -17,7 +17,10 @@ class ExceptionJobTest extends FlatSpec with Matchers {
 
   "Exception Jobs" should "handle an exception" in {
     val runnableTask1: RunnableTask = new TimerJob(3)
-    val task1: Task = new Task("3 second task", runnableTask1)
+    val task1: Task = new TaskBuilder()
+        .withName("3 second task")
+        .withTask(runnableTask1)
+        .build()
 
     task1.status shouldBe TaskQueued
     task1.name shouldBe "3 second task"
