@@ -88,7 +88,10 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     task3.name shouldBe "Third Runnable Task"
     task3.dependencies.length shouldBe 1
 
-    val job1: Job = new Job("Test", Seq(task1, task2, task3))
+    val job1: Job = new JobBuilder()
+        .withName("Test")
+        .addTasks(task1, task2, task3)
+        .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.tasks.length shouldBe 3
@@ -146,7 +149,9 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     task3.name shouldBe "Third Runnable Task"
     task3.dependencies.length shouldBe 0
 
-    val job1: Job = new Job("Test", Seq(task1, task2, task3))
+    val job1: Job = new JobBuilder().withName("Test")
+      .addTasks(task1, task2, task3)
+      .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.status() shouldBe JobQueued
@@ -171,7 +176,10 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     task1.status shouldBe TaskQueued
     task1.name shouldBe "First Runnable Task"
     task1.dependencies.length shouldBe 0
-    val job1: Job = new Job("Test", Seq(task1))
+    val job1: Job = new JobBuilder()
+        .withName("Test")
+        .addTask(task1)
+        .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.status() shouldBe JobQueued
@@ -182,7 +190,10 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     runnableTask1.setVar shouldBe 1
     task1.status shouldBe TaskFinished
 
-    val job2: Job = new Job("Test2", Seq(task1))
+    val job2: Job = new JobBuilder()
+        .withName("Test2")
+        .addTask(task1)
+        .build()
     val jobExec2: JobExecutor = new JobExecutor(job2)
 
     // This will be upgraded soon so that the underlying cause can be pulled from the Job, but only if the job

@@ -34,6 +34,30 @@ case class Job(name: String, tasks: Seq[Task]) {
 
 }
 
+class JobBuilder {
+
+  private var tasks: Seq[Task] = Seq()
+  private var jobName: String = _
+
+  def withName(name: String): JobBuilder = {
+    jobName = name
+    this
+  }
+
+  def addTask(task: Task): JobBuilder = {
+    tasks = tasks :+ task
+    this
+  }
+
+  def addTasks(taskList: Task*): JobBuilder = {
+    taskList.foreach(task => tasks = tasks :+ task)
+    this
+  }
+
+  def build(): Job = new Job(jobName, tasks)
+
+}
+
 /**
   * This is the root class that all status values should inherit.
   */
