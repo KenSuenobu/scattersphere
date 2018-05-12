@@ -32,7 +32,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
     var setVar: Int = 0
 
     override def run(): Unit = {
-      val sleepTime = 500
+      val sleepTime = 100
 
       Thread.sleep(sleepTime)
       println(s"[$name] Sleep thread completed.")

@@ -32,7 +32,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
     override def run(): Unit = {
       callCount.incrementAndGet
 
-      val sleepTime = 500
+      val sleepTime = 100
 
       Thread.sleep(sleepTime)
       println(s"[$name] Sleep thread completed.")

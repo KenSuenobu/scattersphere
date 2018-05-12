@@ -21,8 +21,6 @@ import com.scattersphere.core.util._
 import scala.collection.mutable
 
 /**
-  * JobExecutor class
-  *
   * This is the heart of the execution engine.  It takes a [[Job]] object, traverses all of the [[Task]]
   * items defined in it, and creates a DAG.  From this DAG, it determines which tasks can be run asynchronously,
   * and which tasks have dependencies.
@@ -35,12 +33,15 @@ import scala.collection.mutable
   */
 class JobExecutor(job: Job) {
 
+  private lazy val executorService: PausableThreadPoolExecutor = PausableThreadPoolExecutor()
+
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
-  private val executorService: ExecutorService = Executors.newCachedThreadPool
   private val lockObject: Object = new Object
   private var blocking: Boolean = true
 
-  private var completableFuture: CompletableFuture[Void] = null
+  private var completableFuture: CompletableFuture[Void] = _
+
+  executorService.pause()
 
   /**
     * Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
@@ -62,31 +63,40 @@ class JobExecutor(job: Job) {
           case JobRunning => job.setStatus(JobFinished)
           case _ => // Do nothing; keep state stored
         }
+
+        executorService.shutdown
+        println("Execution service shut down.")
       })
 
     this
   }
 
-  def setBlocking(flag: Boolean) = blocking = flag
+  def setBlocking(flag: Boolean) = {
+    if (!flag) {
+      unlock()
+    }
+
+    blocking = flag
+  }
 
   def isBlocking(): Boolean = blocking
 
   def run(): Unit = {
     job.setStatus(JobRunning)
-    unlock()
+    executorService.resume()
 
     if (blocking) {
-      completableFuture.join()
+      completableFuture.join
     }
   }
 
   private def unlock(): Unit = {
-    lockObject.synchronized {
-      lockObject.notifyAll
-    }
+    executorService.resume()
   }
 
   private def runTask(task: Task): Unit = {
+    println(s"Running task: $task")
+
     task.status match {
       case TaskQueued => {
         task.setStatus(TaskRunning)
@@ -119,14 +129,6 @@ class JobExecutor(job: Job) {
     }
 
     throw f
-  }
-
-  private def runTaskWithLock(task: Task): Runnable = () => {
-    lockObject.synchronized {
-      lockObject.wait()
-    }
-
-    runTask(task)
   }
 
   private def toJavaFunction[A, B](f: Function1[A, B]) = new JavaFunction[A, B] {
@@ -169,7 +171,7 @@ class JobExecutor(job: Job) {
       if (task.dependencies.isEmpty) {
         println(s"Task: ${task.name} [ASYNC Root Task]")
 
-        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(runTaskWithLock(task), executorService)
+        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(() => runTask(task), executorService)
 
         taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
           runExceptionally(task, f))))
