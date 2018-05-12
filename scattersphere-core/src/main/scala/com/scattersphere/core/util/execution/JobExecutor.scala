@@ -39,7 +39,7 @@ class JobExecutor(job: Job) {
   private val lockObject: Object = new Object
   private var blocking: Boolean = true
 
-  private var completableFuture: CompletableFuture[Void] = null
+  private var completableFuture: CompletableFuture[Void] = _
 
   /**
     * Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
