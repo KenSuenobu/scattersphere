@@ -34,7 +34,7 @@ import scala.collection.mutable
 class JobExecutor(job: Job) {
 
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
-  private val executorService: ExecutorService = Executors.newWorkStealingPool
+  private val executorService: ExecutorService = Executors.newFixedThreadPool(16)
   private val lockObject: Object = new Object
   private var blocking: Boolean = true
 
