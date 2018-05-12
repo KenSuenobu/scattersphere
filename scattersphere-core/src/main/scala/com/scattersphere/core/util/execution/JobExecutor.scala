@@ -33,8 +33,9 @@ import scala.collection.mutable
   */
 class JobExecutor(job: Job) {
 
+  private lazy val executorService: ExecutorService = Executors.newCachedThreadPool()
+
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
-  private val executorService: ExecutorService = Executors.newFixedThreadPool(16)
   private val lockObject: Object = new Object
   private var blocking: Boolean = true
 
@@ -60,6 +61,9 @@ class JobExecutor(job: Job) {
           case JobRunning => job.setStatus(JobFinished)
           case _ => // Do nothing; keep state stored
         }
+
+        executorService.shutdown
+        println("Execution service shut down.")
       })
 
     this
