@@ -21,8 +21,6 @@ import com.scattersphere.core.util._
 import scala.collection.mutable
 
 /**
-  * JobExecutor class
-  *
   * This is the heart of the execution engine.  It takes a [[Job]] object, traverses all of the [[Task]]
   * items defined in it, and creates a DAG.  From this DAG, it determines which tasks can be run asynchronously,
   * and which tasks have dependencies.
@@ -36,7 +34,7 @@ import scala.collection.mutable
 class JobExecutor(job: Job) {
 
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
-  private val executorService: ExecutorService = Executors.newCachedThreadPool
+  private val executorService: ExecutorService = Executors.newWorkStealingPool
   private val lockObject: Object = new Object
   private var blocking: Boolean = true
 
