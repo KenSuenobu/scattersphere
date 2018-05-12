@@ -33,7 +33,7 @@ import scala.collection.mutable
   */
 class JobExecutor(job: Job) {
 
-  private lazy val executorService: ExecutorService = Executors.newCachedThreadPool()
+  private lazy val executorService: ExecutorService = Executors.newWorkStealingPool(Runtime.getRuntime.availableProcessors() * 2)
 
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
   private val lockObject: Object = new Object
