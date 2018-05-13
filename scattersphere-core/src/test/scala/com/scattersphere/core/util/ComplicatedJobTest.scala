@@ -16,6 +16,7 @@ package com.scattersphere.core.util
 import java.util.concurrent.atomic.AtomicInteger
 
 import com.scattersphere.core.util.execution.JobExecutor
+import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -23,7 +24,7 @@ import org.scalatest.{FlatSpec, Matchers}
   *
   * These tasks are more complicated.
   */
-class ComplicatedJobTest extends FlatSpec with Matchers  {
+class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
 
   class RunnableTestTask(name: String) extends RunnableTask {
     var setVar: String = ""
@@ -35,7 +36,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers  {
       val sleepTime = 100
 
       Thread.sleep(sleepTime)
-      println(s"[$name] Sleep thread completed.")
+      logger.trace(s"[$name] Sleep thread completed.")
 
       setVar = name
     }
