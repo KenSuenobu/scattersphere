@@ -13,6 +13,10 @@
   */
 package com.scattersphere.core.util
 
+import java.io.{PrintWriter, StringWriter}
+
+import com.typesafe.scalalogging.LazyLogging
+
 /**
   * RunnableTask class
   *
@@ -20,13 +24,13 @@ package com.scattersphere.core.util
   * class adds an additional method that can be overridden, which will be called when the run() method completes
   * without any exceptions.
   */
-abstract class RunnableTask extends Runnable {
+abstract class RunnableTask extends Runnable with LazyLogging {
 
   /**
     * This function is called after the run() method completes without any fault.
     */
   def onFinished(): Unit = {
-    println("Job finished.")
+    logger.info("Job finished.")
   }
 
   /**
@@ -34,8 +38,11 @@ abstract class RunnableTask extends Runnable {
     * @param t
     */
   def onException(t: Throwable): Unit = {
-    println(s"Exception occurred: $t")
-    t.printStackTrace
+    val sWriter = new StringWriter()
+    val pWriter = new PrintWriter(sWriter)
+
+    t.printStackTrace(pWriter)
+    logger.info(s"Exception occurred: ${sWriter.toString}")
   }
 
 }

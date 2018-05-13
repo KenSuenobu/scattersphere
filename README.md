@@ -12,6 +12,13 @@ and others, however, it is designed to be self-contained, and extensible.
 - Java 8 SDK
 - Apache Ant
 
+## Dependencies
+
+- [Log4j 1.7.25](https://www.slf4j.org/download.html)
+- [Logback 1.2.3](https://logback.qos.ch/download.html)
+- [scala-logging 3.9.0](https://github.com/lightbend/scala-logging)
+- [Scala 2.12.4](https://www.scala-lang.org)
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](/CONTRIBUTING.md)
