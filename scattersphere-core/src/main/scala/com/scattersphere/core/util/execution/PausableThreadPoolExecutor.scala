@@ -33,6 +33,7 @@ import com.typesafe.scalalogging.LazyLogging
   * @param unit            The unit of time that the keep alive time represents
   * @param workQueue       The queue that holds your tasks
   * @see ThreadPoolExecutor#ThreadPoolExecutor(int, int, long, TimeUnit, BlockingQueue)
+  * @since 0.0.1
   */
 class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.availableProcessors(),
                                  val maximumPoolSize: Int = Runtime.getRuntime.availableProcessors() * 10,

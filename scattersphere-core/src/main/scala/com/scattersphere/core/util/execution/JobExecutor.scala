@@ -30,6 +30,7 @@ import scala.collection.mutable
   * see fit.
   *
   * @param job The [[Job]] containing all of the tasks (and dependencies) to run.
+  * @since 0.0.1
   */
 class JobExecutor(job: Job) extends LazyLogging {
 
@@ -195,6 +196,7 @@ class JobExecutor(job: Job) extends LazyLogging {
   * @param task [[Task]] object.
   * @param status actual [[TaskStatus]].
   * @param expected expected [[TaskStatus]].
+  * @since 0.0.1
   */
 class InvalidTaskStateException(task: Task,
                                 status: TaskStatus,

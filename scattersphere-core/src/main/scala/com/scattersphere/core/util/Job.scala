@@ -32,6 +32,7 @@ package com.scattersphere.core.util
   * @constructor creates a new object with a name and sequence of [[Task]]s, setting the [[JobStatus]] to [[JobQueued]]
   * @param name name of the job.
   * @param tasks The `Seq` of [[Task]]s associated with the job.
+  * @since 0.0.1
   */
 case class Job(name: String, tasks: Seq[Task]) {
 
@@ -67,6 +68,8 @@ case class Job(name: String, tasks: Seq[Task]) {
   * }}}
   *
   * Adding a single task at a time can be done using the singular `addTask(task)` method.
+  *
+  * @since 0.0.1
   */
 class JobBuilder {
 
@@ -114,16 +117,26 @@ class JobBuilder {
 /** This is the root class that all status values should inherit.
   *
   * @param t the optional Throwable object associated with the status.
+  * @since 0.0.1
   */
 sealed abstract class JobStatus(t: Throwable = null)
 
-/** Indicates that a job is queued and dormant, meaning, it is initialized, but has not been run. */
+/** Indicates that a job is queued and dormant, meaning, it is initialized, but has not been run.
+  *
+  * @since 0.0.1
+  */
 final case object JobQueued extends JobStatus
 
-/** Indicates that a job is currently running. */
+/** Indicates that a job is currently running.
+  *
+  * @since 0.0.1
+  */
 final case object JobRunning extends JobStatus
 
-/** Indicates that a job has completed without errors. */
+/** Indicates that a job has completed without errors.
+  *
+  * @since 0.0.1
+  */
 final case object JobFinished extends JobStatus
 
 /** Indicates that a job failed at some point with an error.  To find the [[Task]] that failed, you
@@ -132,6 +145,7 @@ final case object JobFinished extends JobStatus
   *
   * @constructor create a new status with the associated `Throwable` that caused the error.
   * @param t `Throwable` that caused the [[Job]] to fail.
+  * @since 0.0.1
   */
 final case class JobFailed(t: Throwable) extends JobStatus(t)
 

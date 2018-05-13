@@ -48,6 +48,8 @@ import com.typesafe.scalalogging.LazyLogging
   *
   * This way, you get the added benefits of the RunnableTask's functions without having to directly
   * implement them yourself.
+  *
+  * @since 0.0.1
   */
 trait RunnableTask extends Runnable with LazyLogging {
 
@@ -80,6 +82,8 @@ trait RunnableTask extends Runnable with LazyLogging {
   *   import com.scattersphere.core.util._
   *   val runnableTask: RunnableTask = RunnableTask(new myRunnable())
   * }}}
+  *
+  * @since 0.0.1
   */
 object RunnableTask {
 

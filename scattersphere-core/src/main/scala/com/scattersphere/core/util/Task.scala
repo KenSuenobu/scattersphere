@@ -73,6 +73,8 @@ package com.scattersphere.core.util
   * @param task [[RunnableTask]] class unit of work
   * @param dependencies tasks that this task depends on before running
   * @param async true for asynchronous, false otherwise
+  *
+  * @since 0.0.1
   */
 case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
 
@@ -128,6 +130,8 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
   *   [Task 1] -<
   *              \---> [Task 3]
   * }}}
+  *
+  * @since 0.0.1
   */
 class TaskBuilder {
 
@@ -186,21 +190,32 @@ class TaskBuilder {
 /** This is the root class that all status values should inherit.
   *
   * @param t `Throwable` that may have occurred.
+  * @since 0.0.1
   */
 sealed abstract class TaskStatus(t: Throwable = null)
 
-/** Indicates that a [[Task]] is queued and dormant. */
+/** Indicates that a [[Task]] is queued and dormant.
+  *
+  * @since 0.0.1
+  */
 final case object TaskQueued extends TaskStatus
 
-/** Indicates that a [[Task]] is running. */
+/** Indicates that a [[Task]] is running.
+  *
+  * @since 0.0.1
+  */
 final case object TaskRunning extends TaskStatus
 
-/** Indicates that a [[Task]] has completed. */
+/** Indicates that a [[Task]] has completed.
+  *
+  * @since 0.0.1
+  */
 final case object TaskFinished extends TaskStatus
 
 /** Indicates that a [[Task]] failed due to an `Exception`.
   *
   * @param t `Throwable` that caused the failure.
+  * @since 0.0.1
   */
 final case class TaskFailed(t: Throwable) extends TaskStatus(t)
 
