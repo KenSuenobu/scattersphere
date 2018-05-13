@@ -3,14 +3,15 @@ package com.scattersphere.core.util
 import java.util.concurrent.CompletionException
 
 import com.scattersphere.core.util.execution.JobExecutor
+import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.{FlatSpec, Matchers}
 
-class ExceptionJobTest extends FlatSpec with Matchers {
+class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
 
   class TimerJob(duration: Int) extends RunnableTask {
     override def run(): Unit = {
       Thread.sleep(duration * 1000)
-      println(s"Slept $duration second(s)")
+      logger.trace(s"Slept $duration second(s)")
       throw new NullPointerException
     }
   }

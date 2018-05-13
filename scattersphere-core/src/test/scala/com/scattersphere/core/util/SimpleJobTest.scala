@@ -13,9 +13,8 @@
   */
 package com.scattersphere.core.util
 
-import java.util.concurrent.CompletionException
-
 import com.scattersphere.core.util.execution.{InvalidTaskStateException, JobExecutor}
+import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -26,7 +25,7 @@ import org.scalatest.{FlatSpec, Matchers}
   * tasks that create a large DAG.  This code creates a simple set of DAGs: One that follows one after another, and
   * one that runs multiple tasks asynchronously.
   */
-class SimpleJobTest extends FlatSpec with Matchers  {
+class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
 
   class RunnableTestTask(name: String) extends RunnableTask {
     var setVar: Int = 0
@@ -35,7 +34,7 @@ class SimpleJobTest extends FlatSpec with Matchers  {
       val sleepTime = 100
 
       Thread.sleep(sleepTime)
-      println(s"[$name] Sleep thread completed.")
+      logger.trace(s"[$name] Sleep thread completed.")
 
       setVar = name.toInt
     }
