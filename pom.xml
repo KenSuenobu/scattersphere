@@ -7,6 +7,9 @@
         <junit.version>4.12</junit.version>
 
         <scala-test.version>3.0.3</scala-test.version>
+        <scala-logging.version>3.9.0</scala-logging.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.3</logback.version>
 
         <!-- Build Properties -->
         <maven.compiler.plugin.version>3.2</maven.compiler.plugin.version>
@@ -117,6 +120,24 @@
                 <artifactId>scalatest_2.12</artifactId>
                 <version>${scala-test.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.typesafe.scala-logging</groupId>
+                <artifactId>scala-logging_2.12</artifactId>
+                <version>${scala-logging.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

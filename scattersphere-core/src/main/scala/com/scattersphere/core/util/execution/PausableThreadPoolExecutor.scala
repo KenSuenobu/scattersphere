@@ -16,6 +16,8 @@ package com.scattersphere.core.util.execution
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 import java.util.concurrent.locks.{Condition, ReentrantLock}
 
+import com.typesafe.scalalogging.LazyLogging
+
 /**
   * A light wrapper around the [[ThreadPoolExecutor]]. It allows for you to pause execution and
   * resume execution when ready. It is very handy for games that need to pause.
@@ -37,7 +39,7 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
                                  val keepAliveTime: Long = Long.MaxValue,
                                  val unit: TimeUnit = TimeUnit.SECONDS,
                                  val workQueue: BlockingQueue[Runnable] = new LinkedBlockingQueue[Runnable]())
-  extends ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue) {
+  extends ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue) with LazyLogging {
 
   private val lock: ReentrantLock = new ReentrantLock()
   private val condition: Condition = lock.newCondition()
@@ -55,9 +57,9 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
 
     try {
       while (paused) {
-        println("Awaiting lock release.")
+        logger.trace("Awaiting lock release.")
         condition.await
-        println("Lock released.")
+        logger.trace("Lock released.")
       }
     } catch {
       case _: InterruptedException => thread.interrupt()
@@ -74,8 +76,10 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     * Pause the execution
     */
   def pause(): Unit = {
-    println(s"PausableThreadPoolExecutor: Pausing.")
+    logger.trace("PausableThreadPoolExecutor: Pausing.")
+
     lock.lock()
+
     try {
       paused = true
     } finally {
@@ -87,7 +91,8 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     * Resume pool execution
     */
   def resume(): Unit = {
-    println(s"PausableThreadPoolExecutor: Resuming.")
+    logger.trace("PausableThreadPoolExecutor: Resuming.")
+
     lock.lock()
 
     try {

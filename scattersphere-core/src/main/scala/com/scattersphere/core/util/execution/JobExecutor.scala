@@ -17,6 +17,7 @@ import java.util.concurrent.{CompletionException, _}
 import java.util.function.{Function => JavaFunction}
 
 import com.scattersphere.core.util._
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 
@@ -31,7 +32,7 @@ import scala.collection.mutable
   *
   * @param job The [[Job]] containing all of the tasks (and dependencies) to run.
   */
-class JobExecutor(job: Job) {
+class JobExecutor(job: Job) extends LazyLogging {
 
   private lazy val executorService: PausableThreadPoolExecutor = PausableThreadPoolExecutor()
 
@@ -65,7 +66,7 @@ class JobExecutor(job: Job) {
         }
 
         executorService.shutdown
-        println("Execution service shut down.")
+        logger.trace("Execution service shut down.")
       })
 
     this
@@ -95,7 +96,7 @@ class JobExecutor(job: Job) {
   }
 
   private def runTask(task: Task): Unit = {
-    println(s"Running task: $task")
+    logger.info(s"Running task: $task")
 
     task.status match {
       case TaskQueued => {
@@ -138,7 +139,7 @@ class JobExecutor(job: Job) {
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
       taskMap.get(dependent.name) match {
-        case Some(_) => println(s"  `- [${dependent.name}: Already queued] Parent=${task.name} has ${task.dependencies.length} subtasks.")
+        case Some(_) => logger.debug(s"[${dependent.name}: Already queued] Parent=${task.name} has ${task.dependencies.length} subtasks.")
         case None => {
           val parentFuture: CompletableFuture[Void] = taskMap(task.name)
 
@@ -148,14 +149,14 @@ class JobExecutor(job: Job) {
             taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
               runExceptionally(dependent, f))))
 
-            println(s"  `- [${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.dependencies.length} subtasks.")
+            logger.debug(s"[${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.dependencies.length} subtasks.")
           } else {
             val cFuture: CompletableFuture[Void] = parentFuture.thenRun(() => runTask(dependent))
 
             taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
               runExceptionally(dependent, f))))
 
-            println(s"  `- [${dependent.name}: Queued] Parent=${task.name} has ${task.dependencies.length} subtasks.")
+            logger.debug(s"[${dependent.name}: Queued] Parent=${task.name} has ${task.dependencies.length} subtasks.")
           }
         }
       }
@@ -169,19 +170,19 @@ class JobExecutor(job: Job) {
   private def generateExecutionPlan(tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
       if (task.dependencies.isEmpty) {
-        println(s"Task: ${task.name} [ASYNC Root Task]")
+        logger.debug(s"Task: ${task.name} [ASYNC Root Task]")
 
         val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(() => runTask(task), executorService)
 
         taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
           runExceptionally(task, f))))
       } else {
-        println(s"Task: ${task.name} task - Walking tree")
+        logger.debug(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.dependencies)
       }
     })
 
-    println(s"Known task map: ${taskMap.keys}")
+    logger.info(s"Known task map: ${taskMap.keys}")
   }
 
 }
