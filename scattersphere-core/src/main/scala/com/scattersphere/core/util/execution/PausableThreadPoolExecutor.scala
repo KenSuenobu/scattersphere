@@ -33,6 +33,7 @@ import com.typesafe.scalalogging.LazyLogging
   * @param unit            The unit of time that the keep alive time represents
   * @param workQueue       The queue that holds your tasks
   * @see ThreadPoolExecutor#ThreadPoolExecutor(int, int, long, TimeUnit, BlockingQueue)
+  * @since 0.0.1
   */
 class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.availableProcessors(),
                                  val maximumPoolSize: Int = Runtime.getRuntime.availableProcessors() * 10,
@@ -43,7 +44,7 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
 
   private val lock: ReentrantLock = new ReentrantLock()
   private val condition: Condition = lock.newCondition()
-  private var paused = false
+  private var isPaused = false
 
   /**
     * @param thread   The thread being executed
@@ -56,7 +57,7 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     lock.lock()
 
     try {
-      while (paused) {
+      while (isPaused) {
         logger.trace("Awaiting lock release.")
         condition.await
         logger.trace("Lock released.")
@@ -68,20 +69,20 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     }
   }
 
-  def isRunning: Boolean = !paused
+  def running: Boolean = !isPaused
 
-  def isPaused: Boolean = paused
+  def paused: Boolean = isPaused
 
   /**
     * Pause the execution
     */
   def pause(): Unit = {
-    logger.trace("PausableThreadPoolExecutor: Pausing.")
+    logger.trace("Pausing thread pool.")
 
     lock.lock()
 
     try {
-      paused = true
+      isPaused = true
     } finally {
       lock.unlock()
     }
@@ -91,12 +92,12 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     * Resume pool execution
     */
   def resume(): Unit = {
-    logger.trace("PausableThreadPoolExecutor: Resuming.")
+    logger.trace("Resuming thread pool.")
 
     lock.lock()
 
     try {
-      paused = false
+      isPaused = false
       condition.signalAll
     } finally {
       lock.unlock()

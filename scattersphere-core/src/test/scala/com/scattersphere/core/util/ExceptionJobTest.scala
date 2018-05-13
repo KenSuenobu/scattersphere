@@ -35,24 +35,24 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
 
     job1.tasks.length shouldBe 1
     job1.tasks(0) shouldBe task1
-    job1.status() shouldBe JobQueued
+    job1.status shouldBe JobQueued
 
     val queuedJob: JobExecutor = jobExec.queue()
 
     queuedJob.setBlocking(false)
-    jobExec.isBlocking() shouldBe false
+    jobExec.blocking shouldBe false
     queuedJob.run()
     queuedJob.setBlocking(true)
-    job1.status() shouldBe JobRunning
+    job1.status shouldBe JobRunning
 
     println("Waiting 5 seconds before submitting a cancel.")
     Thread.sleep(5000)
-    job1.status() match {
+    job1.status match {
       case JobFailed(_) => println("Job failed expected.")
       case x => fail(s"Unexpected job state caught: $x")
     }
 
-    jobExec.isBlocking() shouldBe true
+    jobExec.blocking shouldBe true
 
     assertThrows[CompletionException] {
       queuedJob.run()

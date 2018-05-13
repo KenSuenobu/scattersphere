@@ -17,25 +17,53 @@ import java.io.{PrintWriter, StringWriter}
 
 import com.typesafe.scalalogging.LazyLogging
 
-/**
-  * RunnableTask class
+/** An abstract class that extends Runnable, providing methods for cleanup and exception handling.
   *
-  * This class extends the Runnable class, of which you must override the run() method.  The [[RunnableTask]]
-  * class adds an additional method that can be overridden, which will be called when the run() method completes
-  * without any exceptions.
+  * [[Task]] objects are defined using this class.  If you have already defined a series of
+  * Runnable classes and do not wish to inherit these functions by default, you can always use
+  * "with RunnableTask", and these functions will automatically be included in your Runnable.
+  *
+  * ==Examples==
+  *
+  * RunnableTask:
+  * {{{
+  *   class MyTask extends RunnableTask {
+  *     // RunnableTask extends Runnable, so you must define run()
+  *     override def run(): Unit = {
+  *       ... do some expensive unit of work here ...
+  *     }
+  *
+  *     override def onFinished: Unit = {
+  *       ... clean up code, shared resources, database connections, etc ...
+  *     }
+  *   }
+  * }}}
+  *
+  * If you do not want to use the RunnableTask, when creating a new [[Task]], simply use the
+  * following similar code:
+  *
+  * {{{
+  *   val myTask: RunnableTask = new myRunnable() with RunnableTask
+  * }}}
+  *
+  * This way, you get the added benefits of the RunnableTask's functions without having to directly
+  * implement them yourself.
+  *
+  * @since 0.0.1
   */
-abstract class RunnableTask extends Runnable with LazyLogging {
+trait RunnableTask extends Runnable with LazyLogging {
 
-  /**
-    * This function is called after the run() method completes without any fault.
+  /** Called when the run() method finishes without throwing an exception.  Contains a default
+    * implementation if not overridden.
     */
   def onFinished(): Unit = {
     logger.info("Job finished.")
   }
 
-  /**
-    * This function is called when an exception is caught in the [[com.scattersphere.core.util.execution.JobExecutor]].
-    * @param t
+  /** Called when the run() method fails to finish due to an uncaught exception.  Default implementation
+    * will display the error stack trace to the logger.
+    *
+    * @param t Throwable containing the error that occurred.
     */
   def onException(t: Throwable): Unit = {
     val sWriter = new StringWriter()
@@ -47,14 +75,23 @@ abstract class RunnableTask extends Runnable with LazyLogging {
 
 }
 
-/**
-  * Convenience [[RunnableTask]] object
+/** Factory for [[RunnableTask]] instances.
   *
-  * This can be used to wrap a Runnable object without having to fully implement all of the [[RunnableTask]]
-  * methods.
+  * Example:
+  * {{{
+  *   import com.scattersphere.core.util._
+  *   val runnableTask: RunnableTask = RunnableTask(new myRunnable())
+  * }}}
+  *
+  * @since 0.0.1
   */
 object RunnableTask {
 
+  /** Creates a new RunnableTask, wrapping the applied runnable object.
+    *
+    * @param runnable the runnable to wrap.
+    * @return a RunnableTask object.
+    */
   def apply(runnable: Runnable): RunnableTask = new RunnableTask {
     override def run(): Unit = {
       runnable.run()

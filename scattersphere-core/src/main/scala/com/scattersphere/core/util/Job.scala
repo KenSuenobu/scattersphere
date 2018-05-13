@@ -14,72 +14,138 @@
 
 package com.scattersphere.core.util
 
-/**
-  * Job
+/** A collection of [[Task]]s.
   *
-  * This class describes a job.  A job is simply a series of tasks.
+  * [[Job]]s are run using the [[com.scattersphere.core.util.execution.JobExecutor]] class, which in turn
+  * controls the execution of the [[Task]]s within each [[Job]].
   *
-  * @param name The name of the job.
-  * @param tasks The Seq of [[Task]]s associated with the job.
+  * A [[Job]] contains a name, a Seq of [[Task]]s, and a status.  When initialized, the [[JobStatus]]
+  * is set to [[JobQueued]], indicating that a [[Job]] is ready to run, but is in a dormant state.
+  *
+  * ==Example==
+  *
+  * Creating a new [[Job]]:
+  * {{{
+  *   val job: Job = new Job("my job", Seq(task1, task2, task3))
+  * }}}
+  *
+  * @constructor creates a new object with a name and sequence of [[Task]]s, setting the [[JobStatus]] to [[JobQueued]]
+  * @param name name of the job.
+  * @param tasks The `Seq` of [[Task]]s associated with the job.
+  * @since 0.0.1
   */
 case class Job(name: String, tasks: Seq[Task]) {
 
   private var jobStatus: JobStatus = JobQueued
 
+  /** Sets the [[JobStatus]] for this job.
+    *
+    * @param status [[JobStatus]] to assign.
+    */
   def setStatus(status: JobStatus): Unit = jobStatus = status
 
-  def status(): JobStatus = jobStatus
+  /** Retrieves the current [[JobStatus]]
+    *
+    * @return [[JobStatus]] for this job.
+    */
+  def status: JobStatus = jobStatus
 
   override def toString = s"Job{name=$name,jobStatus=$jobStatus,tasks=$tasks}"
 
 }
 
+/** A builder class that allows for functional construction of a [[Job]].
+  *
+  * The JobBuilder allows for chained functions to be used to functionally create a Job.
+  *
+  * ==Example==
+  *
+  * {{{
+  *   val job: Job = new JobBuilder()
+  *     .withName("my job")
+  *     .addTasks(task1, task2, task3)
+  *     .build()
+  * }}}
+  *
+  * Adding a single task at a time can be done using the singular `addTask(task)` method.
+  *
+  * @since 0.0.1
+  */
 class JobBuilder {
 
   private var tasks: Seq[Task] = Seq()
   private var jobName: String = _
 
+  /** Defines the name of the job.
+    *
+    * @param name name of the job.
+    * @return this object for continued building.
+    */
   def withName(name: String): JobBuilder = {
     jobName = name
     this
   }
 
+  /** Adds a single [[Task]].
+    *
+    * @param task [[Task]] to add.
+    * @return this object for continued building.
+    */
   def addTask(task: Task): JobBuilder = {
     tasks = tasks :+ task
     this
   }
 
+  /** Adds a series of [[Task]]s.
+    *
+    * @param taskList series of [[Task]]s to add.
+    * @return this object for continued building.
+    */
   def addTasks(taskList: Task*): JobBuilder = {
     taskList.foreach(task => tasks = tasks :+ task)
     this
   }
 
+  /** Builds a new [[Job]] object given the supplied parameters.
+    *
+    * @return a new [[Job]] object.
+    */
   def build(): Job = new Job(jobName, tasks)
 
 }
 
-/**
-  * This is the root class that all status values should inherit.
+/** This is the root class that all status values should inherit.
+  *
+  * @param t the optional Throwable object associated with the status.
+  * @since 0.0.1
   */
 sealed abstract class JobStatus(t: Throwable = null)
 
-/**
-  * This indicates that a job is queued but not running.
+/** Indicates that a job is queued and dormant, meaning, it is initialized, but has not been run.
+  *
+  * @since 0.0.1
   */
 final case object JobQueued extends JobStatus
 
-/**
-  * This indicates that a job is running.
+/** Indicates that a job is currently running.
+  *
+  * @since 0.0.1
   */
 final case object JobRunning extends JobStatus
 
-/**
-  * This indicates that a job has completed.
+/** Indicates that a job has completed without errors.
+  *
+  * @since 0.0.1
   */
 final case object JobFinished extends JobStatus
 
-/**
-  * This indicates that a job was canceled.
+/** Indicates that a job failed at some point with an error.  To find the [[Task]] that failed, you
+  * will need to walk the sequence of [[Task]] objects that are part of the [[Job]] that failed.  A
+  * failed task will have a status of [[TaskFailed]], along with the associated Throwable.
+  *
+  * @constructor create a new status with the associated `Throwable` that caused the error.
+  * @param t `Throwable` that caused the [[Job]] to fail.
+  * @since 0.0.1
   */
 final case class JobFailed(t: Throwable) extends JobStatus(t)
 

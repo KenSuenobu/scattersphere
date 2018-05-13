@@ -99,10 +99,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
     runnableTask2.setVar shouldBe ""
     runnableTask3.setVar shouldBe ""
 
-    job1.status() shouldBe JobQueued
-    jobExec.isBlocking() shouldBe true
+    job1.status shouldBe JobQueued
+    jobExec.blocking shouldBe true
     jobExec.queue().run()
-    job1.status() shouldBe JobFinished
+    job1.status shouldBe JobFinished
 
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
@@ -194,10 +194,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
     runnableTask3.setVar shouldBe ""
     runnableTask4.setVar shouldBe ""
 
-    job1.status() shouldBe JobQueued
-    jobExec.isBlocking() shouldBe true
+    job1.status shouldBe JobQueued
+    jobExec.blocking shouldBe true
     jobExec.queue().run()
-    job1.status() shouldBe JobFinished
+    job1.status shouldBe JobFinished
 
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
@@ -316,10 +316,10 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
     runnableTask5.setVar shouldBe ""
     runnableTask6.setVar shouldBe ""
 
-    job1.status() shouldBe JobQueued
-    jobExec.isBlocking() shouldBe true
+    job1.status shouldBe JobQueued
+    jobExec.blocking shouldBe true
     jobExec.queue().run()
-    job1.status() shouldBe JobFinished
+    job1.status shouldBe JobFinished
 
     runnableTask1.setVar shouldBe "1"
     runnableTask2.setVar shouldBe "2-A"
