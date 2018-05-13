@@ -21,8 +21,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 
-/**
-  * This is the heart of the execution engine.  It takes a [[Job]] object, traverses all of the [[Task]]
+/** This is the heart of the execution engine.  It takes a [[Job]] object, traverses all of the [[Task]]
   * items defined in it, and creates a DAG.  From this DAG, it determines which tasks can be run asynchronously,
   * and which tasks have dependencies.
   *
@@ -37,20 +36,18 @@ class JobExecutor(job: Job) extends LazyLogging {
   private lazy val executorService: PausableThreadPoolExecutor = PausableThreadPoolExecutor()
 
   private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
-  private val lockObject: Object = new Object
-  private var blocking: Boolean = true
+  private var isBlocking: Boolean = true
 
   private var completableFuture: CompletableFuture[Void] = _
 
   executorService.pause()
 
-  /**
-    * Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
+  /** Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
     * asynchronous CompletableFuture, it's possible that the tasks will start while the DAG is being generated.
     * This should not affect how the tasks run, however, it may affect synchronization in your top-level application,
     * should you depend on timing or anything of that sort.
     *
-    * @return CompletableFuture containing the completed DAG of tasks to execute.
+    * @return this object
     */
   def queue(): JobExecutor = {
     val tasks: Seq[Task] = job.tasks
@@ -60,7 +57,7 @@ class JobExecutor(job: Job) extends LazyLogging {
     completableFuture = CompletableFuture
       .allOf(taskMap.values.toSeq: _*)
       .whenComplete((_, _) => {
-        job.status() match {
+        job.status match {
           case JobRunning => job.setStatus(JobFinished)
           case _ => // Do nothing; keep state stored
         }
@@ -72,21 +69,27 @@ class JobExecutor(job: Job) extends LazyLogging {
     this
   }
 
+  /** When set true, the run method will block until the entire DAG executes completely.
+    *
+    * @param flag boolean indicating whether or not to block on execution.
+    */
   def setBlocking(flag: Boolean) = {
     if (!flag) {
       unlock()
     }
 
-    blocking = flag
+    isBlocking = flag
   }
 
-  def isBlocking(): Boolean = blocking
+  /** Indicates whether or not the `run()` method should block until completion. */
+  def blocking: Boolean = isBlocking
 
+  /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately. */
   def run(): Unit = {
     job.setStatus(JobRunning)
     executorService.resume()
 
-    if (blocking) {
+    if (isBlocking) {
       completableFuture.join
     }
   }
@@ -187,6 +190,12 @@ class JobExecutor(job: Job) extends LazyLogging {
 
 }
 
+/** An exception indicating that a [[Task]] was in a different state than expected.
+  *
+  * @param task [[Task]] object.
+  * @param status actual [[TaskStatus]].
+  * @param expected expected [[TaskStatus]].
+  */
 class InvalidTaskStateException(task: Task,
                                 status: TaskStatus,
                                 expected: TaskStatus)

@@ -18,8 +18,6 @@ import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
-  * SimpleJobTest
-  *
   * This is a really simple test - all it checks is that jobs can be created with tasks, the tasks run, and all of
   * the tasks run properly.  There is no exeception checking, there are no thrown exceptions, and no complicated
   * tasks that create a large DAG.  This code creates a simple set of DAGs: One that follows one after another, and
@@ -27,7 +25,7 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
 
-  class RunnableTestTask(name: String) extends RunnableTask {
+  class RunnableTestTask(name: String) extends Runnable {
     var setVar: Int = 0
 
     override def run(): Unit = {
@@ -56,9 +54,9 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     * The job itself is not complete until the last task finishes or an exception occurs.
     */
   "Simple Jobs" should "prepare a job and execute the first, second, and third tasks properly" in {
-    val runnableTask1 = new RunnableTestTask("1")
-    val runnableTask2 = new RunnableTestTask("2")
-    val runnableTask3 = new RunnableTestTask("3")
+    val runnableTask1 = new RunnableTestTask("1") with RunnableTask
+    val runnableTask2 = new RunnableTestTask("2") with RunnableTask
+    val runnableTask3 = new RunnableTestTask("3") with RunnableTask
     val task1: Task = new TaskBuilder()
         .withName("First Runnable Task")
         .withTask(runnableTask1)
@@ -101,10 +99,10 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     runnableTask2.setVar shouldBe 0
     runnableTask3.setVar shouldBe 0
 
-    job1.status() shouldBe JobQueued
-    jobExec.isBlocking() shouldBe true
+    job1.status shouldBe JobQueued
+    jobExec.blocking shouldBe true
     jobExec.queue().run()
-    job1.status() shouldBe JobFinished
+    job1.status shouldBe JobFinished
 
     runnableTask1.setVar shouldBe 1
     runnableTask2.setVar shouldBe 2
@@ -119,9 +117,9 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     * guarantee execution order when this happens, we simply check value statuses at the end of the run.
     */
   it should "be able to run three tasks asynchronously" in {
-    val runnableTask1 = new RunnableTestTask("1")
-    val runnableTask2 = new RunnableTestTask("2")
-    val runnableTask3 = new RunnableTestTask("3")
+    val runnableTask1 = new RunnableTestTask("1") with RunnableTask
+    val runnableTask2 = new RunnableTestTask("2") with RunnableTask
+    val runnableTask3 = new RunnableTestTask("3") with RunnableTask
     val task1: Task = new TaskBuilder()
         .withName("First Runnable Task")
         .withTask(runnableTask1)
@@ -153,9 +151,9 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
       .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
 
-    job1.status() shouldBe JobQueued
+    job1.status shouldBe JobQueued
     jobExec.queue().run()
-    job1.status() shouldBe JobFinished
+    job1.status shouldBe JobFinished
 
     runnableTask1.setVar shouldBe 1
     runnableTask2.setVar shouldBe 2
@@ -166,7 +164,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   it should "not allow the same task to exist on two separate jobs after completing in one job" in {
-    val runnableTask1 = new RunnableTestTask("1")
+    val runnableTask1 = new RunnableTestTask("1") with RunnableTask
     val task1: Task = new TaskBuilder()
         .withName("First Runnable Task")
         .withTask(runnableTask1)
@@ -181,10 +179,10 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
         .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
 
-    job1.status() shouldBe JobQueued
-    jobExec.isBlocking() shouldBe true
+    job1.status shouldBe JobQueued
+    jobExec.blocking shouldBe true
     jobExec.queue().run()
-    job1.status() shouldBe JobFinished
+    job1.status shouldBe JobFinished
 
     runnableTask1.setVar shouldBe 1
     task1.status shouldBe TaskFinished
@@ -197,9 +195,9 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
 
     // This will be upgraded soon so that the underlying cause can be pulled from the Job, but only if the job
     // completes exceptionally.
-    jobExec2.isBlocking() shouldBe true
+    jobExec2.blocking shouldBe true
     jobExec2.queue().run()
-    job2.status() match {
+    job2.status match {
       case JobFailed(_) => println("Job failed, expected.")
       case x => fail(s"Unexpected job status: $x")
     }
