@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CircleCI](https://circleci.com/gh/KenSuenobu/scattersphere.svg?style=svg)](https://circleci.com/gh/KenSuenobu/scattersphere)
 
-Scattersphere is a lightweight (under 1000 lines of code) job coordination server 
+Scattersphere is a lightweight (under 1000 lines of code) job coordination API 
 designed to run a simple DAG of tasks.
 
 It is inspired by many projects on Github such as Orchestra, Chronos, Cats IO, 
