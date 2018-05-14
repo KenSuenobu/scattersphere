@@ -41,8 +41,6 @@ class JobExecutor(job: Job) extends LazyLogging {
 
   private var completableFuture: CompletableFuture[Void] = _
 
-  executorService.pause()
-
   /** Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
     * asynchronous CompletableFuture, it's possible that the tasks will start while the DAG is being generated.
     * This should not affect how the tasks run, however, it may affect synchronization in your top-level application,

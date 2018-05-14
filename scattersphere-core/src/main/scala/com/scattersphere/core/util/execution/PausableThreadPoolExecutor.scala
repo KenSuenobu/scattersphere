@@ -32,6 +32,7 @@ import com.typesafe.scalalogging.LazyLogging
   * @param keepAliveTime   The amount of time you wish to keep a single task alive
   * @param unit            The unit of time that the keep alive time represents
   * @param workQueue       The queue that holds your tasks
+  * @param startPaused     true to start in paused state, false otherwise
   * @see ThreadPoolExecutor#ThreadPoolExecutor(int, int, long, TimeUnit, BlockingQueue)
   * @since 0.0.1
   */
@@ -39,14 +40,16 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
                                  val maximumPoolSize: Int = Runtime.getRuntime.availableProcessors() * 10,
                                  val keepAliveTime: Long = Long.MaxValue,
                                  val unit: TimeUnit = TimeUnit.SECONDS,
-                                 val workQueue: BlockingQueue[Runnable] = new LinkedBlockingQueue[Runnable]())
+                                 val workQueue: BlockingQueue[Runnable] = new LinkedBlockingQueue[Runnable](),
+                                 val startPaused: Boolean = false)
   extends ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue) with LazyLogging {
 
   private val lock: ReentrantLock = new ReentrantLock()
   private val condition: Condition = lock.newCondition()
-  private var isPaused = false
+  private var isPaused = startPaused
 
-  /**
+  /** Overrides the beforeExecute function, allowing for the lock (pause) functionality.
+    *
     * @param thread   The thread being executed
     * @param runnable The runnable task
     * @see { @link ThreadPoolExecutor#beforeExecute(Thread, Runnable)}
@@ -69,13 +72,13 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     }
   }
 
-  def running: Boolean = !isPaused
-
+  /** Indicates whether or not this thread pool executor is paused.
+    *
+    * @return true if paused, false otherwise.
+    */
   def paused: Boolean = isPaused
 
-  /**
-    * Pause the execution
-    */
+  /** Pauses execution. */
   def pause(): Unit = {
     logger.trace("Pausing thread pool.")
 
@@ -88,9 +91,7 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     }
   }
 
-  /**
-    * Resume pool execution
-    */
+  /** Resumes execution. */
   def resume(): Unit = {
     logger.trace("Resuming thread pool.")
 
@@ -105,6 +106,10 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
   }
 }
 
+/** Convenience PausableThreadPoolExecutor factory object. */
 object PausableThreadPoolExecutor {
-  def apply(): PausableThreadPoolExecutor = new PausableThreadPoolExecutor()
+
+  /** Emits a PausableThreadPoolExecutor in the paused state. */
+  def apply(): PausableThreadPoolExecutor = new PausableThreadPoolExecutor(startPaused = true)
+
 }
