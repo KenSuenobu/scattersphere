@@ -13,13 +13,33 @@ import org.scalatest.{FlatSpec, Matchers}
 import scala.collection.immutable.ListMap
 import scala.collection.mutable
 
+/**
+  * This will eventually contain a series of real world tests that provide a way to show real use cases in
+  * Scattersphere.
+  */
 class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
 
-  private val urls = Array("https://www.scala-lang.org/",
-    "https://www.rust-lang.org/en-US/documentation.html")
-  private var webData: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String]()
-
+  /**
+    * This first example walks a series of URLs and:
+    *   - loads in the data into a concurrent map.
+    *   - strips the URL data of any additional web site URLs.
+    *   - counts the number of words in the URL body, sorts the results by occurrence.
+    *
+    * The DAG looks like this:
+    * {{{
+    *            /---> [URL finder]
+    *   [URL fetch]
+    *            \---> [Word counter]
+    * }}}
+    *
+    * Whereas the URL Fetch task runs as a synchronous task before firing off the URL finder and word counters
+    * in parallel as two separate asynchronous tasks.
+    */
   "real world test" should "fetch data from a series of URLs, parse the data, and generate analytics" in {
+    val urls = Array("https://www.scala-lang.org/",
+      "https://www.rust-lang.org/en-US/documentation.html")
+    var webData: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String]()
+
     class DataFetchRunnable(url: String) extends Runnable {
       override def run(): Unit = {
         logger.debug(s"Fetching URL $url")
