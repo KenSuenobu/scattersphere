@@ -101,17 +101,17 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
       val fetcherRunnableTask: RunnableTask = new DataFetchRunnable(url) with RunnableTask
       val stripDataRunnableTask: RunnableTask = new StripFetchedDataRunnable(url, counter) with RunnableTask
       val wordsCountRunnableTask: RunnableTask = new CountWordsRunnable(url, counter) with RunnableTask
-      val fetcherTask: Task = new TaskBuilder()
+      val fetcherTask: Task = TaskBuilder()
         .withName("fetcherTask")
         .withTask(fetcherRunnableTask)
         .build()
-      val stripDataTask: Task = new TaskBuilder()
+      val stripDataTask: Task = TaskBuilder()
         .withName("stripDataTask")
         .withTask(stripDataRunnableTask)
         .dependsOn(fetcherTask)
         .async()
         .build()
-      val wordsCountTask: Task = new TaskBuilder()
+      val wordsCountTask: Task = TaskBuilder()
         .withName("wordsCountTask")
         .withTask(wordsCountRunnableTask)
         .dependsOn(fetcherTask)

@@ -57,16 +57,16 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val runnableTask1 = new RunnableTestTask("1") with RunnableTask
     val runnableTask2 = new RunnableTestTask("2") with RunnableTask
     val runnableTask3 = new RunnableTestTask("3") with RunnableTask
-    val task1: Task = new TaskBuilder()
+    val task1: Task = TaskBuilder()
         .withName("First Runnable Task")
         .withTask(runnableTask1)
         .build()
-    val task2: Task = new TaskBuilder()
+    val task2: Task = TaskBuilder()
         .withName("Second Runnable Task")
         .withTask(runnableTask2)
         .dependsOn(task1)
         .build()
-    val task3: Task = new TaskBuilder()
+    val task3: Task = TaskBuilder()
         .withName("Third Runnable Task")
         .withTask(runnableTask3)
         .dependsOn(task2)
@@ -120,15 +120,15 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val runnableTask1 = new RunnableTestTask("1") with RunnableTask
     val runnableTask2 = new RunnableTestTask("2") with RunnableTask
     val runnableTask3 = new RunnableTestTask("3") with RunnableTask
-    val task1: Task = new TaskBuilder()
+    val task1: Task = TaskBuilder()
         .withName("First Runnable Task")
         .withTask(runnableTask1)
         .build()
-    val task2: Task = new TaskBuilder()
+    val task2: Task = TaskBuilder()
         .withName("Second Runnable Task")
         .withTask(runnableTask2)
         .build()
-    val task3: Task = new TaskBuilder()
+    val task3: Task = TaskBuilder()
         .withName("Third Runnable Task")
         .withTask(runnableTask3)
         .build()
@@ -165,7 +165,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
 
   it should "not allow the same task to exist on two separate jobs after completing in one job" in {
     val runnableTask1 = new RunnableTestTask("1") with RunnableTask
-    val task1: Task = new TaskBuilder()
+    val task1: Task = TaskBuilder()
         .withName("First Runnable Task")
         .withTask(runnableTask1)
         .build()

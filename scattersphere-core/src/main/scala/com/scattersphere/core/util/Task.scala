@@ -187,6 +187,11 @@ class TaskBuilder {
 
 }
 
+/** Factory class with convenience method to create a new [[TaskBuilder]] on demand. */
+object TaskBuilder {
+  def apply(): TaskBuilder = new TaskBuilder()
+}
+
 /** This is the root class that all status values should inherit.
   *
   * @param t `Throwable` that may have occurred.
