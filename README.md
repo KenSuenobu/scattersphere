@@ -14,6 +14,10 @@ Monix Task, and others.  It is designed to be self-contained, and extensible.
 - Java 8 SDK
 - Apache Ant
 
+## Documentation
+
+[There is a maintained Wiki here.](https://github.com/KenSuenobu/scattersphere/wiki)
+
 ## Dependencies
 
 - [Log4j 1.7.25](https://www.slf4j.org/download.html)
