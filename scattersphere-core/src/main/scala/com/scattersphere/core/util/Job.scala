@@ -114,6 +114,11 @@ class JobBuilder {
 
 }
 
+/** Factory class with convenience method to create a new [[JobBuilder]] on demand. */
+object JobBuilder {
+  def apply(): JobBuilder = new JobBuilder()
+}
+
 /** This is the root class that all status values should inherit.
   *
   * @param t the optional Throwable object associated with the status.

@@ -85,7 +85,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task3.name shouldBe "Third Runnable Task"
     task3.dependencies.length shouldBe 1
 
-    val job1: Job = new JobBuilder()
+    val job1: Job = JobBuilder()
         .withName("Test")
         .addTasks(task1, task2, task3)
         .build()
@@ -146,7 +146,8 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task3.name shouldBe "Third Runnable Task"
     task3.dependencies.length shouldBe 0
 
-    val job1: Job = new JobBuilder().withName("Test")
+    val job1: Job = JobBuilder()
+      .withName("Test")
       .addTasks(task1, task2, task3)
       .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
@@ -173,7 +174,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task1.status shouldBe TaskQueued
     task1.name shouldBe "First Runnable Task"
     task1.dependencies.length shouldBe 0
-    val job1: Job = new JobBuilder()
+    val job1: Job = JobBuilder()
         .withName("Test")
         .addTask(task1)
         .build()
@@ -187,7 +188,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     runnableTask1.setVar shouldBe 1
     task1.status shouldBe TaskFinished
 
-    val job2: Job = new JobBuilder()
+    val job2: Job = JobBuilder()
         .withName("Test2")
         .addTask(task1)
         .build()
