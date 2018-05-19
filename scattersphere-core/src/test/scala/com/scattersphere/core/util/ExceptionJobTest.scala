@@ -8,7 +8,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
 
-  class TimerJob(duration: Int) extends RunnableTask {
+  class TimerJob(duration: Int) extends Runnable {
     override def run(): Unit = {
       Thread.sleep(duration * 1000)
       logger.trace(s"Slept $duration second(s)")
@@ -17,10 +17,10 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   "Exception Jobs" should "handle an exception" in {
-    val runnableTask1: RunnableTask = new TimerJob(3)
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
     val task1: Task = TaskBuilder()
         .withName("3 second task")
-        .withTask(runnableTask1)
+        .withTask(RunnableTask(runnableTask1))
         .build()
 
     task1.status shouldBe TaskQueued
