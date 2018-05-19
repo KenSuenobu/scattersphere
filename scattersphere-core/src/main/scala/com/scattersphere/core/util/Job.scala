@@ -110,8 +110,13 @@ class JobBuilder {
     *
     * @return a new [[Job]] object.
     */
-  def build(): Job = new Job(jobName, tasks)
+  def build(): Job = Job(jobName, tasks)
 
+}
+
+/** Factory class with convenience method to create a new [[JobBuilder]] on demand. */
+object JobBuilder {
+  def apply(): JobBuilder = new JobBuilder()
 }
 
 /** This is the root class that all status values should inherit.

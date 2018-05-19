@@ -183,8 +183,13 @@ class TaskBuilder {
     *
     * @return [[Task]] object.
     */
-  def build(): Task = new Task(taskName, runnableTask, dependencies, taskAsync)
+  def build(): Task = Task(taskName, runnableTask, dependencies, taskAsync)
 
+}
+
+/** Factory class with convenience method to create a new [[TaskBuilder]] on demand. */
+object TaskBuilder {
+  def apply(): TaskBuilder = new TaskBuilder()
 }
 
 /** This is the root class that all status values should inherit.

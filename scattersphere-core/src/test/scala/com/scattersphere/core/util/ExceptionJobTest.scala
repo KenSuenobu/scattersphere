@@ -18,7 +18,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
 
   "Exception Jobs" should "handle an exception" in {
     val runnableTask1: RunnableTask = new TimerJob(3)
-    val task1: Task = new TaskBuilder()
+    val task1: Task = TaskBuilder()
         .withName("3 second task")
         .withTask(runnableTask1)
         .build()
@@ -27,7 +27,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
     task1.name shouldBe "3 second task"
     task1.dependencies.length shouldBe 0
 
-    val job1: Job = new JobBuilder()
+    val job1: Job = JobBuilder()
         .withName("Cancelable Job")
         .addTask(task1)
         .build()
