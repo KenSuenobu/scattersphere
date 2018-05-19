@@ -261,9 +261,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
     val task6: Task = TaskBuilder()
         .withName("4")
         .withTask(RunnableTask(runnableTask6))
-        .dependsOn(task2)
-        .dependsOn(task4)
-        .dependsOn(task5)
+        .dependsOn(task2, task4, task5)
         .build()
 
     task1.status shouldBe TaskQueued
