@@ -86,22 +86,12 @@ class JobBuilder {
     this
   }
 
-  /** Adds a single [[Task]].
-    *
-    * @param task [[Task]] to add.
-    * @return this object for continued building.
-    */
-  def addTask(task: Task): JobBuilder = {
-    tasks = tasks :+ task
-    this
-  }
-
   /** Adds a series of [[Task]]s.
     *
     * @param taskList series of [[Task]]s to add.
     * @return this object for continued building.
     */
-  def addTasks(taskList: Task*): JobBuilder = {
+  def withTasks(taskList: Task*): JobBuilder = {
     taskList.foreach(task => tasks = tasks :+ task)
     this
   }
