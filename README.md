@@ -6,8 +6,8 @@
 Scattersphere is a lightweight job coordination API designed to run a simple 
 [DAG of tasks](https://en.wikipedia.org/wiki/Directed_acyclic_graph).
 
-It is inspired by many projects on Github such as Orchestra, Chronos, Cats IO, 
-Monix Task, and others.  It is designed to be self-contained, and extensible.
+It draws inspiration from many projects on Github such as Orchestra, Chronos, and
+the like.  It is designed to be self-contained, and extensible.
 
 # Prerequisites
 
