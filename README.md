@@ -1,4 +1,4 @@
-# Scattersphere: Job Coordination Server for Distributed Tasks
+# Scattersphere: Job Coordination API for Tasks
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CircleCI](https://circleci.com/gh/KenSuenobu/scattersphere.svg?style=svg)](https://circleci.com/gh/KenSuenobu/scattersphere)
