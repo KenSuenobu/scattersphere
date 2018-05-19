@@ -110,7 +110,7 @@ class JobBuilder {
     *
     * @return a new [[Job]] object.
     */
-  def build(): Job = new Job(jobName, tasks)
+  def build(): Job = Job(jobName, tasks)
 
 }
 

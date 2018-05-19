@@ -183,7 +183,7 @@ class TaskBuilder {
     *
     * @return [[Task]] object.
     */
-  def build(): Task = new Task(taskName, runnableTask, dependencies, taskAsync)
+  def build(): Task = Task(taskName, runnableTask, dependencies, taskAsync)
 
 }
 
