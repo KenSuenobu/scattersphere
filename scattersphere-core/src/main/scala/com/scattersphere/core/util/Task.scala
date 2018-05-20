@@ -135,7 +135,7 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
   */
 class TaskBuilder {
 
-  private var taskName: String = _
+  private var taskName: String = ""
   private var runnableTask: RunnableTask = _
   private var dependencies: Seq[Task] = Seq()
   private var taskAsync: Boolean = false
