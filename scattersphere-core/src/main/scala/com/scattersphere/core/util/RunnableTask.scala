@@ -43,11 +43,16 @@ import com.typesafe.scalalogging.LazyLogging
   * following similar code:
   *
   * {{{
-  *   val myTask: RunnableTask = new myRunnable() with RunnableTask
+  *   val myTask: RunnableTask = new MyRunnable() with RunnableTask
+  *
+  *   ... or ...
+  *
+  *   val myTask: RunnableTask = RunnableTask(new MyRunnable())
   * }}}
   *
   * This way, you get the added benefits of the RunnableTask's functions without having to directly
-  * implement them yourself.
+  * implement them yourself.  Keep in mind, if you wrap your code using the [[RunnableTask]] factory
+  * method, you will not be able to access your class methods.
   *
   * @since 0.0.1
   */

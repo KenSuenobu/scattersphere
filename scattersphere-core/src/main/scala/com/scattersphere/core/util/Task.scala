@@ -96,6 +96,47 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
 
 }
 
+/** Factory class implementation of the [[Task]] adding the ability to create a [[Task]] by supplying the method
+  * body instead of having to create a [[Task]] object by hand.
+  *
+  * ==Example==
+  * {{{
+  *   val task1: Task = Task {
+  *     Thread.sleep(500)
+  *     logger.info("Slept 500 ms.")
+  *     Thread.sleep(500)
+  *     logger.info("Slept an additional 500 ms.")
+  *   val job1: Job = JobBuilder()
+  *     .withName("Simple sleeper job")
+  *     .withTasks(task1)
+  *     .build()
+  *   val jobExec: JobExecutor = new JobExecutor(job1)
+  *
+  *   job1.queue().run()
+  * }}}
+  *
+  * Super-convenient way to create a synchronous [[Task]] without having to do a bunch of class definitions.
+  *
+  * @since 0.0.3
+  */
+object Task {
+
+  /** Generate a [[Task]] using the body of the task in the block rather than using a [[TaskBuilder]] to do the same
+    * thing.
+    *
+    * @param a closure to run
+    * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
+    */
+  def apply(a: => Unit): Task = evaluate(() => a)
+
+  private def evaluate(a: () => Unit): Task = Task("", new RunnableTask {
+    override def run(): Unit = {
+      a()
+    }
+  }, Seq(), false)
+
+}
+
 /** A builder class that allows for functional construction of a [[Task]].
   *
   * The `TaskBuilder` allows for chained functions to be used to functionally create a [[Task]].
