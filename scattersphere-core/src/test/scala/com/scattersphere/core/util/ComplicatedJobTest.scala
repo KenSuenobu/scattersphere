@@ -89,7 +89,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Test")
         .withTasks(task1, task2, task3)
         .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.tasks.length shouldBe 3
     job1.tasks(0) shouldBe task1
@@ -182,7 +182,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Test")
         .withTasks(task1, task2, task3, task4)
         .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.tasks.length shouldBe 4
     job1.tasks(0) shouldBe task1
@@ -298,7 +298,7 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Test")
         .withTasks(task1, task2, task3, task4, task5, task6)
         .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.tasks.length shouldBe 6
     job1.tasks(0) shouldBe task1

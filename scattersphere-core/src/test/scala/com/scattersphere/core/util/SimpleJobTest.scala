@@ -89,7 +89,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Test")
         .withTasks(task1, task2, task3)
         .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.tasks.length shouldBe 3
     job1.tasks(0) shouldBe task1
@@ -178,7 +178,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Test")
         .withTasks(task1)
         .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.status shouldBe JobQueued
     jobExec.blocking shouldBe true
@@ -192,7 +192,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Test2")
         .withTasks(task1)
         .build()
-    val jobExec2: JobExecutor = new JobExecutor(job2)
+    val jobExec2: JobExecutor = JobExecutor(job2)
 
     // This will be upgraded soon so that the underlying cause can be pulled from the Job, but only if the job
     // completes exceptionally.
@@ -223,9 +223,43 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val job1: Job = JobBuilder()
       .withTasks(task1)
       .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     jobExec.queue().run()
+  }
+
+  it should "be able to run asynchronous tasks with convenience" in {
+    val task1: Task = Task {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(500)
+      logger.info("Sleep another 500 ms")
+    }
+    val task2: Task = Task.async {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(1000)
+      logger.info("Sleep 1000 ms")
+    }
+    val task3: Task = Task.async {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(1000)
+      logger.info("Sleep 1000 ms")
+    }
+    val job1: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+    val jobExec: JobExecutor = JobExecutor(job1)
+
+    jobExec.queue().run()
+
+    val job2: Job = JobBuilder()
+      .withTasks(task2, task3)
+      .build()
+    val jobExec2: JobExecutor = JobExecutor(job2)
+
+    jobExec2.queue().run()
   }
 
 }

@@ -117,23 +117,29 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
   *
   * Super-convenient way to create a synchronous [[Task]] without having to do a bunch of class definitions.
   *
+  * Asynchronous tasks can be built the same way with the Task.async companion object.
+  *
   * @since 0.0.3
   */
 object Task {
 
-  /** Generate a [[Task]] using the body of the task in the block rather than using a [[TaskBuilder]] to do the same
-    * thing.
+  /** Generate a synchronous [[Task]] using the body of the task as the runnable code.
     *
-    * @param a closure to run
+    * @param a function code to run
     * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
     */
-  def apply(a: => Unit): Task = evaluate(() => a)
+  def apply(block: => Unit): Task = evaluate(block)
 
-  private def evaluate(a: () => Unit): Task = Task("", new RunnableTask {
-    override def run(): Unit = {
-      a()
-    }
-  }, Seq(), false)
+  /** Generate an asynchronous [[Task]] using the body of the task as the runnable code.
+    *
+    * @param a function code to run
+    * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
+    */
+  def async(block: => Unit): Task = evaluate(block, true)
+
+  private def evaluate(block: => Unit, async: Boolean = false) = Task("", new RunnableTask {
+    override def run(): Unit = block
+  }, Seq(), async)
 
 }
 
