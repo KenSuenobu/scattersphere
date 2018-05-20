@@ -221,7 +221,6 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
       logger.info("Sleep another 500 ms")
     }
     val job1: Job = JobBuilder()
-      .withName("Simple sleep job")
       .withTasks(task1)
       .build()
     val jobExec: JobExecutor = new JobExecutor(job1)

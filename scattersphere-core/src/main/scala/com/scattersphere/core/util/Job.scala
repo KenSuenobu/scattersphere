@@ -61,7 +61,7 @@ case class Job(name: String, tasks: Seq[Task]) {
   * ==Example==
   *
   * {{{
-  *   val job: Job = new JobBuilder()
+  *   val job: Job = JobBuilder()
   *     .withName("my job")
   *     .addTasks(task1, task2, task3)
   *     .build()
@@ -69,12 +69,30 @@ case class Job(name: String, tasks: Seq[Task]) {
   *
   * Adding a single task at a time can be done using the singular `addTask(task)` method.
   *
+  * ==Nameless Example==
+  *
+  * Given the following example:
+  *
+  * {{{
+  *   val task: Task = TaskBuilder()
+  *     .withName("My Task")
+  *     .withTask(new MyTask())
+  *     .build()
+  *   val job: Job = JobBuilder()
+  *     .addTasks(task)
+  *     .build()
+  * }}}
+  *
+  * The [[Job]] here would be implied to have no name.  If this is the case, the name will be
+  * extracted from the first task in the task list, with " Job" tacked on the end of it.  So, in
+  * this case, the name would become "My Task Job".
+  *
   * @since 0.0.1
   */
 class JobBuilder {
 
   private var tasks: Seq[Task] = Seq()
-  private var jobName: String = _
+  private var jobName: String = ""
 
   /** Defines the name of the job.
     *
@@ -101,7 +119,7 @@ class JobBuilder {
     *
     * @return a new [[Job]] object.
     */
-  def build(): Job = Job(jobName, tasks)
+  def build(): Job = Job(if (jobName.length == 0) s"${tasks(0).name} Job".trim else jobName, tasks)
 
 }
 
