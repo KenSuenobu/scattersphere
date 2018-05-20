@@ -35,8 +35,9 @@ import scala.collection.mutable
 class JobExecutor(job: Job) extends LazyLogging {
 
   private lazy val executorService: PausableThreadPoolExecutor = PausableThreadPoolExecutor()
+  private type TaskMap = mutable.HashMap[String, CompletableFuture[Void]]
 
-  private val taskMap: mutable.HashMap[String, CompletableFuture[Void]] = new mutable.HashMap
+  private val taskMap: TaskMap = new TaskMap
   private var isBlocking: Boolean = true
 
   private var completableFuture: CompletableFuture[Void] = _
