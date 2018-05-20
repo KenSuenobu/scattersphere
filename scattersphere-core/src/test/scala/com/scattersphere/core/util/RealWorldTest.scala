@@ -110,7 +110,7 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
       val urlTestJob: Job = JobBuilder()
         .withTasks(fetcherTask, stripDataTask, wordsCountTask)
         .build()
-      val jobExec: JobExecutor = new JobExecutor(urlTestJob)
+      val jobExec: JobExecutor = JobExecutor(urlTestJob)
 
       println(s"Running job for URL: $url")
 

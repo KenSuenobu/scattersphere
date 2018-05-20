@@ -197,6 +197,11 @@ class JobExecutor(job: Job) extends LazyLogging {
 
 }
 
+/** Factory object to create a new [[JobExecutor]] object. */
+object JobExecutor {
+  def apply(job: Job): JobExecutor = new JobExecutor(job)
+}
+
 /** An exception indicating that a [[Task]] was in a different state than expected.
   *
   * @param task [[Task]] object.

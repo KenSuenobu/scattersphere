@@ -126,20 +126,18 @@ object Task {
     * @param a function code to run
     * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
     */
-  def apply(a: => Unit): Task = evaluate(() => a)
+  def apply(a: => Unit): Task = Task("", new RunnableTask {
+    override def run(): Unit = a
+  }, Seq(), false)
 
   /** Generate an asynchronous [[Task]] using the body of the task as the runnable code.
     *
     * @param a function code to run
     * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
     */
-  def async(a: => Unit): Task = evaluate(() => a, true)
-
-  private def evaluate(a: () => Unit, syncFlag: Boolean = false): Task = Task("", new RunnableTask {
-    override def run(): Unit = {
-      a()
-    }
-  }, Seq(), syncFlag)
+  def async(a: => Unit): Task = Task("", new RunnableTask {
+    override def run(): Unit = a
+  }, Seq(), true)
 
 }
 

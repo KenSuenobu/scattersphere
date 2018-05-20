@@ -29,7 +29,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
         .withName("Cancelable Job")
         .withTasks(task1)
         .build()
-    val jobExec: JobExecutor = new JobExecutor(job1)
+    val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.tasks.length shouldBe 1
     job1.tasks(0) shouldBe task1
