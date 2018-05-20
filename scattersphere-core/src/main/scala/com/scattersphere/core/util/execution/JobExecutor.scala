@@ -80,6 +80,13 @@ class JobExecutor(job: Job) extends LazyLogging {
     isBlocking = flag
   }
 
+  /** Retrieves the underlying CompletableFuture.
+    *
+    * @return the CompletableFuture
+    * @since 0.0.2
+    */
+  def getCompletableFuture(): CompletableFuture[Void] = completableFuture
+
   /** Indicates whether or not the `run()` method should block until completion. */
   def blocking: Boolean = isBlocking
 
