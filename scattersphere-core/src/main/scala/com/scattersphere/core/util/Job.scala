@@ -90,6 +90,7 @@ class JobBuilder {
     *
     * @param taskList series of [[Task]]s to add.
     * @return this object for continued building.
+    * @since 0.0.2
     */
   def withTasks(taskList: Task*): JobBuilder = {
     taskList.foreach(task => tasks = tasks :+ task)

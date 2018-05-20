@@ -83,6 +83,7 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** Retrieves the underlying CompletableFuture.
     *
     * @return the CompletableFuture
+    * @since 0.0.2
     */
   def getCompletableFuture(): CompletableFuture[Void] = completableFuture
 

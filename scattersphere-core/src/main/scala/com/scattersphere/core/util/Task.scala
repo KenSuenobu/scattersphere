@@ -164,6 +164,7 @@ class TaskBuilder {
     *
     * @param tasks a list of tasks to depend on, comma separated
     * @return this object
+    * @since 0.0.2
     */
   def dependsOn(tasks: Task*): TaskBuilder = {
     tasks.foreach(task => dependencies = dependencies :+ task)
