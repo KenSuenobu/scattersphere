@@ -213,4 +213,20 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     }
   }
 
+  it should "be able to run a Task with a convenience method" in {
+    val task1: Task = Task {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(500)
+      logger.info("Sleep another 500 ms")
+    }
+    val job1: Job = JobBuilder()
+      .withName("Simple sleep job")
+      .withTasks(task1)
+      .build()
+    val jobExec: JobExecutor = new JobExecutor(job1)
+
+    jobExec.queue().run()
+  }
+
 }

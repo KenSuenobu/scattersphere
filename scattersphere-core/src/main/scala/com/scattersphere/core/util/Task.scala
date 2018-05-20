@@ -96,6 +96,18 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
 
 }
 
+object Task {
+
+  def apply(a: => Unit): Task = evaluate(() => a)
+
+  private def evaluate(a: () => Unit): Task = Task("", new RunnableTask {
+    override def run(): Unit = {
+      a()
+    }
+  }, Seq(), false)
+
+}
+
 /** A builder class that allows for functional construction of a [[Task]].
   *
   * The `TaskBuilder` allows for chained functions to be used to functionally create a [[Task]].
@@ -135,7 +147,7 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
   */
 class TaskBuilder {
 
-  private var taskName: String = ""
+  private var taskName: String = _
   private var runnableTask: RunnableTask = _
   private var dependencies: Seq[Task] = Seq()
   private var taskAsync: Boolean = false
