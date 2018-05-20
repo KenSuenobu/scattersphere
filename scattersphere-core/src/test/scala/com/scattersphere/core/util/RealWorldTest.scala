@@ -40,15 +40,6 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
       "https://www.rust-lang.org/en-US/documentation.html")
     var webData: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String]()
 
-    class DataFetchRunnable(url: String) extends Runnable {
-      override def run(): Unit = {
-        logger.debug(s"Fetching URL $url")
-        val data: String = Source.fromURL(url).mkString
-        webData.put(url.toLowerCase(), data.toLowerCase())
-        logger.debug(s"Fetch of $url complete: ${data.length} bytes")
-      }
-    }
-
     class StripFetchedDataRunnable(url: String, count: Int) extends Runnable {
       override def run(): Unit = {
         val data: String = webData.get(url.toLowerCase())
@@ -98,12 +89,14 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
     }
 
     for((url, counter) <- urls.zipWithIndex) {
-      val fetcherRunnableTask: RunnableTask = RunnableTask(new DataFetchRunnable(url))
+      val fetcherTask: Task = Task {
+        logger.debug(s"Fetching URL $url")
+        val data: String = Source.fromURL(url).mkString
+        webData.put(url.toLowerCase(), data.toLowerCase())
+        logger.debug(s"Fetch of $url complete: ${data.length} bytes")
+      }
       val stripDataRunnableTask: RunnableTask = RunnableTask(new StripFetchedDataRunnable(url, counter))
       val wordsCountRunnableTask: RunnableTask = RunnableTask(new CountWordsRunnable(url, counter))
-      val fetcherTask: Task = TaskBuilder()
-        .withTask(fetcherRunnableTask)
-        .build()
       val stripDataTask: Task = TaskBuilder()
         .withTask(stripDataRunnableTask)
         .dependsOn(fetcherTask)
