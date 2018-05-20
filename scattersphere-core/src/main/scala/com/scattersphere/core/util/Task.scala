@@ -121,19 +121,25 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
   */
 object Task {
 
-  /** Generate a [[Task]] using the body of the task in the block rather than using a [[TaskBuilder]] to do the same
-    * thing.
+  /** Generate a synchronous [[Task]] using the body of the task as the runnable code.
     *
-    * @param a closure to run
+    * @param a function code to run
     * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
     */
   def apply(a: => Unit): Task = evaluate(() => a)
 
-  private def evaluate(a: () => Unit): Task = Task("", new RunnableTask {
+  /** Generate an asynchronous [[Task]] using the body of the task as the runnable code.
+    *
+    * @param a function code to run
+    * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
+    */
+  def async(a: => Unit): Task = evaluate(() => a, true)
+
+  private def evaluate(a: () => Unit, syncFlag: Boolean = false): Task = Task("", new RunnableTask {
     override def run(): Unit = {
       a()
     }
-  }, Seq(), false)
+  }, Seq(), syncFlag)
 
 }
 

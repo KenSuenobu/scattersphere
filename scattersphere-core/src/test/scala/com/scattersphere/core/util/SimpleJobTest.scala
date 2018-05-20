@@ -228,4 +228,38 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     jobExec.queue().run()
   }
 
+  it should "be able to run asynchronous tasks with convenience" in {
+    val task1: Task = Task {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(500)
+      logger.info("Sleep another 500 ms")
+    }
+    val task2: Task = Task.async {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(1000)
+      logger.info("Sleep 1000 ms")
+    }
+    val task3: Task = Task.async {
+      Thread.sleep(500)
+      logger.info("Sleep 500 ms")
+      Thread.sleep(1000)
+      logger.info("Sleep 1000 ms")
+    }
+    val job1: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+    val jobExec: JobExecutor = new JobExecutor(job1)
+
+    jobExec.queue().run()
+
+    val job2: Job = JobBuilder()
+      .withTasks(task2, task3)
+      .build()
+    val jobExec2: JobExecutor = new JobExecutor(job2)
+
+    jobExec2.queue().run()
+  }
+
 }
