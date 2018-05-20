@@ -9,7 +9,7 @@ Scattersphere is a lightweight job coordination API designed to run a simple
 It draws inspiration from many projects on Github such as Orchestra, Chronos, and
 the like.  It is designed to be self-contained, and extensible.
 
-# Prerequisites
+## Prerequisites
 
 - Java 8 SDK
 - Apache Ant
