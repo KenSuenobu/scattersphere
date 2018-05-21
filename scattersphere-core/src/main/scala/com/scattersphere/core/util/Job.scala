@@ -119,7 +119,13 @@ class JobBuilder {
     *
     * @return a new [[Job]] object.
     */
-  def build(): Job = Job(if (jobName.length == 0) s"${tasks(0).name} Job".trim else jobName, tasks)
+  def build(): Job = {
+    if (tasks.size == 0) {
+      throw new IllegalArgumentException("Missing task list.")
+    }
+
+    Job(if (jobName.length == 0) s"${tasks(0).name} Job".trim else jobName, tasks)
+  }
 
 }
 

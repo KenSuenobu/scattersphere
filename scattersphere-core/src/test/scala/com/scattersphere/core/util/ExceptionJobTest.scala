@@ -19,6 +19,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
   "Exception Jobs" should "handle an exception" in {
     val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
     val task1: Task = TaskBuilder()
+        .withName("Exception task")
         .withTask(RunnableTask(runnableTask1))
         .build()
 
@@ -63,6 +64,22 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
       }
 
       case _ => fail("Expected NullPointerException.")
+    }
+  }
+
+  it should "not let you build a task with a missing name" in {
+    assertThrows[IllegalArgumentException] {
+      TaskBuilder()
+        .withTask(RunnableTask(new TimerJob(1)))
+        .build()
+    }
+  }
+
+  it should "not let you build a job without a task" in {
+    assertThrows[IllegalArgumentException] {
+      JobBuilder()
+        .withName("My Job Name")
+        .build()
     }
   }
 

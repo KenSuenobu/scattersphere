@@ -214,7 +214,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   it should "be able to run a Task with a convenience method" in {
-    val task1: Task = Task {
+    val task1: Task = Task("Sleeper Timer") {
       Thread.sleep(500)
       logger.info("Sleep 500 ms")
       Thread.sleep(500)
@@ -229,19 +229,19 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   it should "be able to run asynchronous tasks with convenience" in {
-    val task1: Task = Task {
+    val task1: Task = Task("Sleeper Timer 1") {
       Thread.sleep(500)
       logger.info("Sleep 500 ms")
       Thread.sleep(500)
       logger.info("Sleep another 500 ms")
     }
-    val task2: Task = Task.async {
+    val task2: Task = Task.async("Sleeper Timer 2") {
       Thread.sleep(500)
       logger.info("Sleep 500 ms")
       Thread.sleep(1000)
       logger.info("Sleep 1000 ms")
     }
-    val task3: Task = Task.async {
+    val task3: Task = Task.async("Sleeper Timer 3") {
       Thread.sleep(500)
       logger.info("Sleep 500 ms")
       Thread.sleep(1000)
