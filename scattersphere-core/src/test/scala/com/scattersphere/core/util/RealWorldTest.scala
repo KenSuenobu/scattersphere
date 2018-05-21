@@ -89,7 +89,7 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
     }
 
     for((url, counter) <- urls.zipWithIndex) {
-      val fetcherTask: Task = Task {
+      val fetcherTask: Task = Task("Fetcher Task") {
         logger.debug(s"Fetching URL $url")
         val data: String = Source.fromURL(url).mkString
         webData.put(url.toLowerCase(), data.toLowerCase())
@@ -98,11 +98,13 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
       val stripDataRunnableTask: RunnableTask = RunnableTask(new StripFetchedDataRunnable(url, counter))
       val wordsCountRunnableTask: RunnableTask = RunnableTask(new CountWordsRunnable(url, counter))
       val stripDataTask: Task = TaskBuilder()
+        .withName("Strip Data Task")
         .withTask(stripDataRunnableTask)
         .dependsOn(fetcherTask)
         .async()
         .build()
       val wordsCountTask: Task = TaskBuilder()
+        .withName("Words Count Task")
         .withTask(wordsCountRunnableTask)
         .dependsOn(fetcherTask)
         .async()
