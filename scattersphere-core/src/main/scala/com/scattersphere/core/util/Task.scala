@@ -73,7 +73,6 @@ package com.scattersphere.core.util
   * @param task [[RunnableTask]] class unit of work
   * @param dependencies tasks that this task depends on before running
   * @param async true for asynchronous, false otherwise
-  *
   * @since 0.0.1
   */
 case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
@@ -125,19 +124,21 @@ object Task {
 
   /** Generate a synchronous [[Task]] using the body of the task as the runnable code.
     *
+    * @param name the name of the task
     * @param a function code to run
     * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
     */
-  def apply(block: => Unit): Task = evaluate(block)
+  def apply(name: String)(block: => Unit): Task = evaluate(name, block)
 
   /** Generate an asynchronous [[Task]] using the body of the task as the runnable code.
     *
+    * @param name the name of the task
     * @param a function code to run
     * @return [[Task]] with the closure wrapped in a [[RunnableTask]], with no name and no dependencies.
     */
-  def async(block: => Unit): Task = evaluate(block, true)
+  def async(name: String)(block: => Unit): Task = evaluate(name, block, true)
 
-  private def evaluate(block: => Unit, async: Boolean = false) = Task("", new RunnableTask {
+  private def evaluate(name: String, block: => Unit, async: Boolean = false) = Task(name, new RunnableTask {
     override def run(): Unit = block
   }, Seq(), async)
 
@@ -182,7 +183,7 @@ object Task {
   */
 class TaskBuilder {
 
-  private var taskName: String = _
+  private var taskName: String = ""
   private var runnableTask: RunnableTask = _
   private var dependencies: Seq[Task] = Seq()
   private var taskAsync: Boolean = false
@@ -231,7 +232,13 @@ class TaskBuilder {
     *
     * @return [[Task]] object.
     */
-  def build(): Task = Task(taskName, runnableTask, dependencies, taskAsync)
+  def build(): Task = {
+    if (taskName.length == 0) {
+      throw new IllegalArgumentException("Missing task name")
+    }
+
+    Task(taskName, runnableTask, dependencies, taskAsync)
+  }
 
 }
 
