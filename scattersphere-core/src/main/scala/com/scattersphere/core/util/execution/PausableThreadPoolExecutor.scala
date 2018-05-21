@@ -55,6 +55,8 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     * @see { @link ThreadPoolExecutor#beforeExecute(Thread, Runnable)}
     */
   override protected def beforeExecute(thread: Thread, runnable: Runnable): Unit = {
+    logger.info(s"Is Paused: $isPaused")
+
     super.beforeExecute(thread, runnable)
 
     lock.lock()
@@ -72,11 +74,15 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     }
   }
 
+  override def execute(command: Runnable): Unit = {
+    super.execute(command)
+  }
+
   /** Indicates whether or not this thread pool executor is paused.
     *
     * @return true if paused, false otherwise.
     */
-  def paused: Boolean = isPaused
+  def paused = isPaused
 
   /** Pauses execution. */
   def pause(): Unit = {
@@ -84,11 +90,9 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
 
     lock.lock()
 
-    try {
+    try
       isPaused = true
-    } finally {
-      lock.unlock()
-    }
+    finally lock.unlock()
   }
 
   /** Resumes execution. */
@@ -100,9 +104,7 @@ class PausableThreadPoolExecutor(val corePoolSize: Int = Runtime.getRuntime.avai
     try {
       isPaused = false
       condition.signalAll
-    } finally {
-      lock.unlock()
-    }
+    } finally lock.unlock()
   }
 }
 

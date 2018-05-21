@@ -101,9 +101,25 @@ class JobExecutor(job: Job) extends LazyLogging {
     }
   }
 
-  private def unlock(): Unit = {
-    executorService.resume()
+  /** Pauses execution of the JobExecutor.
+    *
+    * @since 0.1.0
+    */
+  def pause(): JobExecutor = {
+    executorService.pause()
+    this
   }
+
+  /** Resumes execution of the JobExecutor.
+    *
+    * @since 0.1.0
+    */
+  def resume(): JobExecutor = {
+    executorService.resume()
+    this
+  }
+
+  private def unlock(): Unit = resume()
 
   private def runTask(task: Task): Unit = {
     logger.info(s"Running task: $task")
