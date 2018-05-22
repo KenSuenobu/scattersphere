@@ -156,9 +156,9 @@ class JobExecutor(job: Job) extends LazyLogging {
 
     try {
       while (isPaused) {
-        logger.info("Awaiting lock release.")
+        logger.trace("Awaiting lock release.")
         condition.await
-        logger.info("Lock released.")
+        logger.trace("Lock released.")
       }
     } catch {
       case x: InterruptedException => throw x
