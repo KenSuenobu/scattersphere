@@ -13,6 +13,7 @@
   */
 package com.scattersphere.core.util.execution
 
+import java.util.concurrent.locks.{Condition, ReentrantLock}
 import java.util.concurrent.{CompletionException, _}
 import java.util.function.{Function => JavaFunction}
 
@@ -29,16 +30,27 @@ import scala.collection.mutable
   * "root" tasks (ie. top level tasks) can be run asynchronously as multiple tasks in multiple threads as they
   * see fit.
   *
+  * Contains some code adapted from Matthew A. Johnston (warmwaffles) for PausableThreadPoolExecutor.  Although that
+  * code is no longer used here, the logic for said code does exist here.
+  *
   * @param job The [[Job]] containing all of the tasks (and dependencies) to run.
   * @since 0.0.1
   */
 class JobExecutor(job: Job) extends LazyLogging {
 
-  private lazy val executorService: PausableThreadPoolExecutor = PausableThreadPoolExecutor()
+  private lazy val executorService: ThreadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime.availableProcessors(),
+                                                                                Runtime.getRuntime.availableProcessors() * 10,
+                                                                                Long.MaxValue,
+                                                                                TimeUnit.SECONDS,
+                                                                                new LinkedBlockingQueue[Runnable]())
   private type TaskMap = mutable.HashMap[String, CompletableFuture[Void]]
 
   private val taskMap: TaskMap = new TaskMap
   private var isBlocking: Boolean = true
+
+  private val lock: ReentrantLock = new ReentrantLock()
+  private val condition: Condition = lock.newCondition()
+  private var isPaused = true
 
   private var completableFuture: CompletableFuture[Void] = _
 
@@ -75,7 +87,7 @@ class JobExecutor(job: Job) extends LazyLogging {
     */
   def setBlocking(flag: Boolean) = {
     if (!flag) {
-      unlock()
+      resume()
     }
 
     isBlocking = flag
@@ -94,7 +106,7 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately. */
   def run(): Unit = {
     job.setStatus(JobRunning)
-    executorService.resume()
+    resume()
 
     if (isBlocking) {
       completableFuture.join
@@ -106,7 +118,12 @@ class JobExecutor(job: Job) extends LazyLogging {
     * @since 0.1.0
     */
   def pause(): JobExecutor = {
-    executorService.pause()
+    lock.lock()
+
+    try
+      isPaused = true
+    finally lock.unlock()
+
     this
   }
 
@@ -115,14 +132,39 @@ class JobExecutor(job: Job) extends LazyLogging {
     * @since 0.1.0
     */
   def resume(): JobExecutor = {
-    executorService.resume()
+    lock.lock()
+
+    try {
+      isPaused = false
+      condition.signalAll
+    } finally lock.unlock()
+
     this
   }
 
-  private def unlock(): Unit = resume()
+  /** Indicates whether or not the [[JobExecutor]] is currently in a paused state.
+    *
+    * @return true if paused, false otherwise
+    * @since 0.1.0
+    */
+  def paused(): Boolean = isPaused
 
   private def runTask(task: Task): Unit = {
-    logger.info(s"Running task: $task")
+    logger.info(s"Running task: $task (paused=$isPaused)")
+
+    lock.lock()
+
+    try {
+      while (isPaused) {
+        logger.info("Awaiting lock release.")
+        condition.await
+        logger.info("Lock released.")
+      }
+    } catch {
+      case x: InterruptedException => throw x
+    } finally {
+      lock.unlock()
+    }
 
     task.status match {
       case TaskQueued => {
