@@ -137,9 +137,10 @@ object JobBuilder {
 /** This is the root class that all status values should inherit.
   *
   * @param t the optional Throwable object associated with the status.
+  * @param reason the reason for a cancellation.
   * @since 0.0.1
   */
-sealed abstract class JobStatus(t: Throwable = null)
+sealed abstract class JobStatus(t: Throwable = null, reason: String = null)
 
 /** Indicates that a job is queued and dormant, meaning, it is initialized, but has not been run.
   *
@@ -167,5 +168,10 @@ final case object JobFinished extends JobStatus
   * @param t `Throwable` that caused the [[Job]] to fail.
   * @since 0.0.1
   */
-final case class JobFailed(t: Throwable) extends JobStatus(t)
+final case class JobFailed(t: Throwable) extends JobStatus(t = t)
 
+/** Indicates that a job failed due to a cancellation.
+  *
+  * @param reason the reason for a cancellation.
+  */
+final case class JobCanceled(reason: String) extends JobStatus(reason = reason)

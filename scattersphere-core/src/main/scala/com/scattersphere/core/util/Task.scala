@@ -250,9 +250,10 @@ object TaskBuilder {
 /** This is the root class that all status values should inherit.
   *
   * @param t `Throwable` that may have occurred.
+  * @param reason `String` that contains a reason for a cancellation.
   * @since 0.0.1
   */
-sealed abstract class TaskStatus(t: Throwable = null)
+sealed abstract class TaskStatus(t: Throwable = null, reason: String = null)
 
 /** Indicates that a [[Task]] is queued and dormant.
   *
@@ -277,5 +278,11 @@ final case object TaskFinished extends TaskStatus
   * @param t `Throwable` that caused the failure.
   * @since 0.0.1
   */
-final case class TaskFailed(t: Throwable) extends TaskStatus(t)
+final case class TaskFailed(t: Throwable) extends TaskStatus(t = t)
 
+/** Indicates that a [[Task]] failed due to a cancellation.
+  *
+  * @param reason `String` that contains a reason for a cancellation.
+  * @since 0.1.0
+  */
+final case class TaskCanceled(reason: String) extends TaskStatus(reason = reason)

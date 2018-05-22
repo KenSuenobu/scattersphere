@@ -17,5 +17,3 @@ jobs:
           command: sh scripts/circleci/doc.sh
       - store_artifacts:
           path: scattersphere-core/target/site/scaladocs
-      - store_artifacts:
-          path: /tmp/*-found-*

@@ -149,6 +149,16 @@ class JobExecutor(job: Job) extends LazyLogging {
     */
   def paused(): Boolean = isPaused
 
+  /** Cancels execution of the [[JobExecutor]], cancelling execution of any further [[Task]]s.
+    *
+    * @param reason the reason for cancellation.
+    * @since 0.1.0
+    */
+  def cancel(reason: String): Unit = {
+    job.setStatus(JobCanceled(reason))
+    completableFuture.cancel(true)
+  }
+
   private def runTask(task: Task): Unit = {
     logger.info(s"Running task: $task (paused=$isPaused)")
 
@@ -164,6 +174,16 @@ class JobExecutor(job: Job) extends LazyLogging {
       case x: InterruptedException => throw x
     } finally {
       lock.unlock()
+    }
+
+    job.status match {
+      case JobCanceled(x) => {
+        logger.info(s"Job canceled with reason $x, stopping all further tasks.")
+        task.setStatus(TaskCanceled(x))
+        return
+      }
+
+      case _ => // Ignore, the job is fine, the only special case is for JobCanceled.
     }
 
     task.status match {
