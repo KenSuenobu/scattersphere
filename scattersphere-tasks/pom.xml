@@ -9,11 +9,11 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>scattersphere-jobs</artifactId>
+    <artifactId>scattersphere-tasks</artifactId>
     <packaging>jar</packaging>
     <url>https://www.github.com/KenSuenobu/scattersphere/</url>
-    <description>Scattersphere Project: Jobs</description>
-    <name>Scattersphere Jobs</name>
+    <description>Scattersphere Project: Tasks</description>
+    <name>Scattersphere Tasks</name>
 
     <licenses>
         <license>

@@ -55,7 +55,7 @@
 
     <modules>
         <module>scattersphere-core</module>
-        <module>scattersphere-jobs</module>
+        <module>scattersphere-tasks</module>
     </modules>
 
     <build>
@@ -150,7 +150,7 @@
 
             <dependency>
                 <groupId>com.suenobu</groupId>
-                <artifactId>scattersphere-jobs</artifactId>
+                <artifactId>scattersphere-tasks</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
