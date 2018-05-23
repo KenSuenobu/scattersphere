@@ -29,8 +29,8 @@ the like.  It is designed to be self-contained, and extensible.
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](/CONTRIBUTING.md)
+Please read [CONTRIBUTING.md](/scattersphere-docs/CONTRIBUTING.md)
 
 ## Building
 
-See [BUILDING.md](/BUILDING.md)
+See [BUILDING.md](/scattersphere-docs/BUILDING.md)
