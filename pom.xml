@@ -49,7 +49,7 @@
             <name>Ken Suenobu</name>
             <email>ksuenobu@fastmail.com</email>
             <organization>Ken Suenobu</organization>
-            <organizationUrl>http://www.github.com/KenSuenobu/scattersphere</organizationUrl>
+            <organizationUrl>https://www.github.com/KenSuenobu/scattersphere</organizationUrl>
         </developer>
     </developers>
 
@@ -137,6 +137,14 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+
+            <!-- Project Dependencies -->
+
+            <dependency>
+                <groupId>com.suenobu</groupId>
+                <artifactId>scattersphere-core</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
