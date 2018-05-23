@@ -9,11 +9,11 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>scattersphere-core</artifactId>
+    <artifactId>scattersphere-jobs</artifactId>
     <packaging>jar</packaging>
     <url>https://www.github.com/KenSuenobu/scattersphere/</url>
-    <description>Scattersphere Project: Core</description>
-    <name>Scattersphere Core</name>
+    <description>Scattersphere Project: Jobs</description>
+    <name>Scattersphere Jobs</name>
 
     <licenses>
         <license>
@@ -80,6 +80,11 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.suenobu</groupId>
+            <artifactId>scattersphere-core</artifactId>
         </dependency>
     </dependencies>
 </project>

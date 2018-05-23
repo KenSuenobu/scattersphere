@@ -33,7 +33,7 @@
     <version>0.1.0</version>
     <name>Scattersphere Project</name>
 
-    <url>http://www.github.com/KenSuenobu/scattersphere</url>
+    <url>https://www.github.com/KenSuenobu/scattersphere</url>
     <packaging>pom</packaging>
     <description>Scattersphere Job Coordination Server</description>
 
@@ -55,6 +55,7 @@
 
     <modules>
         <module>scattersphere-core</module>
+        <module>scattersphere-jobs</module>
     </modules>
 
     <build>
@@ -144,6 +145,12 @@
             <dependency>
                 <groupId>com.suenobu</groupId>
                 <artifactId>scattersphere-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.suenobu</groupId>
+                <artifactId>scattersphere-jobs</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
