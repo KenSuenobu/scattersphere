@@ -9,10 +9,10 @@
 
 One script to build, one script to test:
 
-```sh scripts/circleci/build.sh```
+```sh scripts/circle/build.sh```
 
 will build a working copy of Scattersphere.
 
-```sh scripts/circleci/test.sh```
+```sh scripts/circle/test.sh```
 
 will run the test suite.
