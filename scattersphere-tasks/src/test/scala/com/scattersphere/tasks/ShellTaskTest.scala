@@ -51,6 +51,7 @@ class ShellTaskTest extends FlatSpec with Matchers with LazyLogging {
     job.status match {
       case JobFailed(x) => x match {
         case _: java.io.IOException => // Expected exception as well
+        case x => fail("Unexpected exception occurred."); x.printStackTrace()
       }
 
       case x => fail(s"Unexpected job status: $x")
