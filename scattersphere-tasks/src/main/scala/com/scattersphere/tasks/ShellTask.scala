@@ -19,7 +19,7 @@ class ShellTask(command: String) extends RunnableTask with LazyLogging {
   private var process: Process = null
 
   override def run(): Unit = {
-    logger.info(s"Running command ${command}")
+    logger.debug(s"Running command ${command}")
     processBuilder = Process(command)
     process = processBuilder.run
   }
@@ -31,21 +31,21 @@ class ShellTask(command: String) extends RunnableTask with LazyLogging {
   def getProcessOutput(): Stream[String] = processBuilder.lineStream
 
   override def onFinished(): Unit = {
-    logger.info("Command finished.")
+    logger.trace(s"Command finished: ${command}")
 
     if (process.isAlive()) {
       logger.info("Process is still running; terminating.")
       process.destroy()
     }
 
-    logger.info(s"Command exit code: ${process.exitValue()}")
+    logger.debug(s"Command exit code: ${process.exitValue()}")
   }
 
   override def onException(t: Throwable): Unit = {
-    logger.info("Exception occurred during run", t)
+    logger.debug("Exception occurred during run", t)
 
     if (process.isAlive()) {
-      logger.info("Process is still running; terminating.")
+      logger.debug("Process is still running; terminating.")
       process.destroy()
     }
   }
