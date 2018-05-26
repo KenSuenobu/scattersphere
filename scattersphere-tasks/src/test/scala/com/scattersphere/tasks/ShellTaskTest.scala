@@ -1,4 +1,20 @@
+/**
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+
 package com.scattersphere.tasks
+
+import java.util.concurrent.CompletionException
 
 import com.scattersphere.core.util.execution.JobExecutor
 import com.scattersphere.core.util._
@@ -20,6 +36,25 @@ class ShellTaskTest extends FlatSpec with Matchers with LazyLogging {
 
     assert(output.size > 2)
     assert(output(0).toLowerCase() contains "total")
+  }
+
+  it should "handle commands that do not exist" in {
+    val shellTask: ShellTask = new ShellTask("/unable/to/find/this command anywhere")
+    val sTask1: Task = TaskBuilder().withName("nonexistent task").withTask(shellTask).build()
+    val job: Job = JobBuilder().withTasks(sTask1).build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[CompletionException] {
+      jExec.queue().run()
+    }
+
+    job.status match {
+      case JobFailed(x) => x match {
+        case _: java.io.IOException => // Expected exception as well
+      }
+
+      case x => fail(s"Unexpected job status: $x")
+    }
   }
 
 }
