@@ -36,6 +36,7 @@ class RepeatingTask(times: Int,
 
     while(timesRun.get() < times) {
       task.run()
+      task.onFinished()
       timesRun.incrementAndGet()
     }
   }
