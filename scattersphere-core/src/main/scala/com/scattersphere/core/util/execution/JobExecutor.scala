@@ -206,14 +206,20 @@ class JobExecutor(job: Job) extends LazyLogging {
   private def runExceptionally(task: Task, f: Throwable): Void = {
     f match {
       case ex: CompletionException => {
-        task.task.onException(ex.getCause)
-        task.setStatus(TaskFailed(ex.getCause))
-        job.setStatus(JobFailed(ex.getCause))
+        try {
+          task.task.onException(ex.getCause)
+        } finally {
+          task.setStatus(TaskFailed(ex.getCause))
+          job.setStatus(JobFailed(ex.getCause))
+        }
       }
       case _ => {
-        task.task.onException(f)
-        task.setStatus(TaskFailed(f))
-        job.setStatus(JobFailed(f))
+        try {
+          task.task.onException(f)
+        } finally {
+          task.setStatus(TaskFailed(f))
+          job.setStatus(JobFailed(f))
+        }
       }
     }
 

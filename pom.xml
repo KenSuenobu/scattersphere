@@ -33,7 +33,7 @@
     <version>0.1.0</version>
     <name>Scattersphere Project</name>
 
-    <url>http://www.github.com/KenSuenobu/scattersphere</url>
+    <url>https://www.github.com/KenSuenobu/scattersphere</url>
     <packaging>pom</packaging>
     <description>Scattersphere Job Coordination Server</description>
 
@@ -49,12 +49,13 @@
             <name>Ken Suenobu</name>
             <email>ksuenobu@fastmail.com</email>
             <organization>Ken Suenobu</organization>
-            <organizationUrl>http://www.github.com/KenSuenobu/scattersphere</organizationUrl>
+            <organizationUrl>https://www.github.com/KenSuenobu/scattersphere</organizationUrl>
         </developer>
     </developers>
 
     <modules>
         <module>scattersphere-core</module>
+        <module>scattersphere-tasks</module>
     </modules>
 
     <build>
@@ -137,6 +138,20 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+
+            <!-- Project Dependencies -->
+
+            <dependency>
+                <groupId>com.suenobu</groupId>
+                <artifactId>scattersphere-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.suenobu</groupId>
+                <artifactId>scattersphere-tasks</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
