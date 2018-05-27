@@ -23,6 +23,7 @@ import com.typesafe.scalalogging.LazyLogging
   *
   * @param times number of times to run (must be > 0)
   * @param task the task to repeat
+  * @since 0.1.0
   */
 class RepeatingTask(times: Int,
                     task: RunnableTask) extends RunnableTask with LazyLogging {
