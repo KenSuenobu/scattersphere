@@ -16,7 +16,7 @@ package com.scattersphere.tasks
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.scattersphere.core.util.RunnableTask
+import com.scattersphere.core.util.{RunnableTask, TaskStatus}
 import com.typesafe.scalalogging.LazyLogging
 
 /** Repeats a [[RunnableTask]] a number of times.
@@ -51,5 +51,7 @@ class RepeatingTask(times: Int,
   override def onFinished(): Unit = task.onFinished()
 
   override def onException(t: Throwable): Unit = task.onException(t)
+
+  override def onStatusChange(old: TaskStatus, current: TaskStatus): Unit = task.onStatusChange(old, current)
 
 }
