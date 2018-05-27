@@ -39,8 +39,7 @@ class CancelJobTest extends FlatSpec with Matchers with LazyLogging {
     val job1: Job = JobBuilder().withName("Timer Task").withTasks(task1, task2, task3, task4, task5, task6, task7, task8).build()
     val jobExec: JobExecutor = JobExecutor(job1)
 
-    jobExec.setBlocking(false)
-    jobExec.queue().run()
+    jobExec.setBlocking(false).queue().run()
     Thread.sleep(2500)
     jobExec.cancel("Canceling for testing sake.")
 

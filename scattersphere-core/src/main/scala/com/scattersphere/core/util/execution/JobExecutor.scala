@@ -52,7 +52,7 @@ class JobExecutor(job: Job) extends LazyLogging {
   private val condition: Condition = lock.newCondition()
   private var isPaused = true
 
-  private var completableFuture: CompletableFuture[Void] = _
+  private var completableFuture: CompletableFuture[Void] = null
 
   /** Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
     * asynchronous CompletableFuture, it's possible that the tasks will start while the DAG is being generated.
@@ -60,8 +60,13 @@ class JobExecutor(job: Job) extends LazyLogging {
     * should you depend on timing or anything of that sort.
     *
     * @return this object
+    * @throws InvalidJobExecutionStateException if queue called more than once
     */
   def queue(): JobExecutor = {
+    if (completableFuture != null) {
+      throw new InvalidJobExecutionStateException("Cannot re-queue the same job.")
+    }
+
     val tasks: Seq[Task] = job.tasks
 
     generateExecutionPlan(tasks)
@@ -105,8 +110,15 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** Indicates whether or not the `run()` method should block until completion. */
   def blocking: Boolean = isBlocking
 
-  /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately. */
+  /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately.
+    *
+    * @throws InvalidJobExecutionStateException if not queued first
+    */
   def run(): Unit = {
+    if (completableFuture == null) {
+      throw new InvalidJobExecutionStateException("Called out of order - queue required.")
+    }
+
     job.setStatus(JobRunning)
     resume()
 
@@ -299,3 +311,10 @@ class InvalidTaskStateException(task: Task,
                                 status: TaskStatus,
                                 expected: TaskStatus)
   extends Exception(s"InvalidTaskStateException: task ${task.name} set to $status, expected $expected")
+
+/** An exception indicating that an invalid state has occurred while trying to run a job.
+  *
+  * @param message the exception message.
+  * @since 0.1.0
+  */
+class InvalidJobExecutionStateException(message: String) extends Exception(s"Invalid Job Execution State: ${message}")

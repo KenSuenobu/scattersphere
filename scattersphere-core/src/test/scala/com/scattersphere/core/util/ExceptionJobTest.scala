@@ -16,7 +16,7 @@ package com.scattersphere.core.util
 
 import java.util.concurrent.CompletionException
 
-import com.scattersphere.core.util.execution.JobExecutor
+import com.scattersphere.core.util.execution.{InvalidJobExecutionStateException, JobExecutor}
 import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -94,6 +94,38 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
       JobBuilder()
         .withName("My Job Name")
         .build()
+    }
+  }
+
+  it should "not allow you to run a job without queueing it first" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[InvalidJobExecutionStateException] {
+      jExec.run()
+    }
+  }
+
+  it should "not allow you to queueing the job twice" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[InvalidJobExecutionStateException] {
+      jExec.queue().queue()
     }
   }
 
