@@ -84,13 +84,15 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** When set true, the run method will block until the entire DAG executes completely.
     *
     * @param flag boolean indicating whether or not to block on execution.
+    * @return this object
     */
-  def setBlocking(flag: Boolean) = {
+  def setBlocking(flag: Boolean): JobExecutor = {
     if (!flag) {
       resume()
     }
 
     isBlocking = flag
+    this
   }
 
   /** Retrieves the underlying CompletableFuture.
