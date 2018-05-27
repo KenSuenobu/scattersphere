@@ -9,20 +9,20 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class RepeatingTaskTest extends FlatSpec with Matchers with LazyLogging {
 
-  "Repeating task" should "repeat a task 50 times" in {
+  "Repeating task" should "repeat a task 20 times" in {
     class TestRunnable extends RunnableTask {
       override def run(): Unit = {
         // Do nothing
       }
     }
 
-    val rTask: RepeatingTask = new RepeatingTask(50, new TestRunnable)
+    val rTask: RepeatingTask = new RepeatingTask(20, new TestRunnable)
     val task: Task = TaskBuilder().withName("Repeating task").withTask(rTask).build()
     val job: Job = JobBuilder().withTasks(task).build()
     val jExec: JobExecutor = JobExecutor(job)
 
     jExec.queue().run()
-    rTask.getTimesRepeated() shouldBe 50
+    rTask.getTimesRepeated() shouldBe 20
     job.status shouldBe JobFinished
   }
 
