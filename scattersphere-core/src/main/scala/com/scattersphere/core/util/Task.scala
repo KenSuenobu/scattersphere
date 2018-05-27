@@ -83,7 +83,10 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
     *
     * @param status [[TaskStatus]] to set
     */
-  def setStatus(status: TaskStatus) = taskStatus = status
+  def setStatus(status: TaskStatus) = {
+    task.onStatusChange(taskStatus, status)
+    taskStatus = status
+  }
 
   /** The current task status.
     *

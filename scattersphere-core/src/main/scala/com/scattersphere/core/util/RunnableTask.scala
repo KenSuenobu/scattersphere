@@ -78,6 +78,16 @@ trait RunnableTask extends Runnable with LazyLogging {
     logger.info(s"Exception occurred: ${sWriter.toString}")
   }
 
+  /** Indicates a change in [[TaskStatus]] has taken place.
+    *
+    * @param old the previous status
+    * @param current the status being changed to
+    * @since 0.1.0
+    */
+  def onStatusChange(old: TaskStatus, current: TaskStatus): Unit = {
+    logger.trace(s"Status change: old=$old current=$current")
+  }
+
 }
 
 /** Factory for [[RunnableTask]] instances.
