@@ -128,6 +128,7 @@ class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
         .build()
       val jobExec: JobExecutor = JobExecutor(urlTestJob)
 
+      assert(urlTestJob.id > 0)
       println(s"Running job for URL: $url")
 
       val startTime: Long = System.currentTimeMillis()

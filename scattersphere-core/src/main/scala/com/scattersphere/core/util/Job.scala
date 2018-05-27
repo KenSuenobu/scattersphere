@@ -14,6 +14,9 @@
 
 package com.scattersphere.core.util
 
+import java.util.concurrent.atomic.AtomicInteger
+import com.scattersphere.core.util.JobBuilder._
+
 /** A collection of [[Task]]s.
   *
   * [[Job]]s are run using the [[com.scattersphere.core.util.execution.JobExecutor]] class, which in turn
@@ -26,15 +29,16 @@ package com.scattersphere.core.util
   *
   * Creating a new [[Job]]:
   * {{{
-  *   val job: Job = new Job("my job", Seq(task1, task2, task3))
+  *   val job: Job = new Job(name = "my job", tasks = Seq(task1, task2, task3))
   * }}}
   *
   * @constructor creates a new object with a name and sequence of [[Task]]s, setting the [[JobStatus]] to [[JobQueued]]
+  * @param id id of the task.
   * @param name name of the job.
   * @param tasks The `Seq` of [[Task]]s associated with the job.
   * @since 0.0.1
   */
-case class Job(name: String, tasks: Seq[Task]) {
+case class Job(id: Int, name: String, tasks: Seq[Task]) {
 
   private var jobStatus: JobStatus = JobQueued
 
@@ -124,13 +128,15 @@ class JobBuilder {
       throw new IllegalArgumentException("Missing task list.")
     }
 
-    Job(if (jobName.length == 0) s"${tasks(0).name} Job".trim else jobName, tasks)
+    Job(JOB_ID_GENERATOR.incrementAndGet(), if (jobName.length == 0) s"${tasks(0).name} Job".trim else jobName, tasks)
   }
 
 }
 
 /** Factory class with convenience method to create a new [[JobBuilder]] on demand. */
 object JobBuilder {
+  private val JOB_ID_GENERATOR: AtomicInteger = new AtomicInteger(0)
+
   def apply(): JobBuilder = new JobBuilder()
 }
 
