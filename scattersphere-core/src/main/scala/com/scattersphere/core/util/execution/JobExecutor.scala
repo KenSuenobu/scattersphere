@@ -249,11 +249,16 @@ class JobExecutor(job: Job) extends LazyLogging {
 
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
+      if (!taskMap.contains(task.name)) {
+        throw new InvalidTaskDependencyException(dependent.name, task.name)
+      }
+
       if (!taskMap.contains(dependent.name)) {
         val parentFuture: CompletableFuture[Void] = taskMap(task.name)
-        val cFuture: CompletableFuture[Void] = dependent.async match {
-          case true => parentFuture.thenRunAsync(() => runTask(dependent), executorService)
-          case false => parentFuture.thenRun(() => runTask(dependent))
+        val cFuture: CompletableFuture[Void] = if (dependent.async) {
+          parentFuture.thenRunAsync(() => runTask(dependent), executorService)
+        } else {
+          parentFuture.thenRun(() => runTask(dependent))
         }
 
         taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
@@ -272,6 +277,10 @@ class JobExecutor(job: Job) extends LazyLogging {
     tasks
       .filter(task => task.dependencies.isEmpty)
       .foreach(task => {
+        if (taskMap.contains(task.name)) {
+          throw new DuplicateTaskNameException(task.name)
+        }
+
         logger.debug(s"Task: ${task.name} [ASYNC Root Task]")
 
         taskMap.put(task.name,
@@ -283,6 +292,10 @@ class JobExecutor(job: Job) extends LazyLogging {
     tasks
       .filter(task => task.dependencies.nonEmpty)
       .foreach(task => {
+        if (taskMap.contains(task.name)) {
+          throw new DuplicateTaskNameException(task.name)
+        }
+
         logger.debug(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.dependencies)
       })
@@ -315,3 +328,18 @@ class InvalidTaskStateException(task: Task,
   * @since 0.1.0
   */
 class InvalidJobExecutionStateException(message: String) extends Exception(s"Invalid Job Execution State: ${message}")
+
+/** An exception indicating that a specified task name already exists.
+  *
+  * @param taskName the name of the task.
+  * @since 0.1.0
+  */
+class DuplicateTaskNameException(taskName: String) extends Exception(s"Task $taskName already exists")
+
+/** An exception indicating that a task depends on another task that has not yet been registered.
+  *
+  * @param taskName the task being registered
+  * @param dependsOn the task the registered task depends on
+  */
+class InvalidTaskDependencyException(taskName: String, dependsOn: String)
+  extends Exception(s"Invalid dependency: $taskName depends on $dependsOn which does not yet exist")
