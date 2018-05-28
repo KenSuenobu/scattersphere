@@ -49,6 +49,8 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
     job1.tasks.length shouldBe 1
     job1.tasks(0) shouldBe task1
     job1.status shouldBe JobQueued
+    assert(job1.id > 0)
+    assert(task1.id > 0)
 
     val queuedJob: JobExecutor = jobExec.queue()
 

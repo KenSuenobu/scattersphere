@@ -153,6 +153,10 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val jobExec: JobExecutor = new JobExecutor(job1)
 
     job1.status shouldBe JobQueued
+    assert(job1.id > 0)
+    assert(task1.id > 0)
+    assert(task2.id > task1.id)
+    assert(task3.id > task2.id)
     jobExec.queue().run()
     job1.status shouldBe JobFinished
 
@@ -181,6 +185,8 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val jobExec: JobExecutor = JobExecutor(job1)
 
     job1.status shouldBe JobQueued
+    assert(job1.id > 0)
+    assert(task1.id > 0)
     jobExec.blocking shouldBe true
     jobExec.queue().run()
     job1.status shouldBe JobFinished
@@ -202,6 +208,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
       case JobFailed(_) => println("Job failed, expected.")
       case x => fail(s"Unexpected job status: $x")
     }
+    assert(job2.id > job1.id)
 
     task1.status match {
       case TaskFailed(reason) => reason match {
@@ -251,6 +258,10 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
       .withTasks(task1)
       .build()
     val jobExec: JobExecutor = JobExecutor(job1)
+    assert(job1.id > 0)
+    assert(task1.id > 0)
+    assert(task2.id > task1.id)
+    assert(task3.id > task2.id)
 
     jobExec.queue().run()
 
@@ -260,6 +271,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val jobExec2: JobExecutor = JobExecutor(job2)
 
     jobExec2.queue().run()
+    assert(job2.id > 0)
   }
 
 }

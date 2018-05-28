@@ -37,6 +37,12 @@ class PauseResumeJobTest extends FlatSpec with Matchers with LazyLogging {
     val job1: Job = JobBuilder().withName("Timer Task").withTasks(task1, task2, task3, task4, task5).build()
     val jobExec: JobExecutor = JobExecutor(job1)
 
+    assert(job1.id > 0)
+    assert(task1.id > 0)
+    assert(task2.id > task1.id)
+    assert(task3.id > task2.id)
+    assert(task4.id > task3.id)
+    assert(task5.id > task4.id)
     jobExec.setBlocking(false)
     jobExec.queue().run()
     Thread.sleep(2500)
