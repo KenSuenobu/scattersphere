@@ -69,9 +69,8 @@ class JobExecutor(job: Job) extends LazyLogging {
     completableFuture = CompletableFuture
       .allOf(taskMap.values.toSeq: _*)
       .whenComplete((_, _) => {
-        job.status match {
-          case JobRunning => job.setStatus(JobFinished)
-          case _ => // Do nothing; keep state stored
+        if (job.status.equals(JobRunning)) {
+          job.setStatus(JobFinished)
         }
 
         executorService.shutdown
@@ -108,7 +107,10 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately. */
   def run(): Unit = {
     job.setStatus(JobRunning)
-    resume()
+
+    if (isPaused) {
+      resume()
+    }
 
     if (isBlocking) {
       completableFuture.join
@@ -215,6 +217,7 @@ class JobExecutor(job: Job) extends LazyLogging {
           job.setStatus(JobFailed(ex.getCause))
         }
       }
+
       case _ => {
         try {
           task.task.onException(f)
@@ -234,27 +237,17 @@ class JobExecutor(job: Job) extends LazyLogging {
 
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
-      taskMap.get(dependent.name) match {
-        case Some(_) => logger.debug(s"[${dependent.name}: Already queued] Parent=${task.name} has ${task.dependencies.length} subtasks.")
-        case None => {
-          val parentFuture: CompletableFuture[Void] = taskMap(task.name)
-
-          if (dependent.async) {
-            val cFuture: CompletableFuture[Void] = parentFuture.thenRunAsync(() => runTask(dependent), executorService)
-
-            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
-              runExceptionally(dependent, f))))
-
-            logger.debug(s"[${dependent.name}: Queued (ASYNC)] Parent=${task.name} has ${task.dependencies.length} subtasks.")
-          } else {
-            val cFuture: CompletableFuture[Void] = parentFuture.thenRun(() => runTask(dependent))
-
-            taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
-              runExceptionally(dependent, f))))
-
-            logger.debug(s"[${dependent.name}: Queued] Parent=${task.name} has ${task.dependencies.length} subtasks.")
-          }
+      if (!taskMap.contains(dependent.name)) {
+        val parentFuture: CompletableFuture[Void] = taskMap(task.name)
+        val cFuture: CompletableFuture[Void] = dependent.async match {
+          case true => parentFuture.thenRunAsync(() => runTask(dependent), executorService)
+          case false => parentFuture.thenRun(() => runTask(dependent))
         }
+
+        taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
+          runExceptionally(dependent, f))))
+
+        logger.debug(s"[${dependent.name}: Queued (async=${dependent.async})] Parent=${task.name} has ${task.dependencies.length} subtasks.")
       }
 
       if (task.dependencies.nonEmpty) {
@@ -264,19 +257,23 @@ class JobExecutor(job: Job) extends LazyLogging {
   }
 
   private def generateExecutionPlan(tasks: Seq[Task]): Unit = {
-    tasks.foreach(task => {
-      if (task.dependencies.isEmpty) {
+    tasks
+      .filter(task => task.dependencies.isEmpty)
+      .foreach(task => {
         logger.debug(s"Task: ${task.name} [ASYNC Root Task]")
 
-        val cFuture: CompletableFuture[Void] = CompletableFuture.runAsync(() => runTask(task), executorService)
+        taskMap.put(task.name,
+          CompletableFuture.runAsync(() => runTask(task), executorService)
+            .exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
+              runExceptionally(task, f))))
+      })
 
-        taskMap.put(task.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
-          runExceptionally(task, f))))
-      } else {
+    tasks
+      .filter(task => task.dependencies.nonEmpty)
+      .foreach(task => {
         logger.debug(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.dependencies)
-      }
-    })
+      })
 
     logger.info(s"Known task map: ${taskMap.keys}")
   }
