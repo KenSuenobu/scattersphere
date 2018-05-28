@@ -16,7 +16,7 @@ package com.scattersphere.core.util
 
 import java.util.concurrent.CompletionException
 
-import com.scattersphere.core.util.execution.JobExecutor
+import com.scattersphere.core.util.execution.{DuplicateTaskNameException, InvalidJobExecutionStateException, InvalidTaskDependencyException, JobExecutor}
 import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -31,7 +31,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   "Exception Jobs" should "handle an exception" in {
-    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(2))
     val task1: Task = TaskBuilder()
         .withName("Exception task")
         .withTask(RunnableTask(runnableTask1))
@@ -60,8 +60,8 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
     queuedJob.setBlocking(true)
     job1.status shouldBe JobRunning
 
-    println("Waiting 5 seconds before submitting a cancel.")
-    Thread.sleep(5000)
+    println("Waiting 3 seconds before submitting a cancel.")
+    Thread.sleep(3000)
     job1.status match {
       case JobFailed(_) => println("Job failed expected.")
       case x => fail(s"Unexpected job state caught: $x")
@@ -96,6 +96,122 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
       JobBuilder()
         .withName("My Job Name")
         .build()
+    }
+  }
+
+  it should "not allow you to run a job without queueing it first" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[InvalidJobExecutionStateException] {
+      jExec.run()
+    }
+  }
+
+  it should "not allow you to queueing the job twice" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[InvalidJobExecutionStateException] {
+      jExec.queue().queue()
+    }
+  }
+
+  it should "not allow you to add the same task twice" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1, task1)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[DuplicateTaskNameException] {
+      jExec.queue()
+    }
+  }
+
+  it should "not allow dependencies to be added before the task has been added" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask2: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask3: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask4: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val task2: Task = TaskBuilder()
+      .withName("Exception task 2")
+      .withTask(RunnableTask(runnableTask2))
+      .dependsOn(task1)
+      .build()
+    val task3: Task = TaskBuilder()
+      .withName("Exception task 3")
+      .withTask(RunnableTask(runnableTask3))
+      .dependsOn(task2)
+      .build()
+    val task4: Task = TaskBuilder()
+      .withName("Exception task 4")
+      .withTask(RunnableTask(runnableTask4))
+      .dependsOn(task3)
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1, task2, task4)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[InvalidTaskDependencyException] {
+      jExec.queue()
+    }
+  }
+
+  it should "not allow duplicate dependant tasks to be added" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask2: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask3: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask4: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val task2: Task = TaskBuilder()
+      .withName("Exception task 2")
+      .withTask(RunnableTask(runnableTask2))
+      .dependsOn(task1)
+      .build()
+    val task3: Task = TaskBuilder()
+      .withName("Exception task 3")
+      .withTask(RunnableTask(runnableTask3))
+      .dependsOn(task2)
+      .build()
+    val task4: Task = TaskBuilder()
+      .withName("Exception task 4")
+      .withTask(RunnableTask(runnableTask4))
+      .dependsOn(task3)
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1, task2, task3, task3, task4)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[DuplicateTaskNameException] {
+      jExec.queue()
     }
   }
 

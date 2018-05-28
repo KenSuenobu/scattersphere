@@ -52,7 +52,7 @@ class JobExecutor(job: Job) extends LazyLogging {
   private val condition: Condition = lock.newCondition()
   private var isPaused = true
 
-  private var completableFuture: CompletableFuture[Void] = _
+  private var completableFuture: CompletableFuture[Void] = null
 
   /** Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
     * asynchronous CompletableFuture, it's possible that the tasks will start while the DAG is being generated.
@@ -60,8 +60,13 @@ class JobExecutor(job: Job) extends LazyLogging {
     * should you depend on timing or anything of that sort.
     *
     * @return this object
+    * @throws InvalidJobExecutionStateException if queue called more than once
     */
   def queue(): JobExecutor = {
+    if (completableFuture != null) {
+      throw new InvalidJobExecutionStateException("Cannot re-queue the same job.")
+    }
+
     val tasks: Seq[Task] = job.tasks
 
     generateExecutionPlan(tasks)
@@ -104,8 +109,15 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** Indicates whether or not the `run()` method should block until completion. */
   def blocking: Boolean = isBlocking
 
-  /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately. */
+  /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately.
+    *
+    * @throws InvalidJobExecutionStateException if not queued first
+    */
   def run(): Unit = {
+    if (completableFuture == null) {
+      throw new InvalidJobExecutionStateException("Called out of order - queue required.")
+    }
+
     job.setStatus(JobRunning)
 
     if (isPaused) {
@@ -237,11 +249,16 @@ class JobExecutor(job: Job) extends LazyLogging {
 
   private def walkSubtasks(dependent: Task, tasks: Seq[Task]): Unit = {
     tasks.foreach(task => {
+      if (!taskMap.contains(task.name)) {
+        throw new InvalidTaskDependencyException(dependent.name, task.name)
+      }
+
       if (!taskMap.contains(dependent.name)) {
         val parentFuture: CompletableFuture[Void] = taskMap(task.name)
-        val cFuture: CompletableFuture[Void] = dependent.async match {
-          case true => parentFuture.thenRunAsync(() => runTask(dependent), executorService)
-          case false => parentFuture.thenRun(() => runTask(dependent))
+        val cFuture: CompletableFuture[Void] = if (dependent.async) {
+          parentFuture.thenRunAsync(() => runTask(dependent), executorService)
+        } else {
+          parentFuture.thenRun(() => runTask(dependent))
         }
 
         taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
@@ -260,6 +277,10 @@ class JobExecutor(job: Job) extends LazyLogging {
     tasks
       .filter(task => task.dependencies.isEmpty)
       .foreach(task => {
+        if (taskMap.contains(task.name)) {
+          throw new DuplicateTaskNameException(task.name)
+        }
+
         logger.debug(s"Task: ${task.name} [ASYNC Root Task]")
 
         taskMap.put(task.name,
@@ -271,6 +292,10 @@ class JobExecutor(job: Job) extends LazyLogging {
     tasks
       .filter(task => task.dependencies.nonEmpty)
       .foreach(task => {
+        if (taskMap.contains(task.name)) {
+          throw new DuplicateTaskNameException(task.name)
+        }
+
         logger.debug(s"Task: ${task.name} task - Walking tree")
         walkSubtasks(task, task.dependencies)
       })
@@ -296,3 +321,26 @@ class InvalidTaskStateException(task: Task,
                                 status: TaskStatus,
                                 expected: TaskStatus)
   extends Exception(s"InvalidTaskStateException: task ${task.name} set to $status, expected $expected")
+
+/** An exception indicating that an invalid state has occurred while trying to run a job.
+  *
+  * @param message the exception message.
+  * @since 0.1.0
+  */
+class InvalidJobExecutionStateException(message: String) extends Exception(s"Invalid Job Execution State: ${message}")
+
+/** An exception indicating that a specified task name already exists.
+  *
+  * @param taskName the name of the task.
+  * @since 0.1.0
+  */
+class DuplicateTaskNameException(taskName: String) extends Exception(s"Task $taskName already exists")
+
+/** An exception indicating that a task depends on another task that has not yet been registered.
+  *
+  * @param taskName the task being registered
+  * @param dependsOn the task the registered task depends on
+  * @since 0.1.0
+  */
+class InvalidTaskDependencyException(taskName: String, dependsOn: String)
+  extends Exception(s"Invalid dependency: $taskName depends on $dependsOn which does not yet exist")

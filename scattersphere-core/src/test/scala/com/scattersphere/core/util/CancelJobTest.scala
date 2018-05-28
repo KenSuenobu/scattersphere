@@ -48,8 +48,7 @@ class CancelJobTest extends FlatSpec with Matchers with LazyLogging {
     assert(task6.id > task5.id)
     assert(task7.id > task6.id)
     assert(task8.id > task7.id)
-    jobExec.setBlocking(false)
-    jobExec.queue().run()
+    jobExec.setBlocking(false).queue().run()
     Thread.sleep(2500)
     jobExec.cancel("Canceling for testing sake.")
 
