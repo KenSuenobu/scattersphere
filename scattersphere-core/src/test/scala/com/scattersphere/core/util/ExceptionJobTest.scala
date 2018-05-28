@@ -181,4 +181,38 @@ class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
     }
   }
 
+  it should "not allow duplicate dependant tasks to be added" in {
+    val runnableTask1: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask2: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask3: RunnableTask = RunnableTask(new TimerJob(3))
+    val runnableTask4: RunnableTask = RunnableTask(new TimerJob(3))
+    val task1: Task = TaskBuilder()
+      .withName("Exception task")
+      .withTask(RunnableTask(runnableTask1))
+      .build()
+    val task2: Task = TaskBuilder()
+      .withName("Exception task 2")
+      .withTask(RunnableTask(runnableTask2))
+      .dependsOn(task1)
+      .build()
+    val task3: Task = TaskBuilder()
+      .withName("Exception task 3")
+      .withTask(RunnableTask(runnableTask3))
+      .dependsOn(task2)
+      .build()
+    val task4: Task = TaskBuilder()
+      .withName("Exception task 4")
+      .withTask(RunnableTask(runnableTask4))
+      .dependsOn(task3)
+      .build()
+    val job: Job = JobBuilder()
+      .withTasks(task1, task2, task3, task3, task4)
+      .build()
+    val jExec: JobExecutor = JobExecutor(job)
+
+    assertThrows[DuplicateTaskNameException] {
+      jExec.queue()
+    }
+  }
+
 }
