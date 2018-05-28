@@ -309,6 +309,12 @@ class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
     job1.tasks(3) shouldBe task4
     job1.tasks(4) shouldBe task5
     job1.tasks(5) shouldBe task6
+    assert(task1.id > 0)
+    assert(task2.id > 0)
+    assert(task3.id > 0)
+    assert(task4.id > 0)
+    assert(task5.id > 0)
+    assert(task6.id > 0)
     assert(job1.id > 0)
     runnableTask1.setVar shouldBe ""
     runnableTask2.setVar shouldBe ""

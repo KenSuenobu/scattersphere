@@ -14,6 +14,9 @@
 
 package com.scattersphere.core.util
 
+import java.util.concurrent.atomic.AtomicInteger
+import com.scattersphere.core.util.TaskBuilder._
+
 /** A unit of work in the form of a [[RunnableTask]].
   *
   * [[Task]]s are run from within [[Job]] objects, which contain a collection of one or more [[Task]] objects.  A
@@ -69,13 +72,14 @@ package com.scattersphere.core.util
   * the DAG, but it is up to you to synchronize the entire process properly, as large DAGs of tasks can be
   * difficult to debug.
   *
+  * @param id the id of the task
   * @param name name of the task
   * @param task [[RunnableTask]] class unit of work
   * @param dependencies tasks that this task depends on before running
   * @param async true for asynchronous, false otherwise
   * @since 0.0.1
   */
-case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
+case class Task(id: Int, name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
 
   private var taskStatus: TaskStatus = TaskQueued
 
@@ -94,7 +98,8 @@ case class Task(name: String, task: RunnableTask, dependencies: Seq[Task], async
     */
   def status(): TaskStatus = taskStatus
 
-  override def toString: String = s"Task{name=$name,status=$taskStatus,dependencies=${dependencies.length}}"
+  override def toString: String = s"Task{id=$id,name=$name,status=$taskStatus," +
+    s"dependencies=${dependencies.length},async=$async}"
 
 }
 
@@ -141,9 +146,10 @@ object Task {
     */
   def async(name: String)(block: => Unit): Task = evaluate(name, block, true)
 
-  private def evaluate(name: String, block: => Unit, async: Boolean = false) = Task(name, new RunnableTask {
-    override def run(): Unit = block
-  }, Seq(), async)
+  private def evaluate(name: String, block: => Unit, async: Boolean = false) =
+    Task(TaskBuilder.TASK_ID_GENERATOR.incrementAndGet(), name, new RunnableTask {
+      override def run(): Unit = block
+    }, Seq(), async)
 
 }
 
@@ -240,13 +246,15 @@ class TaskBuilder {
       throw new IllegalArgumentException("Missing task name")
     }
 
-    Task(taskName, runnableTask, dependencies, taskAsync)
+    Task(TASK_ID_GENERATOR.incrementAndGet(), taskName, runnableTask, dependencies, taskAsync)
   }
 
 }
 
 /** Factory class with convenience method to create a new [[TaskBuilder]] on demand. */
 object TaskBuilder {
+  val TASK_ID_GENERATOR: AtomicInteger = new AtomicInteger(0)
+
   def apply(): TaskBuilder = new TaskBuilder()
 }
 
