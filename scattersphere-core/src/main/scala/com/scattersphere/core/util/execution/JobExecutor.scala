@@ -69,9 +69,8 @@ class JobExecutor(job: Job) extends LazyLogging {
     completableFuture = CompletableFuture
       .allOf(taskMap.values.toSeq: _*)
       .whenComplete((_, _) => {
-        job.status match {
-          case JobRunning => job.setStatus(JobFinished)
-          case _ => // Do nothing; keep state stored
+        if (job.status.equals(JobRunning)) {
+          job.setStatus(JobFinished)
         }
 
         executorService.shutdown
