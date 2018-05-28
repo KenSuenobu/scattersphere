@@ -108,7 +108,10 @@ class JobExecutor(job: Job) extends LazyLogging {
   /** Executes the DAG. When set to non-blocking, this will start the DAG and will return immediately. */
   def run(): Unit = {
     job.setStatus(JobRunning)
-    resume()
+
+    if (isPaused) {
+      resume()
+    }
 
     if (isBlocking) {
       completableFuture.join
