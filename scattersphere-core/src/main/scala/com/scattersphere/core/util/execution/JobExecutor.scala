@@ -340,6 +340,7 @@ class DuplicateTaskNameException(taskName: String) extends Exception(s"Task $tas
   *
   * @param taskName the task being registered
   * @param dependsOn the task the registered task depends on
+  * @since 0.1.0
   */
 class InvalidTaskDependencyException(taskName: String, dependsOn: String)
   extends Exception(s"Invalid dependency: $taskName depends on $dependsOn which does not yet exist")
