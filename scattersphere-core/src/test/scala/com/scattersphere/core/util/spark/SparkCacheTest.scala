@@ -46,10 +46,26 @@ class SparkCacheTest extends FlatSpec with Matchers with LazyLogging {
     }.reduce(_ + _)
 
     val pi = 4.0 * count / (n - 1)
-    
+
     assert(pi >= 3.0 && pi <= 3.2)
 
     spark.stop
+  }
+
+  it should "throw a NullPointerException for a missing key or missing SparkConf" in {
+    assertThrows[NullPointerException] {
+      SparkCache.save(null, new SparkConf())
+    }
+
+    assertThrows[NullPointerException] {
+      SparkCache.save("test1234", null)
+    }
+  }
+
+  it should "throw a NullPointerException for a missing key when creating a SparkSession" in {
+    assertThrows[NullPointerException] {
+      SparkCache.getSession("nonexistent entry")
+    }
   }
 
 }

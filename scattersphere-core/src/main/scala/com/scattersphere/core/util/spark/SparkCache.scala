@@ -33,7 +33,17 @@ object SparkCache {
     * @param key key to assign
     * @param conf [[SparkConf]] object to store
     */
-  def save(key: String, conf: SparkConf): Unit = SPARK_CONF_CACHE.put(key, conf)
+  def save(key: String, conf: SparkConf): Unit = {
+    if (key == null) {
+      throw new NullPointerException("Missing key")
+    }
+
+    if (conf == null) {
+      throw new NullPointerException("Missing SparkConf object.")
+    }
+
+    SPARK_CONF_CACHE.put(key, conf)
+  }
 
   /** Retrieves the [[SparkConf]] by the specified key.
     *
