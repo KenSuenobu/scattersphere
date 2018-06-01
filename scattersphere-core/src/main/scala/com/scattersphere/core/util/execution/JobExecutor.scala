@@ -54,6 +54,17 @@ class JobExecutor(job: Job) extends LazyLogging {
 
   private var completableFuture: CompletableFuture[Void] = null
 
+  class WhenComplete extends java.util.function.BiConsumer[Void, Throwable] {
+    override def accept(t: Void, u: Throwable): Unit = {
+      if (job.status.equals(JobRunning)) {
+        job.setStatus(JobFinished)
+      }
+
+      executorService.shutdown
+      logger.trace("Execution service shut down.")
+    }
+  }
+
   /** Walks the tree of all tasks for this job, creating an execution DAG.  Since the top-level tasks run using an
     * asynchronous CompletableFuture, it's possible that the tasks will start while the DAG is being generated.
     * This should not affect how the tasks run, however, it may affect synchronization in your top-level application,
@@ -73,14 +84,7 @@ class JobExecutor(job: Job) extends LazyLogging {
 
     completableFuture = CompletableFuture
       .allOf(taskMap.values.toSeq: _*)
-      .whenComplete((_, _) => {
-        if (job.status.equals(JobRunning)) {
-          job.setStatus(JobFinished)
-        }
-
-        executorService.shutdown
-        logger.trace("Execution service shut down.")
-      })
+      .whenComplete(new WhenComplete())
 
     this
   }
@@ -175,46 +179,48 @@ class JobExecutor(job: Job) extends LazyLogging {
     completableFuture.cancel(true)
   }
 
-  private def runTask(task: Task): Unit = {
-    logger.info(s"Running task: $task (paused=$isPaused)")
+  class RunTask(task: Task) extends Runnable {
+    override def run(): Unit = {
+      logger.info(s"Running task: $task (paused=$isPaused)")
 
-    lock.lock()
+      lock.lock()
 
-    try {
-      while (isPaused) {
-        logger.trace("Awaiting lock release.")
-        condition.await
-        logger.trace("Lock released.")
-      }
-    } catch {
-      case x: InterruptedException => throw x
-    } finally {
-      lock.unlock()
-    }
-
-    job.status match {
-      case JobCanceled(x) => {
-        logger.info(s"Job canceled with reason $x, stopping all further tasks.")
-        task.setStatus(TaskCanceled(x))
-        return
+      try {
+        while (isPaused) {
+          logger.trace("Awaiting lock release.")
+          condition.await
+          logger.trace("Lock released.")
+        }
+      } catch {
+        case x: InterruptedException => throw x
+      } finally {
+        lock.unlock()
       }
 
-      case _ => // Ignore, the job is fine, the only special case is for JobCanceled.
-    }
+      job.status match {
+        case JobCanceled(x) => {
+          logger.info(s"Job canceled with reason $x, stopping all further tasks.")
+          task.setStatus(TaskCanceled(x))
+          return
+        }
 
-    task.status match {
-      case TaskQueued => {
-        task.setStatus(TaskRunning)
-        task.task.run()
-        task.task.onFinished()
-        task.setStatus(TaskFinished)
+        case _ => // Ignore, the job is fine, the only special case is for JobCanceled.
       }
 
-      case _ => {
-        val failedTaskException = new InvalidTaskStateException(task, task.status, TaskQueued)
+      task.status match {
+        case TaskQueued => {
+          task.setStatus(TaskRunning)
+          task.task.run()
+          task.task.onFinished()
+          task.setStatus(TaskFinished)
+        }
 
-        task.setStatus(TaskFailed(failedTaskException))
-        job.setStatus(JobFailed(failedTaskException))
+        case _ => {
+          val failedTaskException = new InvalidTaskStateException(task, task.status, TaskQueued)
+
+          task.setStatus(TaskFailed(failedTaskException))
+          job.setStatus(JobFailed(failedTaskException))
+        }
       }
     }
   }
@@ -256,9 +262,9 @@ class JobExecutor(job: Job) extends LazyLogging {
       if (!taskMap.contains(dependent.name)) {
         val parentFuture: CompletableFuture[Void] = taskMap(task.name)
         val cFuture: CompletableFuture[Void] = if (dependent.async) {
-          parentFuture.thenRunAsync(() => runTask(dependent), executorService)
+          parentFuture.thenRunAsync(new RunTask(dependent), executorService)
         } else {
-          parentFuture.thenRun(() => runTask(dependent))
+          parentFuture.thenRun(new RunTask(dependent))
         }
 
         taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
@@ -284,7 +290,7 @@ class JobExecutor(job: Job) extends LazyLogging {
         logger.debug(s"Task: ${task.name} [ASYNC Root Task]")
 
         taskMap.put(task.name,
-          CompletableFuture.runAsync(() => runTask(task), executorService)
+          CompletableFuture.runAsync(new RunTask(task), executorService)
             .exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
               runExceptionally(task, f))))
       })
