@@ -83,6 +83,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala-binary.version}</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.suenobu</groupId>
             <artifactId>scattersphere-core</artifactId>
         </dependency>
