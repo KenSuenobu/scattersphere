@@ -17,15 +17,28 @@ package com.scattersphere.tasks.spark
 import com.scattersphere.core.util.RunnableTask
 import com.scattersphere.core.util.spark.SparkCache
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.SparkContext
+import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.SparkSession
 
+/** Spark-based task that provides a [[SparkSession]] and [[SparkContext]] object for use by the run() function.
+  *
+  * @param sparkConfKey key which stores the [[SparkCache]] information for the [[SparkConf]] object.
+  * @since 0.2.0
+  */
 class SparkTask(sparkConfKey: String) extends RunnableTask with LazyLogging {
 
   private val spark: SparkSession = SparkCache.getSession(sparkConfKey)
 
+  /** Retrieves the current [[SparkSession]]
+    *
+    * @return [[SparkSession]] retrieved by sparkConfKey
+    */
   def getSession(): SparkSession = spark
 
+  /** Retrieves the [[SparkContext]] for the current [[SparkSession]]
+    *
+    * @return [[SparkContext]] for the current [[SparkSession]]
+    */
   def getContext(): SparkContext = spark.sparkContext
 
   override def run(): Unit = throw new NotImplementedError("Need to override run.")
