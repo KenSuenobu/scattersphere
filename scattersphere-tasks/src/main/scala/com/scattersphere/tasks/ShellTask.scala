@@ -23,6 +23,10 @@ import scala.sys.process.{Process, ProcessBuilder}
   * delay for the task, so if a failure happens on the Shell task and it hangs, the underlying job controller must
   * terminate the task manually.
   *
+  * Once the [[RunnableTask]] completes, and onFinished() or onException() are called, the underlying process will
+  * be destroyed and cleaned up on your behalf.  If you choose to override these methods, make sure to call the
+  * super methods.
+  *
   * @constructor creates a new ShellTask with the command to execute
   * @param command command string to execute, options all separated by spaces
   * @since 0.1.0
