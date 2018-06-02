@@ -29,11 +29,11 @@ class PauseResumeJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   "Pausing and Resuming of Jobs" should "pause jobs properly" in {
-    val task1: Task = TaskBuilder().withName("1").withTask(RunnableTask(new SleeperRunnable(1))).build()
-    val task2: Task = TaskBuilder().withName("2").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task1).build()
-    val task3: Task = TaskBuilder().withName("3").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task2).build()
-    val task4: Task = TaskBuilder().withName("4").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task3).build()
-    val task5: Task = TaskBuilder().withName("5").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task4).build()
+    val task1: Task = TaskBuilder("1").withTask(RunnableTask(new SleeperRunnable(1))).build()
+    val task2: Task = TaskBuilder("2").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task1).build()
+    val task3: Task = TaskBuilder("3").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task2).build()
+    val task4: Task = TaskBuilder("4").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task3).build()
+    val task5: Task = TaskBuilder("5").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task4).build()
     val job1: Job = JobBuilder().withName("Timer Task").withTasks(task1, task2, task3, task4, task5).build()
     val jobExec: JobExecutor = JobExecutor(job1)
 

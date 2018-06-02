@@ -50,9 +50,8 @@ class SparkTaskPiTest extends FlatSpec with Matchers with LazyLogging {
       }
     }
 
-    var sTask = TaskBuilder()
+    var sTask = TaskBuilder("Pi Task")
       .withTask(piTask)
-      .withName("Pi Task")
       .build()
     var sJob = JobBuilder()
       .withTasks(sTask)

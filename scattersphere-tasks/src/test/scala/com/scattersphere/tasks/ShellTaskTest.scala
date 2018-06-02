@@ -25,7 +25,7 @@ class ShellTaskTest extends FlatSpec with Matchers with LazyLogging {
 
   "Shell Task" should "be able to call /bin/ls -al /etc" in {
     val shellTask: ShellTask = new ShellTask("/bin/ls -al /etc/")
-    val sTask1: Task = TaskBuilder().withName("shell task").withTask(shellTask).build()
+    val sTask1: Task = TaskBuilder("shell task").withTask(shellTask).build()
     val job: Job = JobBuilder().withTasks(sTask1).build()
     val jExec: JobExecutor = JobExecutor(job)
 
@@ -40,7 +40,7 @@ class ShellTaskTest extends FlatSpec with Matchers with LazyLogging {
 
   it should "handle commands that do not exist" in {
     val shellTask: ShellTask = new ShellTask("/unable/to/find/this command anywhere")
-    val sTask1: Task = TaskBuilder().withName("nonexistent task").withTask(shellTask).build()
+    val sTask1: Task = TaskBuilder("nonexistent task").withTask(shellTask).build()
     val job: Job = JobBuilder().withTasks(sTask1).build()
     val jExec: JobExecutor = JobExecutor(job)
 

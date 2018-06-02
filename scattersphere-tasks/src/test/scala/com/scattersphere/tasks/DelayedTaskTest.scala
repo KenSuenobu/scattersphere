@@ -28,9 +28,8 @@ class DelayedTaskTest extends FlatSpec with Matchers with LazyLogging {
       }
     }
 
-    var sTask = TaskBuilder()
+    var sTask = TaskBuilder("Delayed Task")
       .withTask(new DelayedTask(2000, RunnableTask(new SleeperThread)))
-      .withName("Delayed Task")
       .build()
     var sJob = JobBuilder()
       .withTasks(sTask)
