@@ -3,4 +3,4 @@
 # Script to test Scattersphere project
 
 set -e
-mvn test $@
+HADOOP_HOME="/" mvn test $@
