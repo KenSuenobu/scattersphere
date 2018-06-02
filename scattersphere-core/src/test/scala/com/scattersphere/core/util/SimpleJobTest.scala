@@ -57,17 +57,14 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     val runnableTask1 = new RunnableTestTask("1") with RunnableTask
     val runnableTask2 = new RunnableTestTask("2") with RunnableTask
     val runnableTask3 = new RunnableTestTask("3") with RunnableTask
-    val task1: Task = TaskBuilder()
-        .withName("First Runnable Task")
+    val task1: Task = TaskBuilder("First Runnable Task")
         .withTask(runnableTask1)
         .build()
-    val task2: Task = TaskBuilder()
-        .withName("Second Runnable Task")
+    val task2: Task = TaskBuilder("Second Runnable Task")
         .withTask(runnableTask2)
         .dependsOn(task1)
         .build()
-    val task3: Task = TaskBuilder()
-        .withName("Third Runnable Task")
+    val task3: Task = TaskBuilder("Third Runnable Task")
         .withTask(runnableTask3)
         .dependsOn(task2)
         .build()
@@ -85,8 +82,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task3.name shouldBe "Third Runnable Task"
     task3.dependencies.length shouldBe 1
 
-    val job1: Job = JobBuilder()
-        .withName("Test")
+    val job1: Job = JobBuilder("Test")
         .withTasks(task1, task2, task3)
         .build()
     val jobExec: JobExecutor = JobExecutor(job1)
@@ -146,8 +142,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task3.name shouldBe "Third Runnable Task"
     task3.dependencies.length shouldBe 0
 
-    val job1: Job = JobBuilder()
-      .withName("Test")
+    val job1: Job = JobBuilder("Test")
       .withTasks(task1, task2, task3)
       .build()
     val jobExec: JobExecutor = new JobExecutor(job1)
@@ -170,16 +165,14 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
 
   it should "not allow the same task to exist on two separate jobs after completing in one job" in {
     val runnableTask1 = new RunnableTestTask("1") with RunnableTask
-    val task1: Task = TaskBuilder()
-        .withName("First Runnable Task")
+    val task1: Task = TaskBuilder("First Runnable Task")
         .withTask(runnableTask1)
         .build()
 
     task1.status shouldBe TaskQueued
     task1.name shouldBe "First Runnable Task"
     task1.dependencies.length shouldBe 0
-    val job1: Job = JobBuilder()
-        .withName("Test")
+    val job1: Job = JobBuilder("Test")
         .withTasks(task1)
         .build()
     val jobExec: JobExecutor = JobExecutor(job1)
@@ -194,8 +187,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     runnableTask1.setVar shouldBe 1
     task1.status shouldBe TaskFinished
 
-    val job2: Job = JobBuilder()
-        .withName("Test2")
+    val job2: Job = JobBuilder("Test2")
         .withTasks(task1)
         .build()
     val jobExec2: JobExecutor = JobExecutor(job2)

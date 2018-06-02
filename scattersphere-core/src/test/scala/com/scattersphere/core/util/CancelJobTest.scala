@@ -28,15 +28,15 @@ class CancelJobTest extends FlatSpec with Matchers with LazyLogging {
   }
 
   "Job Executor" should "be able to cancel a list of tasks" in {
-    val task1: Task = TaskBuilder().withTask(RunnableTask(new SleeperRunnable(1))).withName("1").build()
-    val task2: Task = TaskBuilder().withName("2").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task1).build()
-    val task3: Task = TaskBuilder().withName("3").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task2).build()
-    val task4: Task = TaskBuilder().withName("4").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task3).build()
-    val task5: Task = TaskBuilder().withName("5").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task4).build()
-    val task6: Task = TaskBuilder().withName("6").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task5).build()
-    val task7: Task = TaskBuilder().withName("7").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task6).build()
-    val task8: Task = TaskBuilder().withName("8").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task7).build()
-    val job1: Job = JobBuilder().withName("Timer Task").withTasks(task1, task2, task3, task4, task5, task6, task7, task8).build()
+    val task1: Task = TaskBuilder("1").withTask(RunnableTask(new SleeperRunnable(1))).build()
+    val task2: Task = TaskBuilder("2").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task1).build()
+    val task3: Task = TaskBuilder("3").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task2).build()
+    val task4: Task = TaskBuilder("4").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task3).build()
+    val task5: Task = TaskBuilder("5").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task4).build()
+    val task6: Task = TaskBuilder("6").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task5).build()
+    val task7: Task = TaskBuilder("7").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task6).build()
+    val task8: Task = TaskBuilder("8").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task7).build()
+    val job1: Job = JobBuilder("Timer Task").withTasks(task1, task2, task3, task4, task5, task6, task7, task8).build()
     val jobExec: JobExecutor = JobExecutor(job1)
 
     assert(job1.id > 0)

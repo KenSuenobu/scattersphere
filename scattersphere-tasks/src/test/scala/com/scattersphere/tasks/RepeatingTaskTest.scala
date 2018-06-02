@@ -31,7 +31,7 @@ class RepeatingTaskTest extends FlatSpec with Matchers with LazyLogging {
     }
 
     val rTask: RepeatingTask = new RepeatingTask(20, new TestRunnable)
-    val task: Task = TaskBuilder().withName("Repeating task").withTask(rTask).build()
+    val task: Task = TaskBuilder("Repeating task").withTask(rTask).build()
     val job: Job = JobBuilder().withTasks(task).build()
     val jExec: JobExecutor = JobExecutor(job)
 
@@ -54,7 +54,7 @@ class RepeatingTaskTest extends FlatSpec with Matchers with LazyLogging {
     }
 
     val rTask: RepeatingTask = new RepeatingTask(50, new TestRunnable)
-    val task: Task = TaskBuilder().withName("Repeating task").withTask(rTask).build()
+    val task: Task = TaskBuilder("Repeating task").withTask(rTask).build()
     val job: Job = JobBuilder().withTasks(task).build()
     val jExec: JobExecutor = JobExecutor(job)
 

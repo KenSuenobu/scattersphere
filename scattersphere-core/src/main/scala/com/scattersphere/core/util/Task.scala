@@ -255,7 +255,11 @@ class TaskBuilder {
 object TaskBuilder {
   val TASK_ID_GENERATOR: AtomicInteger = new AtomicInteger(0)
 
+  /** Creates a new TaskBuilder with no options. */
   def apply(): TaskBuilder = new TaskBuilder()
+
+  /** Creates a new TaskBuilder, building a task by name. */
+  def apply(name: String): TaskBuilder = new TaskBuilder().withName(name)
 }
 
 /** This is the root class that all status values should inherit.
