@@ -137,7 +137,11 @@ class JobBuilder {
 object JobBuilder {
   private val JOB_ID_GENERATOR: AtomicInteger = new AtomicInteger(0)
 
+  /** Creates a new [[JobBuilder]] object. */
   def apply(): JobBuilder = new JobBuilder()
+
+  /** Creates a new [[JobBuilder]], applying the job name. */
+  def apply(name: String): JobBuilder = new JobBuilder().withName(name)
 }
 
 /** This is the root class that all status values should inherit.

@@ -36,7 +36,7 @@ class CancelJobTest extends FlatSpec with Matchers with LazyLogging {
     val task6: Task = TaskBuilder("6").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task5).build()
     val task7: Task = TaskBuilder("7").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task6).build()
     val task8: Task = TaskBuilder("8").withTask(RunnableTask(new SleeperRunnable(1))).dependsOn(task7).build()
-    val job1: Job = JobBuilder().withName("Timer Task").withTasks(task1, task2, task3, task4, task5, task6, task7, task8).build()
+    val job1: Job = JobBuilder("Timer Task").withTasks(task1, task2, task3, task4, task5, task6, task7, task8).build()
     val jobExec: JobExecutor = JobExecutor(job1)
 
     assert(job1.id > 0)
