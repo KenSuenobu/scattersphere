@@ -47,11 +47,8 @@ class ShellTask(command: String) extends RunnableTask with LazyLogging {
   override def onFinished(): Unit = {
     logger.trace(s"Command finished: ${command}")
 
-//    Sigh ... this is only available with the Scala 2.12 library
-//    if (process.isAlive()) {
-      logger.info("Process is still running; terminating.")
-      process.destroy()
-//    }
+    logger.info("Process is still running; terminating.")
+    process.destroy()
 
     logger.debug(s"Command exit code: ${process.exitValue()}")
   }
@@ -59,11 +56,8 @@ class ShellTask(command: String) extends RunnableTask with LazyLogging {
   override def onException(t: Throwable): Unit = {
     logger.debug("Exception occurred during run", t)
 
-//    Sigh ... this is only available with the Scala 2.12 library
-//    if (process.isAlive()) {
-      logger.debug("Process is still running; terminating.")
-      process.destroy()
-//    }
+    logger.debug("Process is still running; terminating.")
+    process.destroy()
   }
 
 }
