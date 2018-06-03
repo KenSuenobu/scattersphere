@@ -65,8 +65,7 @@ case class Job(id: Int, name: String, tasks: Seq[Task]) {
   * ==Example==
   *
   * {{{
-  *   val job: Job = JobBuilder()
-  *     .withName("my job")
+  *   val job: Job = JobBuilder("my job")
   *     .addTasks(task1, task2, task3)
   *     .build()
   * }}}
@@ -78,8 +77,7 @@ case class Job(id: Int, name: String, tasks: Seq[Task]) {
   * Given the following example:
   *
   * {{{
-  *   val task: Task = TaskBuilder()
-  *     .withName("My Task")
+  *   val task: Task = TaskBuilder("My Task")
   *     .withTask(new MyTask())
   *     .build()
   *   val job: Job = JobBuilder()
