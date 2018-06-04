@@ -25,7 +25,7 @@ import org.apache.spark.sql.SparkSession
   * @param sparkConfKey key which stores the [[SparkCache]] information for the [[SparkConf]] object.
   * @since 0.2.0
   */
-class SparkTask(sparkConfKey: String) extends RunnableTask with LazyLogging {
+case class SparkTask(sparkConfKey: String) extends RunnableTask with LazyLogging {
 
   private val spark: SparkSession = SparkCache.getSession(sparkConfKey)
 
