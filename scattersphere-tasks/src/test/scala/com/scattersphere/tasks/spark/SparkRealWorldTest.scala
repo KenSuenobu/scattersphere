@@ -15,18 +15,21 @@
 package com.scattersphere.tasks.spark
 
 import java.io.PrintWriter
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+import java.security.MessageDigest
 import java.util.regex.{Matcher, Pattern}
 
+import com.scattersphere.tasks.spark.SparkRealWorldTest._
 import com.scattersphere.core.util.{JobBuilder, TaskBuilder}
 import com.scattersphere.core.util.execution.JobExecutor
 import com.scattersphere.core.util.spark.SparkCache
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.SparkConf
 import org.scalatest.{FlatSpec, Matchers}
+import sun.security.provider.MD5
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
@@ -81,54 +84,60 @@ class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
       }
     }
 
+    /**
+      * Due to memory restrictions, this SparkTask will only take the first 10 URLs and parse them for words.
+      */
     val wordCounterTask: SparkTask = new SparkTask("realWorldTest") {
+      def mapWordsFromUrl(iter: Iterator[String]): Iterator[(String, Map[String, Int])] = {
+        var returnList: ArrayBuffer[(String, Map[String, Int])] = mutable.ArrayBuffer()
+
+        while(iter.hasNext) {
+          val url = iter.next()
+
+          try {
+            val words = Source.fromURL(url).mkString.toLowerCase()
+            val wordsMap: Map[String, Int] = words
+              .replaceAll("[\r\n]", "")
+              .replaceAll("\\<.*?\\>", "")
+              .replaceAll("[^a-zA-Z0-9 ]", "")
+              .split(" ")
+              .map(_.toLowerCase)
+              .groupBy(identity)
+              .mapValues(_.size)
+              .map(identity)      // <- This is required for serialization in Spark
+
+            logger.info(s"Parsed words: URL=${url} count=${wordsMap.size}")
+
+            returnList += ((url, wordsMap))
+          } catch {
+            case _: Throwable => println(s"Ignoring exception for URL ${url}")
+          }
+        }
+
+        returnList.iterator
+      }
+
       override def run(): Unit = {
-//        var counterMap: ConcurrentHashMap[String, Integer] = new ConcurrentHashMap()
-//
-//        getContext()
-//          .parallelize(uniqueUrls)
-//          .foreachPartition(urls => {
-//            urls.foreach(url => {
-//              try {
-//                val words = Source.fromURL(url).mkString.toLowerCase()
-//                val wordsMap: Map[String, Int] = words
-//                  .replaceAll("[\r\n]", "")
-//                  .replaceAll("\\<.*?\\>", "")
-//                  .replaceAll("[^a-zA-Z0-9 ]", "")
-//                  .split(" ")
-//                  .map(_.toLowerCase)
-//                  .groupBy(identity)
-//                  .mapValues(_.size)
-//
-//                for ((word, counter) <- ListMap(wordsMap.toSeq.sortWith(_._2 > _._2): _*)) {
-//                  if (counterMap.get(word) != null) {
-//                    counterMap.put(word, counterMap.get(word) + counter)
-//                  } else {
-//                    counterMap.put(word, counter)
-//                  }
-//                }
-//              } catch {
-//                case _ => println(s"Ignoring exception for URL ${url}")
-//              }
-//            })
-//          })
+        val results = getContext()
+          .parallelize(uniqueUrls.take(10))
+          .mapPartitions(mapWordsFromUrl)
+          .foreach(entry => {
+            val url = entry._1
+            val urlMap = entry._2
+            val outFile = s"/tmp/${System.nanoTime()}-${urlMap.size}-found-words"
+
+            println(s"Writing results: url=${url} file=${outFile}")
+
+            // This writes to the outfile, sorting the number of occurrences.
+            new PrintWriter(outFile) {
+              for ((word, counter) <- ListMap(urlMap.toSeq.sortWith(_._2 > _._2): _*)) {
+                write(s"$word\t$counter\n")
+              }
+              close()
+            }
+          })
       }
     }
-
-//        val slices = 2
-//        val n = math.min(100000L * slices, Int.MaxValue).toInt
-//        val count = getContext().parallelize(1 until n, slices).map { _ =>
-//          val x = random * 2 - 1
-//          val y = random * 2 - 1
-//
-//          if (x * x + y * y <= 1) 1 else 0
-//        }.reduce(_ + _)
-//
-//        val pi = 4.0 * count / (n - 1)
-//
-//        assert(pi >= 3.0 && pi <= 3.2)
-//
-//        println(s"Pi calculated to approximately ${pi}")
 
     val sTask1 = TaskBuilder("Spark URL Fetch Task")
       .withTask(fetchTask)
@@ -149,4 +158,8 @@ class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
     jExec.queue().run()
   }
 
+}
+
+object SparkRealWorldTest {
+  private val NUM_PROCESSORS = Runtime.getRuntime().availableProcessors()
 }
