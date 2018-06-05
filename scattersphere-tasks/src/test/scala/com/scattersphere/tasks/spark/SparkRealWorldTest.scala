@@ -119,14 +119,15 @@ class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
 
       override def run(): Unit = {
         val results = getContext()
-          .parallelize(uniqueUrls.take(10))
+          .parallelize(uniqueUrls.take(MAX_TAKE_URLS))
+          .repartition(NUM_PROCESSORS)
           .mapPartitions(mapWordsFromUrl)
           .foreach(entry => {
             val url = entry._1
             val urlMap = entry._2
             val outFile = s"/tmp/${System.nanoTime()}-${urlMap.size}-found-words"
 
-            println(s"Writing results: url=${url} file=${outFile}")
+            logger.info(s"Writing results: url=${url} file=${outFile}")
 
             // This writes to the outfile, sorting the number of occurrences.
             new PrintWriter(outFile) {
@@ -162,4 +163,5 @@ class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
 
 object SparkRealWorldTest {
   private val NUM_PROCESSORS = Runtime.getRuntime().availableProcessors()
+  private val MAX_TAKE_URLS = 10
 }
