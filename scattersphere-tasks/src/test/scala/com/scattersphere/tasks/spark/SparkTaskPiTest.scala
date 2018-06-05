@@ -33,14 +33,17 @@ class SparkTaskPiTest extends FlatSpec with Matchers with LazyLogging {
   "Spark task pi test" should "calculate Pi in the form of a task" in {
     val piTask: SparkTask = new SparkTask("sparkPiTestCache") {
       override def run(): Unit = {
-        val slices = 2
+        val slices = Runtime.getRuntime().availableProcessors()
         val n = math.min(100000L * slices, Int.MaxValue).toInt
-        val count = getContext().parallelize(1 until n, slices).map { _ =>
-          val x = random * 2 - 1
-          val y = random * 2 - 1
+        val count = getContext()
+          .parallelize(1 until n, slices)
+          .map { _ =>
+            val x = random * 2 - 1
+            val y = random * 2 - 1
 
-          if (x * x + y * y <= 1) 1 else 0
-        }.reduce(_ + _)
+            if (x * x + y * y <= 1) 1 else 0
+          }
+          .reduce(_ + _)
 
         val pi = 4.0 * count / (n - 1)
 
