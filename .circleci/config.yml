@@ -15,7 +15,7 @@ jobs:
           command: sh scripts/circle/start-spark.sh
       - run:
           name: Test
-          command: SPARK_MASTER="spark://localhost:7077" sh scripts/circle/test.sh
+          command: SPARK_MASTER="spark://127.0.0.1:7077" sh scripts/circle/test.sh
       - run:
           name: Shutdown Spark Container
           command: sh scripts/circle/stop-spark.sh
