@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/scattersphere
     docker:
-      - image: docker:18.05.0-ce-git
+      - image: centos:latest
     steps:
       - checkout
       - setup_remote_docker
