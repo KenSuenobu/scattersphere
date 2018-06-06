@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/scattersphere
     docker:
-      - image: centos:latest
+      - image: circleci/java:latest
     steps:
       - checkout
       - setup_remote_docker
