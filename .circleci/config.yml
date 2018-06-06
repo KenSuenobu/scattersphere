@@ -3,9 +3,10 @@ jobs:
   build:
     working_directory: ~/scattersphere
     docker:
-      - image: circleci/java:latest
+      - image: docker:18.05.0-ce-git
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Compile the project
           command: sh scripts/circle/build.sh
