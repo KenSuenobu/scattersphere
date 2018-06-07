@@ -3,8 +3,11 @@
 # CircleCI script used to start a Spark instance
 # This script should not be used outside of the CircleCI network; this is just for CircleCI testing.
 
-sudo wget http://www-us.apache.org/dist/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz -qO /tmp/spark-2.3.0.tar.gz && \
-     cd /opt ; tar -xvzf /tmp/spark-2.3.0.tar.gz && \
-     rm -f /tmp/spark-2.3.0.tar.gz && \
-     cd /opt ; mv spark-* apache-spark-2.3.0 && \
-     cd /opt/apache-spark-2.3.0/sbin ; sh ./start-master.sh
+cd ~
+wget http://www-us.apache.org/dist/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz -qO ./spark-2.3.0.tar.gz
+tar -xvzf ./spark-2.3.0.tar.gz
+rm -f spark-2.3.0.tar.gz
+mv spark-2.3.0-bin-hadoop2.7 spark-2.3.0
+cd spark-2.3.0/sbin
+sh ./start-master.sh -h 127.0.0.1
+cd -
