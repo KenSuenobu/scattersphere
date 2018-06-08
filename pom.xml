@@ -15,6 +15,7 @@
         <!-- Build Properties -->
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven-scala.version>3.3.2</maven-scala.version>
+        <maven-shade.version>3.1.1</maven-shade.version>
         <java.version>1.8</java.version>
 
         <scala-binary.version>2.11</scala-binary.version>
@@ -28,7 +29,7 @@
 
     <url>https://www.github.com/KenSuenobu/scattersphere</url>
     <packaging>pom</packaging>
-    <description>Scattersphere Job Coordination Server</description>
+    <description>Scattersphere Job Coordination API</description>
 
     <licenses>
         <license>
@@ -49,6 +50,7 @@
     <modules>
         <module>scattersphere-core</module>
         <module>scattersphere-tasks</module>
+        <module>scattersphere-base</module>
     </modules>
 
     <build>
