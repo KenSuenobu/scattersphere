@@ -6,12 +6,11 @@ jobs:
       - image: circleci/java:latest
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Compile the project
           command: sh scripts/circle/build.sh
       - run:
-          name: Start Spark Container
+          name: Start Spark
           command: sh scripts/circle/start-spark.sh
       - run:
           name: Test
