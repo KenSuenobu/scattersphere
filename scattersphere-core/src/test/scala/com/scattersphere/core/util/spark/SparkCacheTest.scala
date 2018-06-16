@@ -34,9 +34,8 @@ class SparkCacheTest extends FlatSpec with Matchers with LazyLogging {
     SparkCache.save("test", new SparkConf()
       .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
       .setAppName("local pi test")
-      .setJars(Array("target/scattersphere-core-0.2.0.jar",
-        "target/scattersphere-core-0.2.0-tests.jar",
-        "../scattersphere-tasks/target/scattersphere-tasks-0.2.0.jar"))
+      .setJars(Array("target/scattersphere-core-0.2.0-tests.jar",
+        "../scattersphere-base/target/scattersphere-base-0.2.0.jar"))
       .set("spark.ui.enabled", "false"))
     val spark: SparkSession = SparkCache.getSession("test")
     val sContext: SparkContext = spark.sparkContext
