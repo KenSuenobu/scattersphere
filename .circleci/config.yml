@@ -10,8 +10,11 @@ jobs:
           name: Compile the project
           command: sh scripts/circle/build.sh
       - run:
+          name: Start Spark
+          command: sh scripts/circle/start-spark.sh
+      - run:
           name: Test
-          command: sh scripts/circle/test.sh
+          command: SPARK_MASTER="spark://127.0.0.1:7077" sh scripts/circle/test.sh
       - run:
           name: Scala Documentation
           command: sh scripts/circle/doc.sh

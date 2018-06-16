@@ -14,8 +14,7 @@
 
 package com.scattersphere.tasks.spark
 
-import java.io.PrintWriter
-import java.security.MessageDigest
+import java.io.{File, PrintWriter}
 import java.util.regex.{Matcher, Pattern}
 
 import com.scattersphere.tasks.spark.SparkRealWorldTest._
@@ -25,18 +24,20 @@ import com.scattersphere.core.util.spark.SparkCache
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.SparkConf
 import org.scalatest.{FlatSpec, Matchers}
-import sun.security.provider.MD5
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
+import scala.util.Properties
 
 class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
 
   SparkCache.save("realWorldTest", new SparkConf()
-    .setMaster("local[*]")
+    .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
     .setAppName("local pi test")
+    .setJars(Array("target/scattersphere-tasks-0.2.0-tests.jar",
+      "../scattersphere-base/target/scattersphere-base-0.2.0.jar"))
     .set("spark.ui.enabled", "false"))
 
   "Spark Real World Test" should "be able to run in Spark" in {

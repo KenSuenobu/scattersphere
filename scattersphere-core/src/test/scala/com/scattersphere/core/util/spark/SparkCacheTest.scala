@@ -21,6 +21,8 @@ import scala.math.random
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.util.Properties
+
 /** Spark Cache Test code.  Utilizes some code from the SparkPi test from the official Spark source code.
   * Reference: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/SparkPi.scala
   *
@@ -30,8 +32,10 @@ class SparkCacheTest extends FlatSpec with Matchers with LazyLogging {
 
   "Spark Cache" should "calculate Pi quickly in a local[*] context" in {
     SparkCache.save("test", new SparkConf()
-      .setMaster("local[*]")
+      .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
       .setAppName("local pi test")
+      .setJars(Array("target/scattersphere-core-0.2.0-tests.jar",
+        "../scattersphere-base/target/scattersphere-base-0.2.0.jar"))
       .set("spark.ui.enabled", "false"))
     val spark: SparkSession = SparkCache.getSession("test")
     val sContext: SparkContext = spark.sparkContext

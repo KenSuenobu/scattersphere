@@ -22,12 +22,15 @@ import org.apache.spark.SparkConf
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.math.random
+import scala.util.Properties
 
 class SparkTaskPiTest extends FlatSpec with Matchers with LazyLogging {
 
   SparkCache.save("sparkPiTestCache", new SparkConf()
-    .setMaster("local[*]")
+    .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
     .setAppName("local pi test")
+    .setJars(Array("target/scattersphere-tasks-0.2.0-tests.jar",
+      "../scattersphere-base/target/scattersphere-base-0.2.0.jar"))
     .set("spark.ui.enabled", "false"))
 
   "Spark task pi test" should "calculate Pi in the form of a task" in {
