@@ -29,7 +29,7 @@
 
     <url>https://www.github.com/KenSuenobu/scattersphere</url>
     <packaging>pom</packaging>
-    <description>Scattersphere Job Coordination Server</description>
+    <description>Scattersphere Job Coordination API</description>
 
     <licenses>
         <license>
@@ -50,6 +50,7 @@
     <modules>
         <module>scattersphere-core</module>
         <module>scattersphere-tasks</module>
+        <module>scattersphere-base</module>
     </modules>
 
     <build>
