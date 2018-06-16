@@ -106,6 +106,14 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task1.status shouldBe TaskFinished
     task2.status shouldBe TaskFinished
     task3.status shouldBe TaskFinished
+    assert(task1.getStatistics().getRuntime() > 0)
+    assert(task2.getStatistics().getRuntime() > 0)
+    assert(task3.getStatistics().getRuntime() > 0)
+    
+    // Check for false positives - makes sure values aren't just current time with no end
+    assert(task1.getStatistics().getRuntime() < 10000)
+    assert(task2.getStatistics().getRuntime() < 10000)
+    assert(task3.getStatistics().getRuntime() < 10000)
   }
 
   /**

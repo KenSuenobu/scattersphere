@@ -210,9 +210,12 @@ class JobExecutor(job: Job) extends LazyLogging {
       task.status match {
         case TaskQueued => {
           task.setStatus(TaskRunning)
+          task.getStatistics().triggerStart()
           task.task.run()
+          task.getStatistics().triggerEnd()
           task.task.onFinished()
           task.setStatus(TaskFinished)
+          logger.info(s"Task ${task.name} elapsed time: ${task.getStatistics().getRuntime()}ms")
         }
 
         case _ => {
