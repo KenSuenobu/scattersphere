@@ -82,6 +82,7 @@ import com.scattersphere.core.util.TaskBuilder._
 case class Task(id: Int, name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
 
   private var taskStatus: TaskStatus = TaskQueued
+  private val taskStatistics: TaskStatistics = new TaskStatistics
 
   /** Sets the status for this task.
     *
@@ -97,6 +98,12 @@ case class Task(id: Int, name: String, task: RunnableTask, dependencies: Seq[Tas
     * @return [[TaskStatus]].
     */
   def status(): TaskStatus = taskStatus
+
+  /** The current task statistics.
+    *
+    * @return [[TaskStatistics]] object.
+    */
+  def getStatistics(): TaskStatistics = taskStatistics
 
   override def toString: String = s"Task{id=$id,name=$name,status=$taskStatus," +
     s"dependencies=${dependencies.length},async=$async}"
@@ -151,6 +158,29 @@ object Task {
       override def run(): Unit = block
     }, Seq(), async)
 
+}
+
+/** Statistics class that stores information about when a [[Task]] starts and ends, including the total elapsed time.
+  *
+  * @since 0.2.0
+  */
+class TaskStatistics {
+  private var timeStarted: Long = 0
+  private var timeEnded: Long = 0
+
+  /** Triggers the start of the task. */
+  def triggerStart(): Unit = timeStarted = System.currentTimeMillis()
+
+  /** Triggers the end of the task. */
+  def triggerEnd(): Unit = timeEnded = System.currentTimeMillis()
+
+  /** Retrieves the total runtime for the task.
+    *
+    * @return Runtime in milliseconds.
+    */
+  def getRuntime(): Long = (timeEnded - timeStarted)
+
+  override def toString: String = s"TaskStatistics{timeStarted=$timeStarted,timeEnded=$timeEnded}"
 }
 
 /** A builder class that allows for functional construction of a [[Task]].
