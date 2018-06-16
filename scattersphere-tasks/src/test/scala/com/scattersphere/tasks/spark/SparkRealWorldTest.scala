@@ -36,8 +36,9 @@ class SparkRealWorldTest extends FlatSpec with Matchers with LazyLogging {
   SparkCache.save("realWorldTest", new SparkConf()
     .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
     .setAppName("local pi test")
-    .setJars(Array("../scattersphere-tasks/target/scattersphere-tasks-0.2.0.jar",
-      "target/scattersphere-core-0.2.0.jar"))
+    .setJars(Array("target/scattersphere-tasks-0.2.0.jar",
+      "target/scattersphere-tasks-0.2.0-tests.jar",
+      "../scattersphere-core/target/scattersphere-core-0.2.0.jar"))
     .set("spark.ui.enabled", "false"))
 
   "Spark Real World Test" should "be able to run in Spark" in {
