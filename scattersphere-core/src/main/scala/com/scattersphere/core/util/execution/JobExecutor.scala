@@ -62,6 +62,8 @@ class JobExecutor(job: Job) extends LazyLogging {
 
       job.getStatistics().triggerEnd()
 
+      logger.info(s"Job ${job.name} finished: elapsed time ${job.getStatistics().getRuntime()}ms")
+
       executorService.shutdown
       logger.trace("Execution service shut down.")
     }
