@@ -106,7 +106,7 @@ case class Task(id: Int, name: String, task: RunnableTask, dependencies: Seq[Tas
   def getStatistics(): TaskStatistics = taskStatistics
 
   override def toString: String = s"Task{id=$id,name=$name,status=$taskStatus," +
-    s"dependencies=${dependencies.length},async=$async}"
+    s"dependencies=${dependencies.length},statistics=$taskStatistics,async=$async}"
 
 }
 
