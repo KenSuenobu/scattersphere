@@ -99,6 +99,9 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     jobExec.blocking shouldBe true
     jobExec.queue().run()
     job1.status shouldBe JobFinished
+    assert(job1.getStatistics().getRuntime() > 0)
+    assert(job1.getStatistics().getStart() != 0)
+    assert(job1.getStatistics().getEnd() != 0)
 
     runnableTask1.setVar shouldBe 1
     runnableTask2.setVar shouldBe 2
@@ -191,6 +194,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     jobExec.blocking shouldBe true
     jobExec.queue().run()
     job1.status shouldBe JobFinished
+    assert(job1.getStatistics().getRuntime() > 0)
 
     runnableTask1.setVar shouldBe 1
     task1.status shouldBe TaskFinished
@@ -205,14 +209,14 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     jobExec2.blocking shouldBe true
     jobExec2.queue().run()
     job2.status match {
-      case JobFailed(_) => println("Job failed, expected.")
+      case JobFailed(_) => // Do nothing
       case x => fail(s"Unexpected job status: $x")
     }
     assert(job2.id > job1.id)
 
     task1.status match {
       case TaskFailed(reason) => reason match {
-        case _: InvalidTaskStateException => println(s"Expected InvalidTaskStateException caught.")
+        case _: InvalidTaskStateException => // Do nothing
         case x => fail(s"Unexpected exception $x caught.")
       }
 

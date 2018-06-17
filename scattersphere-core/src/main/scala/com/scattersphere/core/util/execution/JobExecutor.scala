@@ -60,6 +60,10 @@ class JobExecutor(job: Job) extends LazyLogging {
         job.setStatus(JobFinished)
       }
 
+      job.getStatistics().triggerEnd()
+
+      logger.info(s"Job ${job.name} finished: elapsed time ${job.getStatistics().getRuntime()}ms")
+
       executorService.shutdown
       logger.trace("Execution service shut down.")
     }
@@ -122,6 +126,7 @@ class JobExecutor(job: Job) extends LazyLogging {
       throw new InvalidJobExecutionStateException("Called out of order - queue required.")
     }
 
+    job.getStatistics().triggerStart()
     job.setStatus(JobRunning)
 
     if (isPaused) {
