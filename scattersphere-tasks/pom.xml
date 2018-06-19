@@ -85,16 +85,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala-binary.version}</artifactId>
         </dependency>
