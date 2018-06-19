@@ -99,9 +99,9 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     jobExec.blocking shouldBe true
     jobExec.queue().run()
     job1.status shouldBe JobFinished
-    assert(job1.getStatistics().getRuntime() > 0)
-    assert(job1.getStatistics().getStart() != 0)
-    assert(job1.getStatistics().getEnd() != 0)
+    assert(job1.getStatistics().getElapsedTime > 0)
+    assert(job1.getStatistics().getStartTime != 0)
+    assert(job1.getStatistics().getEndTime != 0)
 
     runnableTask1.setVar shouldBe 1
     runnableTask2.setVar shouldBe 2
@@ -109,14 +109,14 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     task1.status shouldBe TaskFinished
     task2.status shouldBe TaskFinished
     task3.status shouldBe TaskFinished
-    assert(task1.getStatistics().getRuntime() > 0)
-    assert(task2.getStatistics().getRuntime() > 0)
-    assert(task3.getStatistics().getRuntime() > 0)
+    assert(task1.getStatistics().getElapsedTime > 0)
+    assert(task2.getStatistics().getElapsedTime > 0)
+    assert(task3.getStatistics().getElapsedTime > 0)
     
     // Check for false positives - makes sure values aren't just current time with no end
-    assert(task1.getStatistics().getRuntime() < 10000)
-    assert(task2.getStatistics().getRuntime() < 10000)
-    assert(task3.getStatistics().getRuntime() < 10000)
+    assert(task1.getStatistics().getElapsedTime < 10000)
+    assert(task2.getStatistics().getElapsedTime < 10000)
+    assert(task3.getStatistics().getElapsedTime < 10000)
   }
 
   /**
@@ -194,7 +194,7 @@ class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
     jobExec.blocking shouldBe true
     jobExec.queue().run()
     job1.status shouldBe JobFinished
-    assert(job1.getStatistics().getRuntime() > 0)
+    assert(job1.getStatistics().getElapsedTime > 0)
 
     runnableTask1.setVar shouldBe 1
     task1.status shouldBe TaskFinished

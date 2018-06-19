@@ -41,7 +41,7 @@ import com.scattersphere.core.util.JobBuilder._
 case class Job(id: Int, name: String, tasks: Seq[Task]) {
 
   private var jobStatus: JobStatus = JobQueued
-  private val jobStatistics: JobStatistics = new JobStatistics
+  private val jobStatistics: Statistics = new Statistics
 
   /** Sets the [[JobStatus]] for this job.
     *
@@ -55,41 +55,10 @@ case class Job(id: Int, name: String, tasks: Seq[Task]) {
     */
   def status: JobStatus = jobStatus
 
-  def getStatistics(): JobStatistics = jobStatistics
+  def getStatistics(): Statistics = jobStatistics
 
   override def toString = s"Job{name=$name,jobStatus=$jobStatus,statistics=$jobStatistics,tasks=$tasks}"
 
-}
-
-class JobStatistics {
-  private var timeStarted: Long = 0
-  private var timeEnded: Long = 0
-
-  /** Triggers the start of the job. */
-  def triggerStart(): Unit = if (timeStarted == 0) timeStarted = System.currentTimeMillis()
-
-  /** Triggers the end of the job. */
-  def triggerEnd(): Unit = if (timeEnded == 0) timeEnded = System.currentTimeMillis()
-
-  /** Retrieves the total runtime for the job.
-    *
-    * @return Runtime in milliseconds.
-    */
-  def getRuntime(): Long = (timeEnded - timeStarted)
-
-  /** Retrieves the start time of the job.
-    *
-    * @return time in milliseconds
-    */
-  def getStart(): Long = timeStarted
-
-  /** Retrieves the end time of the job.
-    *
-    * @return time in milliseconds
-    */
-  def getEnd(): Long = timeEnded
-
-  override def toString: String = s"JobStatistics{timeStarted=$timeStarted,timeEnded=$timeEnded}"
 }
 
 /** A builder class that allows for functional construction of a [[Job]].

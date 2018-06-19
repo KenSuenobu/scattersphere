@@ -62,7 +62,7 @@ class JobExecutor(job: Job) extends LazyLogging {
 
       job.getStatistics().triggerEnd()
 
-      logger.info(s"Job ${job.name} finished: elapsed time ${job.getStatistics().getRuntime()}ms")
+      logger.info(s"Job ${job.name} finished: elapsed time ${job.getStatistics().getElapsedTime}ms")
 
       executorService.shutdown
       logger.trace("Execution service shut down.")
@@ -220,7 +220,7 @@ class JobExecutor(job: Job) extends LazyLogging {
           task.getStatistics().triggerEnd()
           task.task.onFinished()
           task.setStatus(TaskFinished)
-          logger.info(s"Task ${task.name} elapsed time: ${task.getStatistics().getRuntime()}ms")
+          logger.info(s"Task ${task.name} elapsed time: ${task.getStatistics().getElapsedTime}ms")
         }
 
         case _ => {
