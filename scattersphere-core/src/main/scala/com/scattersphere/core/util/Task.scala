@@ -82,7 +82,7 @@ import com.scattersphere.core.util.TaskBuilder._
 case class Task(id: Int, name: String, task: RunnableTask, dependencies: Seq[Task], async: Boolean = false) {
 
   private var taskStatus: TaskStatus = TaskQueued
-  private val taskStatistics: TaskStatistics = new TaskStatistics
+  private val taskStatistics: Statistics = new Statistics
 
   /** Sets the status for this task.
     *
@@ -101,9 +101,9 @@ case class Task(id: Int, name: String, task: RunnableTask, dependencies: Seq[Tas
 
   /** The current task statistics.
     *
-    * @return [[TaskStatistics]] object.
+    * @return [[Statistics]] object.
     */
-  def getStatistics(): TaskStatistics = taskStatistics
+  def getStatistics(): Statistics = taskStatistics
 
   override def toString: String = s"Task{id=$id,name=$name,status=$taskStatus," +
     s"dependencies=${dependencies.length},statistics=$taskStatistics,async=$async}"
