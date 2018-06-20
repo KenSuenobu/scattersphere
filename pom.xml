@@ -20,7 +20,7 @@
         <scala.version>2.11.11</scala.version>
     </properties>
 
-    <groupId>com.suenobu</groupId>
+    <groupId>io.buildfactory</groupId>
     <artifactId>scattersphere</artifactId>
     <version>0.2.1</version>
     <name>Scattersphere Project</name>
@@ -130,13 +130,13 @@
             <!-- Project Dependencies -->
 
             <dependency>
-                <groupId>com.suenobu</groupId>
+                <groupId>io.buildfactory</groupId>
                 <artifactId>scattersphere-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.suenobu</groupId>
+                <groupId>io.buildfactory</groupId>
                 <artifactId>scattersphere-tasks</artifactId>
                 <version>${project.version}</version>
             </dependency>
