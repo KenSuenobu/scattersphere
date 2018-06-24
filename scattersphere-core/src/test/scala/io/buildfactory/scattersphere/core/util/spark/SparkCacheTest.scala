@@ -14,7 +14,7 @@
 
 package io.buildfactory.scattersphere.core.util.spark
 
-import com.typesafe.scalalogging.LazyLogging
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.{FlatSpec, Matchers}
@@ -27,7 +27,7 @@ import scala.util.Properties
   *
   * @since 0.2.0
   */
-class SparkCacheTest extends FlatSpec with Matchers with LazyLogging {
+class SparkCacheTest extends FlatSpec with Matchers with SimpleLogger {
 
   "Spark Cache" should "calculate Pi quickly in a local[*] context" in {
     SparkCache.save("test", new SparkConf()

@@ -13,8 +13,8 @@
   */
 package io.buildfactory.scattersphere.core.util
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.{InvalidTaskStateException, JobExecutor}
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -23,7 +23,7 @@ import org.scalatest.{FlatSpec, Matchers}
   * tasks that create a large DAG.  This code creates a simple set of DAGs: One that follows one after another, and
   * one that runs multiple tasks asynchronously.
   */
-class SimpleJobTest extends FlatSpec with Matchers with LazyLogging {
+class SimpleJobTest extends FlatSpec with Matchers with SimpleLogger {
 
   class RunnableTestTask(name: String) extends Runnable {
     var setVar: Int = 0

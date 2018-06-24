@@ -13,11 +13,11 @@
   */
 package io.buildfactory.scattersphere.core.util
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
-class CancelJobTest extends FlatSpec with Matchers with LazyLogging {
+class CancelJobTest extends FlatSpec with Matchers with SimpleLogger {
 
   class SleeperRunnable(time: Int) extends Runnable {
     override def run(): Unit = {

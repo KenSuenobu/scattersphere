@@ -17,8 +17,8 @@ import java.util.concurrent.locks.{Condition, ReentrantLock}
 import java.util.concurrent.{CompletionException, _}
 import java.util.function.{Function => JavaFunction}
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util._
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 
 import scala.collection.mutable
 
@@ -36,7 +36,7 @@ import scala.collection.mutable
   * @param job The [[Job]] containing all of the tasks (and dependencies) to run.
   * @since 0.0.1
   */
-class JobExecutor(job: Job) extends LazyLogging {
+class JobExecutor(job: Job) extends SimpleLogger {
 
   private lazy val executorService: ThreadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime.availableProcessors(),
                                                                                 Runtime.getRuntime.availableProcessors() * 10,

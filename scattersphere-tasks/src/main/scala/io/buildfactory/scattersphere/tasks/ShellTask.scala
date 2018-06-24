@@ -14,8 +14,8 @@
 
 package io.buildfactory.scattersphere.tasks
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.RunnableTask
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 
 import scala.sys.process.{Process, ProcessBuilder}
 
@@ -31,7 +31,7 @@ import scala.sys.process.{Process, ProcessBuilder}
   * @param command command string to execute, options all separated by spaces
   * @since 0.1.0
   */
-class ShellTask(command: String) extends RunnableTask with LazyLogging {
+class ShellTask(command: String) extends RunnableTask with SimpleLogger {
 
   private var processBuilder: ProcessBuilder = null
   private var process: Process = null

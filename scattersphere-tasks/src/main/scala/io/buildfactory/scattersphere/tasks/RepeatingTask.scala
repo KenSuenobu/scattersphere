@@ -16,7 +16,7 @@ package io.buildfactory.scattersphere.tasks
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.typesafe.scalalogging.LazyLogging
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import io.buildfactory.scattersphere.core.util.{RunnableTask, TaskStatus}
 
 /** Repeats a [[RunnableTask]] a number of times.
@@ -26,7 +26,7 @@ import io.buildfactory.scattersphere.core.util.{RunnableTask, TaskStatus}
   * @since 0.1.0
   */
 class RepeatingTask(times: Int,
-                    task: RunnableTask) extends RunnableTask with LazyLogging {
+                    task: RunnableTask) extends RunnableTask with SimpleLogger {
 
   private val timesRun: AtomicInteger = new AtomicInteger(0)
 

@@ -16,11 +16,11 @@ package io.buildfactory.scattersphere.core.util
 
 import java.util.concurrent.CompletionException
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.{DuplicateTaskNameException, InvalidJobExecutionStateException, InvalidTaskDependencyException, JobExecutor}
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
-class ExceptionJobTest extends FlatSpec with Matchers with LazyLogging {
+class ExceptionJobTest extends FlatSpec with Matchers with SimpleLogger {
 
   class TimerJob(duration: Int) extends Runnable {
     override def run(): Unit = {

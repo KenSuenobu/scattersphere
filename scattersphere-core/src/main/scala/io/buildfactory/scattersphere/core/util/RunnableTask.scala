@@ -15,7 +15,7 @@ package io.buildfactory.scattersphere.core.util
 
 import java.io.{PrintWriter, StringWriter}
 
-import com.typesafe.scalalogging.LazyLogging
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 
 /** An abstract class that extends Runnable, providing methods for cleanup and exception handling.
   *
@@ -56,7 +56,7 @@ import com.typesafe.scalalogging.LazyLogging
   *
   * @since 0.0.1
   */
-trait RunnableTask extends Runnable with LazyLogging {
+trait RunnableTask extends Runnable with SimpleLogger {
 
   /** Called when the run() method finishes without throwing an exception.  Contains a default
     * implementation if not overridden.

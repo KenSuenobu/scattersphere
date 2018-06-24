@@ -15,8 +15,8 @@ package io.buildfactory.scattersphere.core.util
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -24,7 +24,7 @@ import org.scalatest.{FlatSpec, Matchers}
   *
   * These tasks are more complicated.
   */
-class ComplicatedJobTest extends FlatSpec with Matchers with LazyLogging {
+class ComplicatedJobTest extends FlatSpec with Matchers with SimpleLogger {
 
   class RunnableTestTask(name: String) extends Runnable {
     var setVar: String = ""

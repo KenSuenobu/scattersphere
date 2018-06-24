@@ -14,8 +14,8 @@
 
 package io.buildfactory.scattersphere.tasks.spark
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import io.buildfactory.scattersphere.core.util.spark.SparkCache
 import io.buildfactory.scattersphere.core.util.{JobBuilder, TaskBuilder}
 import org.apache.spark.SparkConf
@@ -24,7 +24,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import scala.math.random
 import scala.util.Properties
 
-class SparkTaskPiTest extends FlatSpec with Matchers with LazyLogging {
+class SparkTaskPiTest extends FlatSpec with Matchers with SimpleLogger {
 
   SparkCache.save("sparkPiTestCache", new SparkConf()
     .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))

@@ -14,9 +14,9 @@
 
 package io.buildfactory.scattersphere.tasks.spark
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.spark.SparkCache
 import io.buildfactory.scattersphere.core.util.RunnableTask
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -25,7 +25,7 @@ import org.apache.spark.{SparkConf, SparkContext}
   * @param sparkConfKey key which stores the [[SparkCache]] information for the [[SparkConf]] object.
   * @since 0.2.0
   */
-case class SparkTask(sparkConfKey: String) extends RunnableTask with LazyLogging {
+case class SparkTask(sparkConfKey: String) extends RunnableTask with SimpleLogger {
 
   private val spark: SparkSession = SparkCache.getSession(sparkConfKey)
 
