@@ -42,6 +42,15 @@ object SparkCache {
       throw new NullPointerException("Missing SparkConf object.")
     }
 
+    // Appends scattersphere-base to the jars list if not already added.
+    var currentJars: Seq[String] = conf.get("spark.jars").split(",")
+
+    if (!currentJars.contains("scattersphere-base")) {
+      currentJars = currentJars :+ "../scattersphere-base/target/scattersphere-base-0.2.1.jar"
+    }
+
+    conf.setJars(currentJars)
+
     SPARK_CONF_CACHE.put(key, conf)
   }
 
