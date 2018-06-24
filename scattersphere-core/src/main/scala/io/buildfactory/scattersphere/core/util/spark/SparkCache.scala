@@ -46,7 +46,7 @@ object SparkCache {
     var currentJars: Seq[String] = conf.get("spark.jars").split(",")
 
     if (!currentJars.contains("scattersphere-base")) {
-      currentJars = currentJars :+ "../scattersphere-base/target/scattersphere-base-*.jar"
+      currentJars = currentJars :+ "../scattersphere-base/target/scattersphere-base-0.2.1.jar"
     }
 
     conf.setJars(currentJars)
