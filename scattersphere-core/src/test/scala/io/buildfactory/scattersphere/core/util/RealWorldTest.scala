@@ -18,8 +18,8 @@ import java.io.PrintWriter
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import java.util.regex.{Matcher, Pattern}
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.immutable.ListMap
@@ -30,7 +30,7 @@ import scala.io.Source
   * This will eventually contain a series of real world tests that provide a way to show real use cases in
   * Scattersphere.
   */
-class RealWorldTest extends FlatSpec with Matchers with LazyLogging {
+class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
 
   /**
     * This first example walks a series of URLs and:

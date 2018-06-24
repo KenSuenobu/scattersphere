@@ -22,7 +22,6 @@ the like.  It is designed to be self-contained, and extensible.
 
 ## Dependencies
 
-- [scala-logging 3.9.0](https://github.com/lightbend/scala-logging)
 - [Scala 2.11.11](https://www.scala-lang.org)
 - [Spark 2.3.1](http://spark.apache.org)
 

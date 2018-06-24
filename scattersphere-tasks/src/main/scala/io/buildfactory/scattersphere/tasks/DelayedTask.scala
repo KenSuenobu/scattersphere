@@ -14,7 +14,7 @@
 
 package io.buildfactory.scattersphere.tasks
 
-import com.typesafe.scalalogging.LazyLogging
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import io.buildfactory.scattersphere.core.util.{RunnableTask, TaskStatus}
 
 /** Calls the embedded [[RunnableTask]] after a specified delay.
@@ -24,7 +24,7 @@ import io.buildfactory.scattersphere.core.util.{RunnableTask, TaskStatus}
   * @since 0.1.0
   */
 class DelayedTask(delay: Int,
-                  task: RunnableTask) extends RunnableTask with LazyLogging {
+                  task: RunnableTask) extends RunnableTask with SimpleLogger {
 
   override def run(): Unit = {
     logger.info(s"Sleeping ${delay}ms before running task.")

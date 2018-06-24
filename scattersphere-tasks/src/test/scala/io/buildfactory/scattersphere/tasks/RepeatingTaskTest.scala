@@ -16,12 +16,12 @@ package io.buildfactory.scattersphere.tasks
 
 import java.util.concurrent.CompletionException
 
-import com.typesafe.scalalogging.LazyLogging
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util._
+import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
-class RepeatingTaskTest extends FlatSpec with Matchers with LazyLogging {
+class RepeatingTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
   "Repeating task" should "repeat a task 20 times" in {
     class TestRunnable extends RunnableTask {
