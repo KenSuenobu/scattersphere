@@ -18,7 +18,7 @@ the like.  It is designed to be self-contained, and extensible.
 ## Getting Started
 
 [There is a maintained Wiki here.](https://github.com/KenSuenobu/scattersphere/wiki)  You can also view
-[sample code in the test suite here.](/scattersphere-core/src/test/scala/com/scattersphere/core/util/)
+[sample code in the test suite here.](/scattersphere-core/src/test/scala/io/buildfactory/scattersphere/core/util)
 
 ## Dependencies
 
