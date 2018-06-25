@@ -21,7 +21,7 @@
 
     <groupId>io.buildfactory</groupId>
     <artifactId>scattersphere</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <name>Scattersphere Project</name>
 
     <url>https://www.github.com/KenSuenobu/scattersphere</url>
