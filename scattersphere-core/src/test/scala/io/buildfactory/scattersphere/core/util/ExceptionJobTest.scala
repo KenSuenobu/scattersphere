@@ -67,7 +67,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with SimpleLogger {
     println("Waiting 3 seconds before submitting a cancel.")
     Thread.sleep(3000)
     job1.status match {
-      case JobFailed(_) => println("Job failed expected.")
+      case JobFailed(_) => logger.info("Job failed expected.")
       case x => fail(s"Unexpected job state caught: $x")
     }
 
@@ -79,7 +79,7 @@ class ExceptionJobTest extends FlatSpec with Matchers with SimpleLogger {
 
     task1.status match {
       case TaskFailed(reason) => reason match {
-        case _: NullPointerException => println(s"Expected NullPointerException caught.")
+        case _: NullPointerException => logger.info(s"Expected NullPointerException caught.")
         case x => fail(s"Unexpected exception $x caught.")
       }
 

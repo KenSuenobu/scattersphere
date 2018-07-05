@@ -57,7 +57,7 @@ class SparkTaskPiTest extends FlatSpec with Matchers with SimpleLogger {
 
         assert(pi >= 3.0 && pi <= 3.2)
 
-        println(s"Pi calculated to approximately ${pi}")
+        logger.info(s"Pi calculated to approximately ${pi}")
       }
     }
 

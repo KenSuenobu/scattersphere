@@ -78,7 +78,7 @@ class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
           foundUrls += matchedUrl
         }
 
-        println("Writing unique URLs to: " + s"/tmp/${count}-found-urls")
+        logger.info("Writing unique URLs to: " + s"/tmp/${count}-found-urls")
         new PrintWriter(s"/tmp/${count}-found-urls") {
           foundUrls.foreach(x => write(s"$x\n"))
           close()
@@ -97,7 +97,7 @@ class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
           .groupBy(identity)
           .mapValues(_.size)
 
-        println("Writing word counts to: " + s"/tmp/${count}-found-words")
+        logger.info("Writing word counts to: " + s"/tmp/${count}-found-words")
         new PrintWriter(s"/tmp/${count}-found-words") {
           for ((word, counter) <- ListMap(wordsMap.toSeq.sortWith(_._2 > _._2): _*)) {
             write(s"$word\t$counter\n")
@@ -134,13 +134,13 @@ class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
       assert(urlTestJob.id > 0)
       assert(stripDataTask.id > 0)
       assert(wordsCountTask.id > 0)
-      println(s"Running job for URL: $url")
+      logger.info(s"Running job for URL: $url")
 
       val startTime: Long = System.currentTimeMillis()
       jobExec.queue().run()
       val elapsed: Long = System.currentTimeMillis() - startTime
 
-      println(s"Time to retrieve data from $url: $elapsed ms.")
+      logger.info(s"Time to retrieve data from $url: $elapsed ms.")
     }
   }
 

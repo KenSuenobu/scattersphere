@@ -30,7 +30,7 @@ class DelayedTaskTest extends FlatSpec with Matchers with SimpleLogger {
   "Delayed Task" should "delay 5 seconds before running a job" in {
     class SleeperThread extends Runnable {
       override def run(): Unit = {
-        println(s"Triggered!")
+        logger.info(s"Triggered!")
       }
     }
 
