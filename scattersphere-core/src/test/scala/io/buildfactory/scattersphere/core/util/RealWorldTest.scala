@@ -1,17 +1,23 @@
-/**
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
-
+/*
+ *    _____            __  __                       __
+ *   / ___/_________ _/ /_/ /____  ______________  / /_  ___  ________
+ *   \__ \/ ___/ __ `/ __/ __/ _ \/ ___/ ___/ __ \/ __ \/ _ \/ ___/ _ \
+ *  ___/ / /__/ /_/ / /_/ /_/  __/ /  (__  ) /_/ / / / /  __/ /  /  __/
+ * /____/\___/\__,_/\__/\__/\___/_/  /____/ .___/_/ /_/\___/_/   \___/
+ *                                       /_/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.buildfactory.scattersphere.core.util
 
 import java.io.PrintWriter
@@ -72,7 +78,7 @@ class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
           foundUrls += matchedUrl
         }
 
-        println("Writing unique URLs to: " + s"/tmp/${count}-found-urls")
+        logger.info("Writing unique URLs to: " + s"/tmp/${count}-found-urls")
         new PrintWriter(s"/tmp/${count}-found-urls") {
           foundUrls.foreach(x => write(s"$x\n"))
           close()
@@ -91,7 +97,7 @@ class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
           .groupBy(identity)
           .mapValues(_.size)
 
-        println("Writing word counts to: " + s"/tmp/${count}-found-words")
+        logger.info("Writing word counts to: " + s"/tmp/${count}-found-words")
         new PrintWriter(s"/tmp/${count}-found-words") {
           for ((word, counter) <- ListMap(wordsMap.toSeq.sortWith(_._2 > _._2): _*)) {
             write(s"$word\t$counter\n")
@@ -128,13 +134,13 @@ class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
       assert(urlTestJob.id > 0)
       assert(stripDataTask.id > 0)
       assert(wordsCountTask.id > 0)
-      println(s"Running job for URL: $url")
+      logger.info(s"Running job for URL: $url")
 
       val startTime: Long = System.currentTimeMillis()
       jobExec.queue().run()
       val elapsed: Long = System.currentTimeMillis() - startTime
 
-      println(s"Time to retrieve data from $url: $elapsed ms.")
+      logger.info(s"Time to retrieve data from $url: $elapsed ms.")
     }
   }
 
