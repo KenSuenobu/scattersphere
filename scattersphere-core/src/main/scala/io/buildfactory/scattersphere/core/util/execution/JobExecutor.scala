@@ -264,7 +264,7 @@ class JobExecutor(job: Job) extends SimpleLogger {
     throw f
   }
 
-  private def toJavaFunction[A, B](f: Function1[A, B]) = new JavaFunction[A, B] {
+  implicit private def toJavaFunction[A, B](f: Function1[A, B]) = new JavaFunction[A, B] {
     override def apply(a: A): B = f(a)
   }
 
@@ -282,8 +282,8 @@ class JobExecutor(job: Job) extends SimpleLogger {
           parentFuture.thenRun(new RunTask(dependent))
         }
 
-        taskMap.put(dependent.name, cFuture.exceptionally(toJavaFunction[Throwable, Void]((f: Throwable) =>
-          runExceptionally(dependent, f))))
+        taskMap.put(dependent.name, cFuture.exceptionally((f: Throwable) =>
+          runExceptionally(dependent, f)))
 
         logger.debug(s"[${dependent.name}: Queued (async=${dependent.async})] Parent=${task.name} has ${task.dependencies.length} subtasks.")
       }
