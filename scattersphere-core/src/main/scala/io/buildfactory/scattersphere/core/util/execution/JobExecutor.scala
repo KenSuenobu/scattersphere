@@ -326,9 +326,41 @@ class JobExecutor(job: Job) extends SimpleLogger {
 
 }
 
-/** Factory object to create a new [[JobExecutor]] object. */
+/** Factory object to create new [[JobExecutor]] objects. */
 object JobExecutor {
+  private val jobMap: mutable.HashMap[String, Job] = new mutable.HashMap()
+
+  /** Accessor that creates a default [[JobExecutor]] with the given [[Job]].
+    *
+    * @param job the [[Job]] to execute
+    * @return [[JobExecutor]] for the [[Job]] specified
+    */
   def apply(job: Job): JobExecutor = new JobExecutor(job)
+
+  /** Accessor that creates a default [[JobExecutor]] by looking up the name in the job registry, and wrapping that
+    * job with a [[JobExecutor]] if found.
+    *
+    * @param jobName name of the job to execute
+    * @throws JobNotFoundException if the job name could not be found
+    * @return [[JobExecutor]] for the specified jobName
+    * @since 0.2.2
+    */
+  def apply(jobName: String): JobExecutor = new JobExecutor(jobMap.getOrElse(jobName, throw new JobNotFoundException(jobName)))
+
+  /** Registers a [[Job]] with the given jobName.
+    *
+    * @param jobName name of the job
+    * @param job the [[Job]] to register
+    * @throws DuplicateJobNameException if the job already exists
+    * @since 0.2.2
+    */
+  def register(jobName: String, job: Job): Unit = {
+    if (jobMap.contains(jobName)) {
+      throw new DuplicateJobNameException(jobName)
+    }
+
+    jobMap.put(jobName, job)
+  }
 }
 
 /** An exception indicating that a [[Task]] was in a different state than expected.
@@ -348,7 +380,21 @@ class InvalidTaskStateException(task: Task,
   * @param message the exception message.
   * @since 0.1.0
   */
-class InvalidJobExecutionStateException(message: String) extends Exception(s"Invalid Job Execution State: ${message}")
+class InvalidJobExecutionStateException(message: String) extends Exception(s"Invalid Job Execution State: $message")
+
+/** An exception indicating that no job has yet been registered by the name specified.
+  *
+  * @param jobName name of the job.
+  * @since 0.2.2
+  */
+class JobNotFoundException(jobName: String) extends Exception(s"No such job registered: $jobName")
+
+/** An exception indicating that the name of the job specified already exists in the [[JobExecutor]] registry.
+  *
+  * @param jobName name of the job.
+  * @since 0.2.2
+  */
+class DuplicateJobNameException(jobName: String) extends Exception(s"Job $jobName already exists.")
 
 /** An exception indicating that a specified task name already exists.
   *
