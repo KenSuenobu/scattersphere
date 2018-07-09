@@ -20,7 +20,7 @@
  */
 package io.buildfactory.scattersphere.core.util
 
-import io.buildfactory.scattersphere.core.util.execution.{InvalidTaskStateException, JobExecutor}
+import io.buildfactory.scattersphere.core.util.execution.{DuplicateJobNameException, InvalidTaskStateException, JobExecutor, JobNotFoundException}
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -283,6 +283,39 @@ class SimpleJobTest extends FlatSpec with Matchers with SimpleLogger {
 
     jobExec2.queue().run()
     assert(job2.id > 0)
+  }
+
+  it should "be able to register a job by name" in {
+    val task1: Task = Task("Do nothing job") { }
+    val job1: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+
+    JobExecutor.register("DoNothingJob", job1)
+
+    val jobExec: JobExecutor = JobExecutor("DoNothingJob")
+
+    jobExec.queue().run()
+    task1.status shouldBe TaskFinished
+  }
+
+  it should "throw an exception if a job does not exist by a given name" in {
+    assertThrows[JobNotFoundException] {
+      JobExecutor(s"Job Does Not Exist ${System.currentTimeMillis()}")
+    }
+  }
+
+  it should "throw an exception if a job is registered by the same name twice" in {
+    val task1: Task = Task("Do nothing job") { }
+    val job1: Job = JobBuilder()
+      .withTasks(task1)
+      .build()
+
+    JobExecutor.register("RepetitiveJobName", job1)
+
+    assertThrows[DuplicateJobNameException] {
+      JobExecutor.register("RepetitiveJobName", job1)
+    }
   }
 
 }
