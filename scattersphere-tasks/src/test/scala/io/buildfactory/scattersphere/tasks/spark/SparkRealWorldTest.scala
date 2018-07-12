@@ -42,7 +42,7 @@ class SparkRealWorldTest extends FlatSpec with Matchers with SimpleLogger {
   SparkCache.save("realWorldTest", new SparkConf()
     .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
     .setAppName("local pi test")
-    .setJars(Array("target/scattersphere-tasks-0.2.2-tests.jar"))
+    .setJars(Array("target/scattersphere-tasks-0.2.3-tests.jar"))
     .set("spark.ui.enabled", "false"))
 
   "Spark Real World Test" should "be able to run in Spark" in {
