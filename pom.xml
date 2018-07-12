@@ -11,7 +11,7 @@
 
         <!-- Build Properties -->
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven-scala.version>3.4.1</maven-scala.version>
+        <maven-scala.version>3.3.5</maven-scala.version>
         <maven-shade.version>3.1.1</maven-shade.version>
         <java.version>1.8</java.version>
 
