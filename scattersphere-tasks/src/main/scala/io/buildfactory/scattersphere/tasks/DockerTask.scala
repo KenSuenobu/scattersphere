@@ -25,8 +25,8 @@ import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 
 import scala.sys.process.{Process, ProcessBuilder}
 
-/** [[RunnableTask]] that runs a docker process with a container name, and the given command, in interactive mode
-  * ("-it") in docker.  These flags can be overridden, but it is not recommended that this be done unless you know
+/** [[RunnableTask]] that runs a docker process with a container name, and the given command, in --net host mode
+  * ("--net host") in docker.  These flags can be overridden, but it is not recommended that this be done unless you know
   * what you're doing!
   *
   * @param containerName name of the container to use
@@ -36,7 +36,7 @@ class DockerTask(containerName: String, command: String) extends RunnableTask wi
 
   private var processBuilder: ProcessBuilder = null
   private var process: Process = null
-  private var dockerFlags: String = "-it"
+  private var dockerFlags: String = "--net host"
 
   override def run(): Unit = {
     logger.debug(s"Running command ${command}")
@@ -50,7 +50,7 @@ class DockerTask(containerName: String, command: String) extends RunnableTask wi
     */
   def getDockerFlags(): String = dockerFlags
 
-  /** Sets the docker flags to use - this will override the default "-it" flags, so if you still need to use them,
+  /** Sets the docker flags to use - this will override the default "--net host" flags, so if you still need to use them,
     * make sure to include them in the flags statement.
     *
     * @param flags the flags to send to Docker.

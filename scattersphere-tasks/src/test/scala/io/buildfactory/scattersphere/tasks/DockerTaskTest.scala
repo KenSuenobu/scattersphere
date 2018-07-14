@@ -30,6 +30,9 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
   "Docker task" should "be able to get ubuntu and run a command within its container" in {
     val dockerTask: DockerTask = new DockerTask("centos", "/bin/ls -al /etc/")
+
+    dockerTask.getDockerFlags() shouldBe "--net host"
+
     val sTask1: Task = TaskBuilder("DockerTask1").withTask(dockerTask).build()
     val job: Job = JobBuilder().withTasks(sTask1).build()
     val jExec: JobExecutor = JobExecutor(job)
@@ -45,6 +48,9 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
   it should "be able to run ps -axwww" in {
     val dockerTask: DockerTask = new DockerTask("centos", "/bin/ps -axwww")
+
+    dockerTask.getDockerFlags() shouldBe "--net host"
+
     val sTask1: Task = TaskBuilder("DockerTaskPs").withTask(dockerTask).build()
     val job: Job = JobBuilder().withTasks(sTask1).build()
     val jExec: JobExecutor = JobExecutor(job)
@@ -61,8 +67,7 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
   it should "be able to run curl with --net host flags" in {
     val dockerTask: DockerTask = new DockerTask("centos", "curl http://www.google.com/")
 
-    dockerTask.setDockerFlags("-it --net host")
-    dockerTask.getDockerFlags() shouldBe "-it --net host"
+    dockerTask.getDockerFlags() shouldBe "--net host"
 
     val sTask1: Task = TaskBuilder("centosTask3").withTask(dockerTask).build()
     val job: Job = JobBuilder().withTasks(sTask1).build()
