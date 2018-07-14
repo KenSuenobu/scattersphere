@@ -5,6 +5,7 @@ jobs:
     docker:
       - image: circleci/java:latest
     steps:
+      - setup_remote_docker
       - checkout
       - run:
           name: Compile the project
