@@ -78,7 +78,7 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
     val output: List[String] = dockerTask.getProcessOutput().toList
 
-    assert(output.size > 2)
+    assert(output.size >= 2)
   }
 
 }
