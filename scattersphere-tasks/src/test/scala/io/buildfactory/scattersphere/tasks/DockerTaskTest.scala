@@ -42,7 +42,7 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
     val output: List[String] = dockerTask.getProcessOutput().toList
 
-    assert(output.size > 2)
+    assert(output.size > 1)
     assert(output(0).toLowerCase() contains "total")
   }
 
@@ -60,7 +60,7 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
     val output: List[String] = dockerTask.getProcessOutput().toList
 
-    assert(output.size > 2)
+    assert(output.size > 1)
     assert(output(0).toLowerCase() contains "ps -axwww")
   }
 
@@ -78,7 +78,7 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
 
     val output: List[String] = dockerTask.getProcessOutput().toList
 
-    assert(output.size >= 2)
+    assert(output.size > 1)
   }
 
 }
