@@ -61,7 +61,7 @@ class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
     val output: List[String] = dockerTask.getProcessOutput().toList
 
     assert(output.size > 1)
-    assert(output(0).toLowerCase() contains "ps -axwww")
+    assert(output(1).toLowerCase() contains "ps -axwww")
   }
 
   it should "be able to run curl with --net host flags" in {
