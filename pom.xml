@@ -136,5 +136,13 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>bintray-kensuenobu-scattersphere</id>
+            <name>kensuenobu-scattersphere</name>
+            <url>https://api.bintray.com/maven/kensuenobu/scattersphere/scattersphere/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
 </project>
 
