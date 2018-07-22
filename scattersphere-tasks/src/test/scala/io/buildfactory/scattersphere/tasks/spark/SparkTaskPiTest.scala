@@ -35,7 +35,7 @@ class SparkTaskPiTest extends FlatSpec with Matchers with SimpleLogger {
   SparkCache.save("sparkPiTestCache", new SparkConf()
     .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))
     .setAppName("local pi test")
-    .setJars(Array("target/scattersphere-tasks-0.2.3-tests.jar"))
+    .setJars(Array("target/scattersphere-tasks-0.3.0-tests.jar"))
     .set("spark.ui.enabled", "false"))
 
   "Spark task pi test" should "calculate Pi in the form of a task" in {
