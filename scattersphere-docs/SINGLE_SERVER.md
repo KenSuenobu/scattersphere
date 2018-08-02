@@ -46,4 +46,18 @@ on the filesystem.  The process would be:
 - If the file changes (timestamp or filesize), the JAR file is unregistered, and the
   process repeats itself.
   
+## Task and Job auto-(re)registration
+
+When a JAR file is registered or refreshed in Scattersphere, the following actions
+occur:
+
+- Registry of known `RunnableTask` objects is cleared
+- `ClassLoader` for each of the registered `RunnableTask` objects is released
+- The JAR file that was loaded is checked for any classes that extend `RunnableTask`, and are
+  registered by their class names.
+
+This way, any tasks that are started can be called by specifying the full classpath
+to the `RunnableTask` object.  Only objects that extend `RunnableTask` may be
+run dynamically.
+
 
