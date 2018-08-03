@@ -87,4 +87,8 @@ not be done by the server automatically (unless otherwise designed.)  This way, 
 data to disk.  `JobDefinitions` should be persisted using JSON, so that these entries
 can be easily modified by hand as required.
 
+`Task` definitions do not need to be written to disk, however, the server needs to know
+which JAR file a specified `Task` is associated with if the `JobDefinition` is loaded,
+and the `Task` has not yet been defined.
+
 
