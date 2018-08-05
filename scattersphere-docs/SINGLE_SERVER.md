@@ -91,4 +91,21 @@ can be easily modified by hand as required.
 which JAR file a specified `Task` is associated with if the `JobDefinition` is loaded,
 and the `Task` has not yet been defined.
 
+## Running of Jobs
 
+Once ready to run a `Job`, the specified `Job` is formed from the `JobDefinition` that
+was created on the fly (or loaded in ahead of time.)  Once the `Job` is created dynamically
+using the `Task` definitions therein, it creates a `Job` that can be triggered.
+
+Upon running the `Job`, the `JobExecutor` is fired off internally, and an ID to control
+the job is returned as a handle.
+
+From this handle, you can query the state of the `Job`, just as you can programmatically.
+If the `Job` fails, the failure is stored in the logs from the server, so that the
+user can view the logs and see what the outcome was.  `Jobs` can still be stopped,
+canceled, paused, and such, as they can programmatically.  `Job` handles are the ID
+of the `Job` being run.  When a `Job` is controlled, it is done by its numeric ID.
+
+
+
+ 
