@@ -1,4 +1,4 @@
-# Scattersphere Single Server
+# Scattersphere Single Server Design Document
 
 This document describes the single server use of Scattersphere as a service.  It
 utilizes a registerable set of `.jar` files that contain `Task` objects, which
