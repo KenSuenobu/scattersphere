@@ -105,7 +105,3 @@ If the `Job` fails, the failure is stored in the logs from the server, so that t
 user can view the logs and see what the outcome was.  `Jobs` can still be stopped,
 canceled, paused, and such, as they can programmatically.  `Job` handles are the ID
 of the `Job` being run.  When a `Job` is controlled, it is done by its numeric ID.
-
-
-
- 
