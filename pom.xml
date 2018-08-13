@@ -48,6 +48,7 @@
         <module>scattersphere-core</module>
         <module>scattersphere-tasks</module>
         <module>scattersphere-base</module>
+        <module>scattersphere-server</module>
     </modules>
 
     <build>
