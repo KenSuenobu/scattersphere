@@ -23,7 +23,7 @@ the like.  It is designed to be self-contained, and extensible.
 ## Dependencies
 
 - [Scala 2.11.12](https://www.scala-lang.org)
-- [Spark 2.3.2](http://spark.apache.org)
+- [Spark 2.3.1](http://spark.apache.org)
 
 **And that's all**
 
