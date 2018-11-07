@@ -3,7 +3,7 @@
 # CircleCI script used to start a Spark instance
 # This script should not be used outside of the CircleCI network; this is just for CircleCI testing.
 
-VERSION="2.3.2"
+VERSION="2.4.0"
 
 echo "Downloading Spark ${VERSION}"
 echo
