@@ -27,6 +27,10 @@ the like.  It is designed to be self-contained, and extensible.
 
 **And that's all**
 
+NOTE: Spark is only required if you plan on coordinating jobs using the Spark framework.  If you don't,
+you can just use Scattersphere in a single server setup.  Scattersphere will be run as a server on
+distributed servers eventually.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](/scattersphere-docs/CONTRIBUTING.md)
