@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- Latest Java 8 SDK
-- Latest Apache Ant
+- Java 11 SDK or higher (LTS version recommended)
+- Maven 3.6 or higher
 
 ## Building
 

@@ -22,9 +22,10 @@ package io.buildfactory.scattersphere.core.util
 
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class PauseResumeJobTest extends FlatSpec with Matchers with SimpleLogger {
+class PauseResumeJobTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   class SleeperRunnable(time: Int) extends Runnable {
     override def run(): Unit = {

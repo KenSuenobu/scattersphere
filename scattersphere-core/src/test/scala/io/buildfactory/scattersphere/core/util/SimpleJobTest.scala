@@ -22,7 +22,8 @@ package io.buildfactory.scattersphere.core.util
 
 import io.buildfactory.scattersphere.core.util.execution.{DuplicateJobNameException, InvalidTaskStateException, JobExecutor, JobNotFoundException}
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * This is a really simple test - all it checks is that jobs can be created with tasks, the tasks run, and all of
@@ -30,7 +31,7 @@ import org.scalatest.{FlatSpec, Matchers}
   * tasks that create a large DAG.  This code creates a simple set of DAGs: One that follows one after another, and
   * one that runs multiple tasks asynchronously.
   */
-class SimpleJobTest extends FlatSpec with Matchers with SimpleLogger {
+class SimpleJobTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   class RunnableTestTask(name: String) extends Runnable {
     var setVar: Int = 0

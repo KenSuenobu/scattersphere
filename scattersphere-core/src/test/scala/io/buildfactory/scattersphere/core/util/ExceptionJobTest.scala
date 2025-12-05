@@ -24,9 +24,10 @@ import java.util.concurrent.CompletionException
 
 import io.buildfactory.scattersphere.core.util.execution.{DuplicateTaskNameException, InvalidJobExecutionStateException, InvalidTaskDependencyException, JobExecutor}
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ExceptionJobTest extends FlatSpec with Matchers with SimpleLogger {
+class ExceptionJobTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   class TimerJob(duration: Int) extends Runnable {
     override def run(): Unit = {

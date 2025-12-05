@@ -29,7 +29,8 @@ import io.buildfactory.scattersphere.core.util.spark.SparkCache
 import io.buildfactory.scattersphere.core.util.{JobBuilder, TaskBuilder}
 import io.buildfactory.scattersphere.tasks.spark.SparkRealWorldTest._
 import org.apache.spark.SparkConf
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable
@@ -37,7 +38,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.util.Properties
 
-class SparkRealWorldTest extends FlatSpec with Matchers with SimpleLogger {
+class SparkRealWorldTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   SparkCache.save("realWorldTest", new SparkConf()
     .setMaster(Properties.envOrElse("SPARK_MASTER", "local[*]"))

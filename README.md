@@ -12,8 +12,8 @@ the like.  It is designed to be self-contained, and extensible.
 
 ## Prerequisites
 
-- Java 8 SDK
-- Apache Ant
+- Java 11 SDK or higher (LTS version recommended)
+- Maven 3.6+ (for building)
 
 ## Getting Started
 
@@ -22,8 +22,8 @@ the like.  It is designed to be self-contained, and extensible.
 
 ## Dependencies
 
-- [Scala 2.11.12](https://www.scala-lang.org)
-- [Spark 2.3.2](http://spark.apache.org)
+- [Scala 2.13.12](https://www.scala-lang.org)
+- [Spark 3.5.3](http://spark.apache.org)
 
 **And that's all**
 

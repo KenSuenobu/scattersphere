@@ -23,9 +23,10 @@ package io.buildfactory.scattersphere.tasks
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util._
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DelayedTaskTest extends FlatSpec with Matchers with SimpleLogger {
+class DelayedTaskTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   "Delayed Task" should "delay 5 seconds before running a job" in {
     class SleeperThread extends Runnable {

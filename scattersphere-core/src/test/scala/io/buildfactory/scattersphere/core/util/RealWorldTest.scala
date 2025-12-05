@@ -26,7 +26,8 @@ import java.util.regex.{Matcher, Pattern}
 
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable
@@ -36,7 +37,7 @@ import scala.io.Source
   * This will eventually contain a series of real world tests that provide a way to show real use cases in
   * Scattersphere.
   */
-class RealWorldTest extends FlatSpec with Matchers with SimpleLogger {
+class RealWorldTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   /**
     * This first example walks a series of URLs and:

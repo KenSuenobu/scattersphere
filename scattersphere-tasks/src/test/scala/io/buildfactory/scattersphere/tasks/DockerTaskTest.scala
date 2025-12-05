@@ -24,9 +24,10 @@ import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util._
 import io.buildfactory.scattersphere.core.util.{Job, JobBuilder, Task, TaskBuilder}
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DockerTaskTest extends FlatSpec with Matchers with SimpleLogger {
+class DockerTaskTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   "Docker task" should "be able to get ubuntu and run a command within its container" in {
     val dockerTask: DockerTask = new DockerTask("centos", "/bin/ls -al /etc/")

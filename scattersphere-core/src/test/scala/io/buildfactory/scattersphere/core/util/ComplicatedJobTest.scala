@@ -24,14 +24,15 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * ComplicatedJobTest
   *
   * These tasks are more complicated.
   */
-class ComplicatedJobTest extends FlatSpec with Matchers with SimpleLogger {
+class ComplicatedJobTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   class RunnableTestTask(name: String) extends Runnable {
     var setVar: String = ""

@@ -25,9 +25,10 @@ import java.util.concurrent.CompletionException
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util._
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ShellTaskTest extends FlatSpec with Matchers with SimpleLogger {
+class ShellTaskTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   "Shell Task" should "be able to call /bin/ls -al /etc" in {
     val shellTask: ShellTask = new ShellTask("/bin/ls -al /etc/")

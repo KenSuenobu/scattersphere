@@ -25,9 +25,10 @@ import java.util.concurrent.CompletionException
 import io.buildfactory.scattersphere.core.util.execution.JobExecutor
 import io.buildfactory.scattersphere.core.util._
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RepeatingTaskTest extends FlatSpec with Matchers with SimpleLogger {
+class RepeatingTaskTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   "Repeating task" should "repeat a task 20 times" in {
     class TestRunnable extends RunnableTask {

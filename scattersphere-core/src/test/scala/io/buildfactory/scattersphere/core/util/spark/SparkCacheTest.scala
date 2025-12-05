@@ -23,7 +23,8 @@ package io.buildfactory.scattersphere.core.util.spark
 import io.buildfactory.scattersphere.core.util.logging.SimpleLogger
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.math.random
 import scala.util.Properties
@@ -33,7 +34,7 @@ import scala.util.Properties
   *
   * @since 0.2.0
   */
-class SparkCacheTest extends FlatSpec with Matchers with SimpleLogger {
+class SparkCacheTest extends AnyFlatSpec with Matchers with SimpleLogger {
 
   "Spark Cache" should "calculate Pi quickly in a local[*] context" in {
     SparkCache.save("test", new SparkConf()

@@ -61,7 +61,7 @@ class DockerTask(containerName: String, command: String) extends RunnableTask wi
     *
     * @return stream of string objects
     */
-  def getProcessOutput(): Stream[String] = processBuilder.lineStream
+  def getProcessOutput(): LazyList[String] = processBuilder.lineStream.to(LazyList)
 
   override def onFinished(): Unit = {
     logger.trace(s"Command finished: ${command}")
